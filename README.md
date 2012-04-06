@@ -22,6 +22,15 @@ Anything about networking goes in the net folder.
 ### MISC ###
 In this directory goes everything that does not fit in the other directories defined above.
 
+
+## Naming Standards ##
+
+Proposals for new standards must be named Proposal_<Subject>_<UID>.txt, where UID is a number starting by 1, incremented by 1 for each new proposal.
+Updates for a proposal should be submitted via updates to the file, not with a new file.
+
+Standards are named Standard_<Subject>.md and should adhere the [markdown format](http://daringfireball.net/projects/markdown/) 
+
+
 ## Community ##
 
 With pull requests you can propose changes to drafts or create new drafts.
