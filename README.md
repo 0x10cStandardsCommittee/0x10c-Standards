@@ -28,8 +28,8 @@ With pull requests you can propose changes to drafts or create new drafts.
 
 The issues section should be used to comment on the documents and to suggest changes to make them better.
 
-You can discuss the ideas, drafts and standards via IRC:
-#0x10c-std @ FreeNode.net
+Everything that is not directly about the standards should go to  
+[#0x10c-dev](irc://irc.freenode.net/#0x10c-dev) @ FreeNode.net
 
-Everything that is not direct about the standards should go to
-#0x10c-dev @ FreeNode.net
+You can discuss the ideas, drafts and standards via IRC:  
+[#0x10c-std](irc://irc.freenode.net/#0x10c-std) @ FreeNode.net
