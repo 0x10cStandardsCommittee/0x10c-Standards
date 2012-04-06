@@ -1,0 +1,63 @@
+On April 5 2012, #0x10c-dev agreed to the following standard ABI:
+
+- Registers A, B, C are clobberable across calls
+
+- Registers I, J, X, Y, Z are preserved across calls
+
+- Return in A
+
+- J is used for base stack pointer (preserving the value of SP before allocating
+  data for locals)
+
+- Function local variables are kept on the stack
+
+- Caller cleans stack
+
+- First three arguments to A, B, C, remaining arguments pushed right-to-left onto
+  the stack
+
+--------------------------------------------------------------------------------
+For example: myfunc(foo,bar,baz,flee,fuzz) A = foo, B = bar, C = baz, top of 
+stack = flee, next on stack = fuzz
+
+- Varargs: follow normal rules, except the entire "..." must go on the stack 
+  even if it's one of the first three arguments
+
+- No stupid tricks with the overflow flag
+
+EXAMPLE FUNCTION CALL:
+
+# func(1, 2, 3, 4, 5);
+
+# first 3 arguments are passed via registers
+SET A, 1
+SET B, 2
+SET C, 3
+# 4 and 5 are pushed to stack in reverse order
+SET PUSH, 5
+SET PUSH, 4
+JSR func
+ADD SP, 2 # callers cleans up the stack (two passed words)
+
+EXAMPLE FUNCTION PROLOGUE/EPILOGUE:
+
+# Prologue:
+SET PUSH, J
+SET J, SP
+SUB SP, 5 # Reserve 5 words for function locals
+
+# Function body:
+SET A, [J-1] # Access first local variable
+SET B, [J+1] # Access 3rd function argument
+SET C, [J+2] # Access 4th function argument
+
+# etc ...
+
+# Epilogue:
+SET A, return_value
+SET SP, J
+SET J, POP
+SET PC, POP # return
+
+Last updated for DCPU16v11
+example by masterm
