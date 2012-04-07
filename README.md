@@ -27,9 +27,20 @@ In this directory goes everything that does not fit in the other directories def
 
 If you have a proposal, idea or comment regarding upcoming or new standards, you can make an issue about it.
 
-From these issues, a Draft will be created using Pull Requests. The draft will be named Draft\_\<Subject\>\_\<UID\>.txt, where the uid is an unsigned integer starting at 1.
+From these issues, a Draft will be created using Pull Requests, with the format Draft\_\<Subject\>.txt.
 
 When the community agrees on the draft being a standard, and the game is expected to not collide with the standard in a later stage, the draft will be renamed Standard_\<Subject\>.md.
+
+
+## Voting ##
+
+Voting times will be based on their importance and impact:
+
+### LOW IMPORTANCE ###
+LOW IMPORTANCE votes are votes for minor changes such as naming standards and file formats. Expected time: 15-30 minutes.
+
+### HIGH IMPORTANCE ###
+HIGH IMPORTANCE votes are votes for major changes such as method call conventions. Expected time: At least 24 hours, to give people across the world enough time to vote.
 
 
 ## Community ##
