@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc private="RFC X1000 (Draft-Misc)" ?>
+<rfc ipr="none" number="1000" category="info" docName="draft-specification-formatting-conventions">
+  <front>
+    <title abbrev="Specification Conventions">Specification Formatting Conventions</title>
+
+    <author fullname="James Rhodes" initials="J.R." role="editor"
+            surname="Rhodes">
+      <organization>Redpoint Software</organization>
+
+      <address>
+        <email>jrhodes@redpointsoftware.com.au</email>
+        <uri>http://www.redpointsoftware.com.au/</uri>
+      </address>
+    </author>
+
+    <date month="April" year="2012" />
+    <area>Misc</area>
+    <workgroup>0x10c Standards Committee</workgroup>
+    <abstract>
+      <t>This draft provides guidelines on formatting draft specifications
+      for submission to the 0x10c standards committee.  It is designed
+      to loosely correlate with the formatting of RFCs.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+      <t>Currently there are no standards defined for the formatting
+      of standards to the committee.  This RFC proposes using the
+      standards already in place in RFCs globally.</t>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+    </section>
+    
+    <section anchor="numbering" title="Numbering RFCs">
+      <t>The numbering prefix of RFCs submitted to the 0x10c
+      standards committee begins at X1000, as these
+      RFCs are independent of the globally recognised list of RFCs.
+      Hence this document forms RFC X1000.</t>
+      <t>For the purposes of strict number values (such as the
+      number field </t>
+    </section>
+    
+    <section anchor="referencing" title="Referencing RFCs">
+      <t>This is an example of how you would change the DOCTYPE if
+      you wanted to reference RFC X1000 in your own XRFC.</t>
+      <t><![CDATA[
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY rfcx1000 SYSTEM
+"https://raw.github.com/hach-que/0x10c-Standards/master/MISC/Draft_Spec_Formatting_Conventions.xml">
+]>
+]]></t>
+      <t>Then in the references section, do:</t>
+      <t>&amp;rfcx1000;</t>
+    </section>
+
+    <section anchor="formatting" title="Formatting">
+      <t>Authors of RFCs for submission to the 0x10c standards
+      committee are RECOMMENDED to use xml2ref as specified in <xref
+      target="RFC2629">RFC 2629</xref> for initially drafting
+      specifications they wish to submit.</t>
+      <t>When authors want to submit their RFC they MUST include
+      both the original source file if applicable (such as the
+      .xml file if using xml2rfc) and a resulting plain text
+      document that MUST formatted according to RFC conventions.</t>
+      <t>The website <eref target="http://xml.resource.org/">
+      http://xml.resource.org/</eref> is noted
+      to have an online formatter than can perform this conversion
+      for authors.</t>
+    </section>
+
+    <section anchor="authors" title="Author Notation">
+      <t>Authors of RFCs MUST include their email address as part
+      of their author status in an RFC.</t>
+      <t>Authors of RFCs MAY include an URI that is unique to them.</t>
+      <t>Inclusion of other information is OPTIONAL.</t>
+    </section>
+
+    <section anchor="required-sections" title="Required Sections">
+      <t>Authors of RFCs MUST provide a section for security
+      considerations as specified in <xref target="RFC3552">RFC
+      3552</xref>.</t>
+    </section>
+
+    <section anchor="additional-notes" title="Additional Notes">
+      <t>It is RECOMMENDED to authors of RFCs to look at the source
+      file of this RFCs to gain a guideline on how RFCs are
+      constructed with xml2rfc.</t>
+    </section>
+    
+    <section anchor="Security" title="Security Considerations">
+      <t>This memo has no applicable security considerations.</t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      <?rfc include="reference.RFC.2119.xml"?>
+      <?rfc include="reference.RFC.2629.xml"?>
+      <?rfc include="reference.RFC.3552.xml"?>
+    </references>
+  </back>
+
+</rfc>
+
