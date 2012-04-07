@@ -23,12 +23,13 @@ Anything about networking goes in the net folder.
 In this directory goes everything that does not fit in the other directories defined above.
 
 
-## Naming Standards ##
+## Procedures and Naming Standards ##
 
-Proposals for new standards must be named Proposal_<Subject>_<UID>.txt, where UID is a number starting by 1, incremented by 1 for each new proposal.
-Updates for a proposal should be submitted via updates to the file, not with a new file.
+If you have a proposal, idea or comment regarding upcoming or new standards, you can make an issue about it.
 
-Standards are named Standard_<Subject>.md and should adhere the [markdown format](http://daringfireball.net/projects/markdown/) 
+From these issues, a Draft will be created using Pull Requests. The draft will be named Draft\_\<Subject\>\_\<UID\>.txt, where the uid is an unsigned integer starting at 1.
+
+When the community agrees on the draft being a standard, and the game is expected to not collide with the standard in a later stage, the draft will be renamed Standard_\<Subject\>.md.
 
 
 ## Community ##
