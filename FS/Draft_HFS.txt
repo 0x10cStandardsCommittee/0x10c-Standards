@@ -31,7 +31,7 @@ All sizes are given in words (16 bits)
  * num_blocks is the number of data blocks in the filesystem
  * inode_start is the absolute position on the disk of the first inode
  * block_start is absolute position on the disk of the first block
- * block_size is the total size of the data block structure in words
+ * block_size is the total size of the data block structure in words. block_size must be a power of two
  * padding is to make the header 16 words long to make sure that the first inode is aligned nicely
  
 
@@ -40,18 +40,18 @@ All sizes are given in words (16 bits)
     | Size |     Name     |
     +------+--------------+
     |    1 | flags        |
-    |   27 | file_name    |
     |    1 | parent_inode |
     |    2 | file_size    |
     |    1 | block_index  |
+    |   27 | file_name    |
     +------+--------------+
 inodes are stored contiguously, the first inode has an index of 0 and is the root directory
 
  * flags contains all the bit flags for the inode
- * file_name is a null terminated string, only alphanumeric characters, periods(.) and underscores(_) are allowed. The maximum filename length is 26 characters
  * parent_inode is the inode of the directory this file is stored in
  * file_size is the length of the file in words
  * block_index is the index of the first block of the file
+ * file_name is a null terminated string, only alphanumeric characters, periods(.) and underscores(_) are allowed. The maximum filename length is 26 characters
 
 ### inode flags ###
     +-------+---------------+
