@@ -22,7 +22,8 @@ All sizes are given in words (16 bits)
     |    1 | num_blocks  |
     |    2 | block_start |
     |    2 | inode_start |
-    |    9 | padding     |
+    |    1 | block_size  |
+    |    8 | padding     |
     +------+-------------+
 
  * version is split into 2 bytes. The first byte is the magic number 0x40, which is the chosen magic number for HFS. The second byte is the major version of HFS.
@@ -30,27 +31,26 @@ All sizes are given in words (16 bits)
  * num_blocks is the number of data blocks in the filesystem
  * inode_start is the absolute position on the disk of the first inode
  * block_start is absolute position on the disk of the first block
+ * block_size is the total size of the data block structure in words
  * padding is to make the header 16 words long to make sure that the first inode is aligned nicely
  
 
-### inode - 16 words ###
+### inode - 32 words ###
     +------+--------------+
     | Size |     Name     |
     +------+--------------+
     |    1 | flags        |
-    |   11 | file_name    |
-    |    1 | num_handles  |
+    |   27 | file_name    |
     |    1 | parent_inode |
-    |    1 | file_size    |
+    |    2 | file_size    |
     |    1 | block_index  |
     +------+--------------+
 inodes are stored contiguously, the first inode has an index of 0 and is the root directory
 
- * file_name is a ascii, null terminated string, only alphanumeric characters, periods(.) and underscores(_) are allowed. Each word contains two characters, this makes the maximum filename length 21 characters.
  * flags contains all the bit flags for the inode
- * num_hanldes is the number of open file handles there are to this inode
+ * file_name is a null terminated string, only alphanumeric characters, periods(.) and underscores(_) are allowed. The maximum filename length is 26 characters
  * parent_inode is the inode of the directory this file is stored in
- * file_size is the length of the file
+ * file_size is the length of the file in words
  * block_index is the index of the first block of the file
 
 ### inode flags ###
@@ -67,16 +67,16 @@ Bit 0 is the LSB, Bit 15 is the MSB
 
  * file_exists is 0 when the inode isn't in use, 1 when the inode refers to a file
  * is_directory is 0 when the inode is for a file, 1 when the inode is for a directory
- * is_writable is 0 when the inode is not read-only, 1 when modifiable
+ * is_writable is 0 when the inode is not read-only, 1 when modifiable. When read-only the only change that can be made to the inode is to disable the is_writable flag.
 
 
-### data block - 512 words ###
-    +------+------------------+
-    | Size | Name             |
-    +------+------------------+
-    |    1 | next_block_index |
-    |  511 | raw_data         |
-    +------+------------------+
+### data block - block_size words ###
+    +---------------+------------------+
+    |      Size     | Name             |
+    +---------------+------------------+
+    |           1   | next_block_index |
+    |  block_size-1 | raw_data         |
+    +---------------+------------------+
 data blocks are stored contiguously, the first block has an index of 0
 
  * next_block_index is the index of the next block of file data
