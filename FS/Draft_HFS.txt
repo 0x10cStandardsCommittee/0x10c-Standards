@@ -1,0 +1,83 @@
+HFS - Harry's File System
+=========================
+Version 1.0
+
+HFS is a file system designed to be used on the DCPU-16 in 0x10c.
+
+This refers to the datastructure of the filesystem.
+It should be possible to implement HFS using only the structure as a reference.
+
+Note: The major version only changes when compatibility is broken.
+
+Data structure on disk
+----------------------
+All sizes are given in words (16 bits)
+
+### header - 16 words ###
+    +------+-------------+
+    | Size |    Name     |
+    +------+-------------+
+    |    1 | version     | 
+    |    1 | num_inodes  |
+    |    1 | num_blocks  |
+    |    2 | block_start |
+    |    2 | inode_start |
+    |    9 | padding     |
+    +------+-------------+
+
+ * version is split into 2 bytes. The first byte is the magic number 0x40, which is the chosen magic number for HFS. The second byte is the major version of HFS.
+ * num_inodes is the number of inodes in the filesystem
+ * num_blocks is the number of data blocks in the filesystem
+ * inode_start is the absolute position on the disk of the first inode
+ * block_start is absolute position on the disk of the first block
+ * padding is to make the header 16 words long to make sure that the first inode is aligned nicely
+ 
+
+### inode - 16 words ###
+    +------+--------------+
+    | Size |     Name     |
+    +------+--------------+
+    |    1 | flags        |
+    |   11 | file_name    |
+    |    1 | num_handles  |
+    |    1 | parent_inode |
+    |    1 | file_size    |
+    |    1 | block_index  |
+    +------+--------------+
+inodes are stored contiguously, the first inode has an index of 0 and is the root directory
+
+ * file_name is a ascii, null terminated string, only alphanumeric characters, periods(.) and underscores(_) are allowed. Each word contains two characters, this makes the maximum filename length 21 characters.
+ * flags contains all the bit flags for the inode
+ * num_hanldes is the number of open file handles there are to this inode
+ * parent_inode is the inode of the directory this file is stored in
+ * file_size is the length of the file
+ * block_index is the index of the first block of the file
+
+### inode flags ###
+    +-------+---------------+
+    |  Bit  |      Name     |
+    +-------+---------------+
+    |     0 | file_exists   |
+    |     1 | is_directory  |
+    |     2 | is_executable |
+    |     3 | is_writable   |
+    | 4->15 | reserved      |
+    +-----+-----------------+
+Bit 0 is the LSB, Bit 15 is the MSB
+
+ * file_exists is 0 when the inode isn't in use, 1 when the inode refers to a file
+ * is_directory is 0 when the inode is for a file, 1 when the inode is for a directory
+ * is_writable is 0 when the inode is not read-only, 1 when modifiable
+
+
+### data block - 512 words ###
+    +------+------------------+
+    | Size | Name             |
+    +------+------------------+
+    |    1 | next_block_index |
+    |  511 | raw_data         |
+    +------+------------------+
+data blocks are stored contiguously, the first block has an index of 0
+
+ * next_block_index is the index of the next block of file data
+ * raw_data is the raw file data
