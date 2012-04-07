@@ -48,8 +48,8 @@ SUB SP, 5 # Reserve 5 words for function locals
 
 # Function body:
 SET A, [J-1] # Access first local variable
-SET B, [J+1] # Access 3rd function argument
-SET C, [J+2] # Access 4th function argument
+SET B, [J+1] # Access 4rd function argument
+SET C, [J+2] # Access 5th function argument
 
 # etc ...
 
