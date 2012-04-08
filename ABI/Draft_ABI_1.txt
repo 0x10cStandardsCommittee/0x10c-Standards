@@ -6,9 +6,6 @@ On April 5 2012, #0x10c-dev agreed to the following standard ABI:
 
 - Return in A
 
-- J is used for base stack pointer (preserving the value of SP before allocating
-  data for locals)
-
 - Function local variables are kept on the stack
 
 - Caller cleans stack
@@ -25,6 +22,11 @@ Note: A compiler is free to optimize away pointless preservations of registers.
 
 The storage location of preserved copies of registers must be re-entrant safe.
 (For all practical purposes, on the stack.)
+
+Non-required suggestions for convention:
+
+- J is used for base stack pointer (preserving the value of SP before allocating
+  data for locals)
 
 --------------------------------------------------------------------------------
 
