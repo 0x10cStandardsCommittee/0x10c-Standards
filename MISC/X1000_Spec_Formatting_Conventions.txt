@@ -1,4 +1,4 @@
-RFC X1000 (Draft-Misc)                                    J. Rhodes, Ed.
+RFC X1000 (Standard-Misc)                                 J. Rhodes, Ed.
                                                        Redpoint Software
                                                               April 2012
 
@@ -24,7 +24,7 @@ Table of Contents
    7.  Additional Notes  . . . . . . . . . . . . . . . . . . . . . . . 3
    8.  Security Considerations . . . . . . . . . . . . . . . . . . . . 3
    9.  Normative References  . . . . . . . . . . . . . . . . . . . . . 3
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 4
 
 
 
@@ -74,7 +74,10 @@ Rhodes                                                          [Page 1]
    globally recognised list of RFCs.  Hence this document forms RFC
    X1000.
 
-   For the purposes of strict number values (such as the number field
+   RFCs do not have a number assigned to them when they are initially
+   submitted as drafts.  Only once an RFC is voted to be standard by the
+   committee is it assigned the number, whichever the next freely
+   available number is in the numbering sequence.
 
 
 3.  Referencing RFCs
@@ -84,7 +87,7 @@ Rhodes                                                          [Page 1]
 
    <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [ <!ENTITY rfcx1000 SYSTEM "https:
    //raw.github.com/hach-que/0x10c-Standards/master/MISC/
-   Draft_Spec_Formatting_Conventions.xml"> ]>
+   X1000_Spec_Formatting_Conventions.xml"> ]>
 
    Then in the references section, do:
 
@@ -99,9 +102,6 @@ Rhodes                                                          [Page 1]
 
    When authors want to submit their RFC they MUST include both the
    original source file if applicable (such as the .xml file if using
-   xml2rfc) and a resulting plain text document that MUST formatted
-   according to RFC conventions.
-
 
 
 
@@ -109,6 +109,9 @@ Rhodes                                                          [Page 2]
 
                         Specification Conventions             April 2012
 
+
+   xml2rfc) and a resulting plain text document that MUST formatted
+   according to RFC conventions.
 
    The website http://xml.resource.org/ is noted to have an online
    formatter than can perform this conversion for authors.
@@ -153,9 +156,6 @@ Rhodes                                                          [Page 2]
    [RFC3552]  Rescorla, E. and B. Korver, "Guidelines for Writing RFC
               Text on Security Considerations", BCP 72, RFC 3552,
               July 2003.
-
-
-
 
 
 
