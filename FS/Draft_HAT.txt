@@ -18,15 +18,17 @@ All sizes are given in words (16 bits)
     | Size |    Name     |
     +------+-------------+
     |    1 | version     | 
+    |    1 | flags       |
     |    1 | num_inodes  |
     |    1 | num_blocks  |
     |    2 | block_start |
     |    2 | inode_start |
     |    1 | block_size  |
-    |    8 | padding     |
+    |    7 | padding     |
     +------+-------------+
 
  * version is split into 2 bytes. The first byte is the magic number 0x40, which is the chosen magic number for HAT. The second byte is the major version of HAT.
+ * flags contains flags pertaining to the state of the filesystem
  * num_inodes is the number of inodes in the filesystem
  * num_blocks is the number of data blocks in the filesystem
  * inode_start is the absolute position on the disk of the first inode
@@ -34,6 +36,17 @@ All sizes are given in words (16 bits)
  * block_size is the total size of the data block structure in words. block_size must be a power of two
  * padding is to make the header 16 words long to make sure that the first inode is aligned nicely
  
+
+### header flags ###
+    +-------+---------------+
+    |  Bit  |      Name     |
+    +-------+---------------+
+    |     0 | is_mounted    |
+    | 1->15 | reserved      |
+    +-----+-----------------+
+Bit 0 is the LSB, Bit 15 is the MSB
+
+ * is_mounted is used to check whether HAT was cleanly unmounted. While mounted it must be set to 1, when unmounted it must be set to 0
 
 ### inode - 32 words ###
     +------+--------------+
