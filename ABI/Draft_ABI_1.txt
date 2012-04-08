@@ -13,8 +13,10 @@ On April 5 2012, #0x10c-dev agreed to the following standard ABI:
 - First three arguments to A, B, C, remaining arguments pushed right-to-left onto
   the stack
 
-- Varargs: follow normal rules, except the entire "..." must go on the stack 
-  even if it's one of the first three arguments
+- Varargs: follow normal rules; the vararg callee should push C,B,A in its
+prolog to have a nice walkable array, and then clear off these three registers
+from the stack in its epilog. 
+
 
 - No stupid tricks with the overflow flag
 
