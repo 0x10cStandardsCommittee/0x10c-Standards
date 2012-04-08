@@ -1,10 +1,19 @@
 Dear Notch,
 
-I'm writing to you on behalf of #0x10c-dev community at Freenode IRC. We have been discussing various ideas for DCPU-16 for a couple of days now and in the process devised much improved DCPU-16 specification. Our rationale for changes is to keep emulation complexity minimal, yet enable DCPU to be as flexible as possible for people to be able to do really cool stuff with it.
+I'm writing to you on behalf of #0x10c-dev community at Freenode IRC. We have been discussing various ideas for DCPU-16
+for a couple of days now and in the process devised much improved DCPU-16 specification. Our rationale for changes is to
+keep emulation complexity minimal, yet enable DCPU to be as flexible as possible for people to be able to do really cool
+stuff with it.
 
-As you see we also propose very simple interrupts mechanisim. We believe that it is vital for DCPU to become really general-purpose processor since interrupts allow among many things: flexible timers or preemptive task-switching to happen. However we kept the complexity minimal so DCPU is capable of only one interrupt handler and no interrupt queues or priorities. We believe the gains to DCPU capabilites are worth increased emulation cost. Please reconsider implementing this simple interrupt system. :)
+As you see we also propose very simple interrupts mechanisim. We believe that it is vital for DCPU to become really
+general-purpose processor since interrupts allow among many things: flexible timers or preemptive task-switching to
+happen. However we kept the complexity minimal so DCPU is capable of only one interrupt handler and no interrupt
+queues or priorities. We believe the gains to DCPU capabilites are worth increased emulation cost.
 
-As closing words I'd like you to know that we think you're doing great job with 0x10c! We never had this much fun with game that isn't even released yet. Keep up the good work!
+Please reconsider implementing this simple interrupt system. :)
+
+As closing words I'd like you to know that we think you're doing great job with 0x10c! 
+We never had this much fun with game that isn't even released yet. Keep up the good work!
 
 - The #0x10c-dev community.
 
@@ -65,4 +74,5 @@ The handler performs the action
 7. When the handler returned, the vm restores all registers
 ; 8. Optional: set IF to 1
 
-If clearing IF by the VM is ommitted, the handler has to do it to prevent interruption of interrupts. As the VM can do this more easily than the emulated code, making the VM do it is probably easier and faster.
+If clearing IF by the VM is ommitted, the handler has to do it to prevent interruption of interrupts. 
+As the VM can do this more easily than the emulated code, making the VM do it is probably easier and faster.
