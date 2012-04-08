@@ -8,8 +8,8 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<?rfc private="RFC X1000 (Draft-Misc)" ?>
-<rfc ipr="none" number="1000" category="info" docName="draft-specification-formatting-conventions">
+<?rfc private="RFC X1000 (Standard-Misc)" ?>
+<rfc ipr="none" number="1000" category="info" docName="standard-specification-formatting-conventions">
   <front>
     <title abbrev="Specification Conventions">Specification Formatting Conventions</title>
 
@@ -52,8 +52,10 @@
       standards committee begins at X1000, as these
       RFCs are independent of the globally recognised list of RFCs.
       Hence this document forms RFC X1000.</t>
-      <t>For the purposes of strict number values (such as the
-      number field </t>
+      <t>RFCs do not have a number assigned to them when they are
+      initially submitted as drafts.  Only once an RFC is voted to
+      be standard by the committee is it assigned the number, whichever
+      the next freely available number is in the numbering sequence.</t>
     </section>
     
     <section anchor="referencing" title="Referencing RFCs">
@@ -62,7 +64,7 @@
       <t><![CDATA[
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY rfcx1000 SYSTEM
-"https://raw.github.com/hach-que/0x10c-Standards/master/MISC/Draft_Spec_Formatting_Conventions.xml">
+"https://raw.github.com/hach-que/0x10c-Standards/master/MISC/X1000_Spec_Formatting_Conventions.xml">
 ]>
 ]]></t>
       <t>Then in the references section, do:</t>
