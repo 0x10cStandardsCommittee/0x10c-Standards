@@ -21,6 +21,11 @@ On April 5 2012, #0x10c-dev agreed to the following standard ABI:
 
 - No stupid tricks with the overflow flag
 
+Note: A compiler is free to optimize away pointless preservations of registers.
+
+The storage location of preserved copies of registers must be re-entrant safe.
+(For all practical purposes, on the stack.)
+
 --------------------------------------------------------------------------------
 
 EXAMPLE FUNCTION CALL:
