@@ -19,26 +19,27 @@ We never had this much fun with game that isn't even released yet. Keep up the g
 
 *** DCPU16 SPECIFICATION CHANGES FOLLOWS ***
 
-====== Changes to opcodes ======
+====== Changes to opcodes (changes are idented) ======
 
 Values: (6 bits)
-    0x00-0x08: register (A, B, C, X, Y, Z, I, J or SP, in that order)
-    0x09-0x11: [register]
-    0x12-0x1a: [next word + register]
+         0x00-0x08: register (A, B, C, X, Y, Z, I, J or SP, in that order)
+         0x09-0x11: [register]
+         0x12-0x1a: [next word + register]
          0x1b: CR - a control register: 16 control bits, usable for a lot of things like IO.
-         0x1c: PC
-         0x1d: O
-         0x1e: [next word]
-         0x1f: next word (literal)
+    0x1c: PC
+    0x1d: O
+    0x1e: [next word]
+    0x1f: next word (literal)
     0x20-0x3f: literal value 0x00-0x1f (literal)
 
 
 Non-basic opcodes: (6 bits)
-         0x00: reserved for future expansion
-         0x01: JSR a - pushes the address of the next instruction to the stack, then sets PC to a
+    0x00: reserved for future expansion
+    0x01: JSR a - pushes the address of the next instruction to the stack, then sets PC to a
          0x02: PUSH a - effectively the same as SET [--SP],a but one cycle
          0x03: POP a - effectively the same as SET a,[SP++] but one cycle
-    0x04-0x3f: reserved
+         0x04: INT a - in case of an implementation of interrupts, this fires an interrupt with itnerrupt code in a and the registers BC for more options
+         0x04-0x3f: reserved
 
 ====== Interrupts and control register ======
 
@@ -76,3 +77,6 @@ The handler performs the action
 
 If clearing IF by the VM is ommitted, the handler has to do it to prevent interruption of interrupts. 
 As the VM can do this more easily than the emulated code, making the VM do it is probably easier and faster.
+
+An Interrupt Vector Table is considered and would be faster when we reach more than 2 interrupts. A simple implementation
+would be a 4word aligned IVT into the CR. The VM then reads the A-th word (A is the register) from this table and uses that as handler address instead.
