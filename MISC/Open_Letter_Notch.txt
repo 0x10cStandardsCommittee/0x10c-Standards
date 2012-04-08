@@ -1,0 +1,68 @@
+Dear Notch,
+
+I'm writing to you on behalf of #0x10c-dev community at Freenode IRC. We have been discussing various ideas for DCPU-16 for a couple of days now and in the process devised much improved DCPU-16 specification. Our rationale for changes is to keep emulation complexity minimal, yet enable DCPU to be as flexible as possible for people to be able to do really cool stuff with it.
+
+As you see we also propose very simple interrupts mechanisim. We believe that it is vital for DCPU to become really general-purpose processor since interrupts allow among many things: flexible timers or preemptive task-switching to happen. However we kept the complexity minimal so DCPU is capable of only one interrupt handler and no interrupt queues or priorities. We believe the gains to DCPU capabilites are worth increased emulation cost. Please reconsider implementing this simple interrupt system. :)
+
+As closing words I'd like you to know that we think you're doing great job with 0x10c! We never had this much fun with game that isn't even released yet. Keep up the good work!
+
+- The #0x10c-dev community.
+
+*** DCPU16 SPECIFICATION CHANGES FOLLOWS ***
+
+====== Changes to opcodes ======
+
+Values: (6 bits)
+    0x00-0x08: register (A, B, C, X, Y, Z, I, J or SP, in that order)
+    0x09-0x11: [register]
+    0x12-0x1a: [next word + register]
+         0x1b: CR - a control register: 16 control bits, usable for a lot of things like IO.
+         0x1c: PC
+         0x1d: O
+         0x1e: [next word]
+         0x1f: next word (literal)
+    0x20-0x3f: literal value 0x00-0x1f (literal)
+
+
+Non-basic opcodes: (6 bits)
+         0x00: reserved for future expansion
+         0x01: JSR a - pushes the address of the next instruction to the stack, then sets PC to a
+         0x02: PUSH a - effectively the same as SET [--SP],a but one cycle
+         0x03: POP a - effectively the same as SET a,[SP++] but one cycle
+    0x04-0x3f: reserved
+
+====== Interrupts and control register ======
+
+Control Register: (16 bits)
+         0: IF  - interrupt flag. 1 to turn on interrupts
+         1: Reserved
+         2-15: interrupt handler PC: must be 4word aligned.
+
+== Enabling interrupts
+To enable interrupts, the handler address has to be set.
+The handler should be 4-word aligned.
+The program will do something along the lines:
+
+SET X, CR         ; read the control register
+SET Y, myHandler  ; get the address of the handler
+AND Y, 0xFFFC     ; remove lower 2 bits (should already be 0, so this could be ommitted)
+OR X, Y           ; or it to X, the copy of CR
+OR X, 1           ; set the interrupt flag
+SET CR, X         ; put the new data into the control register
+
+== An interrupt occurs
+The virtual machine received an interrupt (or creates one).
+The VM will do the following:
+
+1. Verify the Interrupt Flag is 1 by AND-ing CR with 1 and comparing.
+  If it is 0, skip interrupt handling
+2. It reads the handler from the Control register by AND-in the CR with 0xFFFC
+3. It stores all registers except CR (as it will not change)
+4. It put the interrupt code in A, and additional information in other registers
+; 5. Optional: set IF to 0
+6.  It calls the handler (JSR)
+The handler performs the action
+7. When the handler returned, the vm restores all registers
+; 8. Optional: set IF to 1
+
+If clearing IF by the VM is ommitted, the handler has to do it to prevent interruption of interrupts. As the VM can do this more easily than the emulated code, making the VM do it is probably easier and faster.
