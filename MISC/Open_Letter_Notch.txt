@@ -1,6 +1,6 @@
 Dear Notch,
 
-I'm writing to you on behalf of #0x10c-dev community at Freenode IRC. We have been discussing various ideas for DCPU-16
+I'm writing to you on behalf of #0x10c-std community at Freenode IRC. We have been discussing various ideas for DCPU-16
 for a couple of days now and in the process devised much improved DCPU-16 specification. Our rationale for changes is to
 keep emulation complexity minimal, yet enable DCPU to be as flexible as possible for people to be able to do really cool
 stuff with it.
@@ -15,7 +15,7 @@ Please reconsider implementing this simple interrupt system. :)
 As closing words I'd like you to know that we think you're doing great job with 0x10c! 
 We never had this much fun with game that isn't even released yet. Keep up the good work!
 
-- The #0x10c-dev community.
+- The #0x10c-std community.
 
 *** DCPU16 SPECIFICATION CHANGES FOLLOWS ***
 
