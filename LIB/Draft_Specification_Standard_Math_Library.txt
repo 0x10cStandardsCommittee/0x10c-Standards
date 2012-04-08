@@ -1,0 +1,224 @@
+
+
+
+RFC X1004 (Draft-Lib)                                     M. Edgmon, Ed.
+                                                                 The ACC
+                                                              April 2012
+
+
+                       Standardized Math Library
+
+Abstract
+
+   This draft is being purposed to provide basic math functions that
+   should be present in all machines, along with very arbitrary calling
+   names that should never interfere with programs already on the
+   machine.
+
+
+Table of Contents
+
+   1.  Introduction and Purpose  . . . . . . . . . . . . . . . . . . . 2
+   2.  Requirements Language . . . . . . . . . . . . . . . . . . . . . 2
+   3.  Features  . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+   4.  Advantages  . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+   5.  Disadvantages . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   6.  Standardized Usage  . . . . . . . . . . . . . . . . . . . . . . 3
+   7.  Additional Notes  . . . . . . . . . . . . . . . . . . . . . . . 3
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . . . 3
+   9.  Normative References  . . . . . . . . . . . . . . . . . . . . . 3
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Edgmon                                                          [Page 1]
+
+                        Standardized Math Library             April 2012
+
+
+1.  Introduction and Purpose
+
+   The purposing of this document to the 0x10c standards commitee is to
+   make the proposal for a standard math library, which if the authors
+   of vital utilites such as compilers and assemblers make a
+   standardized library in the future, a math library such as this would
+   be nessacary.  Usage of these standardized implmentations of the math
+   functions would also have the advantage of being equally accurate.
+   Two machines would receive the same result for a Sine function.
+
+   The author of this draft has worked on a library for such this
+   purpose and would like to recomend it to the commitee as the library
+   of choice for the topic of this document.  The author recomends
+   FooMath (https://github.com/MatthewEdgmon/FooMath).
+
+
+2.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted and understood as described in RFC
+   2119 [RFC2119].
+
+
+3.  Features
+
+   FooMath contains functions for working with 16 to 64 bit integers.
+   It includes Sine, Cosine, Tangenent, Exponents, Square Roots, and
+   basic math routines.  However usage of the basic math routines for
+   16-bits acts only as a reference-wrapper function and should not be
+   used.
+
+
+4.  Advantages
+
+   The advantages of adopting a standardized arithmetics library now far
+   outweigh the cons.  If adopted, then mathematics heavy applications
+   (such as those for finding distance between you and a rock mine for
+   example) have a common ground in their calculating.  If the focus of
+   optimizing was spent only on this one library, the amount of time
+   spent on individual apllications optimizing and debugging can be kept
+   to a minimum.  Another advantage is that creating a standard library
+   like in C/C++ would have a big task of rewritting all of the math
+   functions.  Creating and editing one now would decrease the load work
+   on creating one later, when such a proposal is already underway.
+
+
+
+
+
+
+Edgmon                                                          [Page 2]
+
+                        Standardized Math Library             April 2012
+
+
+5.  Disadvantages
+
+   There are no disadvantages.  Time spent working on the library by the
+   author serves only as a minor inconvience at best.
+
+
+6.  Standardized Usage
+
+   Usage of the library as a source file for use in programs for the
+   DCPU-16 should be made to follow these guidelines.  The first
+   guideline is to only use the first callable label of a function.
+   Dissecting the source and looking for mid-function labels to jump to
+   is prohibited and invalidates the standardized usage.
+
+   All functions of the library return in A, per commitee standards, and
+   all functions save working registers before executing.  If any parts
+   of the library are found to be incompatable with the commitee's ABI,
+   please alert the author.
+
+
+7.  Additional Notes
+
+   If FooMath is not a desired choice by the commitee, the author asks
+   it be put on temporarily, and then edited/replaced with a more
+   desired one for whatever reason.
+
+
+8.  Security Considerations
+
+   This memo has no applicable security considerations.
+
+
+9.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC2629]  Rose, M., "Writing I-Ds and RFCs using XML", RFC 2629,
+              June 1999.
+
+   [RFC3552]  Rescorla, E. and B. Korver, "Guidelines for Writing RFC
+              Text on Security Considerations", BCP 72, RFC 3552,
+              July 2003.
+
+
+
+
+
+
+
+
+Edgmon                                                          [Page 3]
+
+                        Standardized Math Library             April 2012
+
+
+Author's Address
+
+   Matthew Edgmon (editor)
+   The ACC
+
+   Email: matthewedgmon@gmail.com
+   URI:   https://github.com/MatthewEdgmon
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Edgmon                                                          [Page 4]
+

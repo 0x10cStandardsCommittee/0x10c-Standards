@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc private="RFC X1004 (Draft-Lib)" ?>
+<rfc ipr="none" number="1004" category="info" docName="draft-specification-standard-math-library">
+
+	<front>
+		<title abbrev="Standardized Math Library">Standardized Math Library</title>
+		<author fullname="Matthew Edgmon" initials="M.E." role="editor"
+            surname="Edgmon">
+			<organization>The ACC</organization>
+			<address>
+				<email>matthewedgmon@gmail.com</email>
+				<uri>https://github.com/MatthewEdgmon</uri>
+			</address>
+		</author>
+		<date day="8th" month="April" year="2012" />
+		<area>Lib</area>
+		<workgroup>0x10c Standards Committee</workgroup>
+		<abstract>
+			<t>This draft is being purposed to provide basic math functions 
+			that should be present in all machines, along with very arbitrary 
+			calling names that should never interfere with programs already 
+			on the machine.</t>
+		</abstract>
+	</front>
+
+	<middle>
+	
+	<section title="Introduction and Purpose">
+		<t>The purposing of this document to the 0x10c standards commitee
+		is to make the proposal for a standard math library, which if the
+		authors of vital utilites such as compilers and assemblers make a
+		standardized library in the future, a math library such as this
+		would be nessacary. Usage of these standardized implmentations of
+		the math functions would also have the advantage of being equally
+		accurate. Two machines would receive the same result for a Sine
+		function.</t>
+		
+		<t>The author of this draft has worked on a library for such this
+		purpose and would like to recomend it to the commitee as the 
+		library of choice for the topic of this document. The author
+		recomends FooMath (https://github.com/MatthewEdgmon/FooMath).</t>
+	</section>
+			
+	<section title="Requirements Language">
+		<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+		"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+		document are to be interpreted and understood as described in <xref
+		target="RFC2119">RFC 2119</xref>.</t>
+	</section>
+	
+	<section title="Features">
+		<t>FooMath contains functions for working with 16 to 64 bit integers.
+		It includes Sine, Cosine, Tangenent, Exponents, Square Roots, and basic
+		math routines. However usage of the basic math routines for 16-bits acts
+		only as a reference-wrapper function and should not be used.</t>
+	</section>
+	
+	<section title="Advantages">
+		<t>The advantages of adopting a standardized arithmetics library
+		now far outweigh the cons. If adopted, then mathematics heavy
+		applications (such as those for finding distance between you and
+		a rock mine for example) have a common ground in their calculating.
+		If the focus of optimizing was spent only on this one library, the
+		amount of time spent on individual apllications optimizing and
+		debugging can be kept to a minimum. Another advantage is that
+		creating a standard library like in C/C++ would have a big task
+		of rewritting all of the math functions. Creating and editing one
+		now would decrease the load work on creating one later, when such
+		a proposal is already underway.</t>
+	</section>
+	
+	<section title="Disadvantages">
+		<t>There are no disadvantages. Time spent working on the library by
+		the author serves only as a minor inconvience at best.</t>
+	</section>
+	
+	<section title="Standardized Usage">
+		<t>Usage of the library as a source file for use in programs for the
+		DCPU-16 should be made to follow these guidelines. The first guideline
+		is to only use the first callable label of a function. Dissecting the
+		source and looking for mid-function labels to jump to is prohibited
+		and invalidates the standardized usage.</t>
+		
+		<t>All functions of the library return in A, per commitee standards,
+		and all functions save working registers before executing. If any parts
+		of the library are found to be incompatable with the commitee's ABI, please
+		alert the author.</t>
+		
+	</section>
+	
+	<section anchor="additional-notes" title="Additional Notes">
+		<t>If FooMath is not a desired choice by the commitee, the author
+		asks it be put on temporarily, and then edited/replaced with a more
+		desired one for whatever reason.</t>
+	</section>
+	
+	<section anchor="Security" title="Security Considerations">
+		<t>This memo has no applicable security considerations.</t>
+	</section>
+	
+	</middle>
+	
+	<back>
+		<references title="Normative References">
+		<?rfc include="reference.RFC.2119.xml"?>
+		<?rfc include="reference.RFC.2629.xml"?>
+		<?rfc include="reference.RFC.3552.xml"?>
+		</references>
+	</back>
+	
+</rfc>
