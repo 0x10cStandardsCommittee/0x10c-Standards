@@ -26,11 +26,11 @@ Values: (6 bits)
          0x09-0x11: [register]
          0x12-0x1a: [next word + register]
          0x1b: CR - a control register: 16 control bits, usable for a lot of things like IO.
-    0x1c: PC
-    0x1d: O
-    0x1e: [next word]
-    0x1f: next word (literal)
-    0x20-0x3f: literal value 0x00-0x1f (literal)
+         0x1c: PC
+         0x1d: O
+         0x1e: [next word]
+         0x1f: next word (literal)
+         0x20-0x3f: literal value 0x00-0x1f (literal)
 
 
 Non-basic opcodes: (6 bits)
