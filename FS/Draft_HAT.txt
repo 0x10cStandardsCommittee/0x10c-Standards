@@ -1,11 +1,11 @@
-HFS - Harry's File System
+HAT - Harry's Allocation Table
 =========================
 Version 1.0
 
-HFS is a file system designed to be used on the DCPU-16 in 0x10c.
+HAT is a file system designed to be used on the DCPU-16 in 0x10c.
 
 This refers to the datastructure of the filesystem.
-It should be possible to implement HFS using only the structure as a reference.
+It should be possible to implement HAT using only the structure as a reference.
 
 Note: The major version only changes when compatibility is broken.
 
@@ -26,7 +26,7 @@ All sizes are given in words (16 bits)
     |    8 | padding     |
     +------+-------------+
 
- * version is split into 2 bytes. The first byte is the magic number 0x40, which is the chosen magic number for HFS. The second byte is the major version of HFS.
+ * version is split into 2 bytes. The first byte is the magic number 0x40, which is the chosen magic number for HAT. The second byte is the major version of HAT.
  * num_inodes is the number of inodes in the filesystem
  * num_blocks is the number of data blocks in the filesystem
  * inode_start is the absolute position on the disk of the first inode
