@@ -1,0 +1,392 @@
+
+
+
+RFC (Draft-Fs)                                           H. Jeffery, Ed.
+                                                           April 9, 2012
+
+
+                        Harry's Allocation Table
+
+Abstract
+
+   This draft provides the specification for the HAT(Harry's Allocation
+   Table) filesystem.  It is intended to provide a clear reference for
+   anyone wishing to implement this filesystem.
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
+   2.  Data Structures . . . . . . . . . . . . . . . . . . . . . . . . 2
+     2.1.  Header  . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+       2.1.1.  version . . . . . . . . . . . . . . . . . . . . . . . . 3
+       2.1.2.  flags . . . . . . . . . . . . . . . . . . . . . . . . . 3
+         2.1.2.1.  is_mounted  . . . . . . . . . . . . . . . . . . . . 3
+       2.1.3.  num_inodes  . . . . . . . . . . . . . . . . . . . . . . 3
+       2.1.4.  num_blocks  . . . . . . . . . . . . . . . . . . . . . . 4
+       2.1.5.  inode_start . . . . . . . . . . . . . . . . . . . . . . 4
+       2.1.6.  inode_start . . . . . . . . . . . . . . . . . . . . . . 4
+       2.1.7.  block_size  . . . . . . . . . . . . . . . . . . . . . . 4
+     2.2.  INode . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+       2.2.1.  flags . . . . . . . . . . . . . . . . . . . . . . . . . 4
+         2.2.1.1.  in_use  . . . . . . . . . . . . . . . . . . . . . . 5
+         2.2.1.2.  is_directory  . . . . . . . . . . . . . . . . . . . 5
+         2.2.1.3.  is_executable . . . . . . . . . . . . . . . . . . . 5
+         2.2.1.4.  is_writable . . . . . . . . . . . . . . . . . . . . 5
+       2.2.2.  parent_inode  . . . . . . . . . . . . . . . . . . . . . 5
+       2.2.3.  content_size  . . . . . . . . . . . . . . . . . . . . . 5
+       2.2.4.  block_index . . . . . . . . . . . . . . . . . . . . . . 6
+       2.2.5.  file_name . . . . . . . . . . . . . . . . . . . . . . . 6
+     2.3.  Block . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+       2.3.1.  next_block_index  . . . . . . . . . . . . . . . . . . . 6
+       2.3.2.  block_data  . . . . . . . . . . . . . . . . . . . . . . 6
+   3.  Security Considerations . . . . . . . . . . . . . . . . . . . . 7
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 7
+
+
+
+
+
+
+
+
+
+
+Jeffery                                                         [Page 1]
+
+                                   HAT                        April 2012
+
+
+1.  Introduction
+
+   Currently there is no standard filesystem designed for use in a
+   system built around the DCPU-16 architecture.  This RFC provides a
+   filesystem designed specifically for use on DCPU-16 systems.
+
+   HAT is designed to be simple and easy to implement while still
+   providing all the features required of a filesystem.
+
+
+2.  Data Structures
+
+   This section defines the data structures that comprise the HAT
+   filesystem.
+
+   All sizes are given in words, which are considered to be 16 bits
+   long.
+
+                                +---------+
+                                | Section |
+                                +---------+
+                                |  Header |
+                                | INode 0 |
+                                | INode 1 |
+                                | INode 2 |
+                                |   ...   |
+                                | Block 0 |
+                                | Block 1 |
+                                | Block 2 |
+                                |   ...   |
+                                +---------+
+
+                       Table 1: Filesystem Structure
+
+2.1.  Header
+
+   This structure contains the header information for HAT.
+
+   The total size of the header is 16 words.
+
+
+
+
+
+
+
+
+
+
+
+
+Jeffery                                                         [Page 2]
+
+                                   HAT                        April 2012
+
+
+                          +------+-------------+
+                          | Size |     Name    |
+                          +------+-------------+
+                          |   1  |   version   |
+                          |   1  |    flags    |
+                          |   1  |  num_inodes |
+                          |   1  |  num_blocks |
+                          |   2  | inode_start |
+                          |   2  | block_start |
+                          |   1  |  block_size |
+                          |   7  |   padding   |
+                          +------+-------------+
+
+                         Table 2: Header Structure
+
+2.1.1.  version
+
+   The version field is a magic number that identifies both that the
+   filesystem in use is HAT and the version of HAT.
+
+   The value of this field must be 0x4001.  This magic number identifies
+   the filesystem as version one of HAT.
+
+2.1.2.  flags
+
+   Bit 0 is the least significant bit, Bit 15 is the most significant
+   bit.
+
+                   +---------+-------------------------+
+                   |   Bit   |           Name          |
+                   +---------+-------------------------+
+                   |    0    |        is_mounted       |
+                   | 1 to 15 | Reserved for future use |
+                   +---------+-------------------------+
+
+                           Table 3: Header Flags
+
+2.1.2.1.  is_mounted
+
+   If this filesystem is currently mounted then this field must be set
+   to 1, otherwise it must be set to 0.
+
+2.1.3.  num_inodes
+
+   This field contains the total number of INodes in the filesystem.
+
+
+
+
+
+
+Jeffery                                                         [Page 3]
+
+                                   HAT                        April 2012
+
+
+2.1.4.  num_blocks
+
+   This field contains the total number of Blocks in the filesystem.
+
+2.1.5.  inode_start
+
+   This field contains the address of the first inode on disk.
+
+2.1.6.  inode_start
+
+   This field contains the address of the first block on disk.
+
+2.1.7.  block_size
+
+   This field contains the size of each block in the filesystem.
+
+   This must be a power of 2, such as 128, 256 or 512.
+
+2.2.  INode
+
+   The INode structure is used to store metadata about files.  It is
+   used to find the contents of the file on disk and the relationship of
+   that file to the directory structure.
+
+   The INode structure is 32 words.
+
+                          +------+--------------+
+                          | Size |     Name     |
+                          +------+--------------+
+                          |   1  |     flags    |
+                          |   1  | parent_inode |
+                          |   2  | content_size |
+                          |   1  |  block_index |
+                          |  27  |   file_name  |
+                          +------+--------------+
+
+                         Table 4: INode Structure
+
+2.2.1.  flags
+
+   Bit 0 is the least significant bit, Bit 15 is the most significant
+   bit.
+
+
+
+
+
+
+
+
+
+Jeffery                                                         [Page 4]
+
+                                   HAT                        April 2012
+
+
+                   +---------+-------------------------+
+                   |   Bit   |           Name          |
+                   +---------+-------------------------+
+                   |    0    |          in_use         |
+                   |    1    |       is_directory      |
+                   |    2    |      is_executable      |
+                   |    3    |       is_writable       |
+                   | 4 to 15 | Reserved for future use |
+                   +---------+-------------------------+
+
+                           Table 5: INode Flags
+
+2.2.1.1.  in_use
+
+   If the INode represents a file or directory in the filesystem that is
+   valid and has not been deleted then this field must be set to 1.  If
+   the INode is not in use then this field must be set to 0.
+
+2.2.1.2.  is_directory
+
+   If the INode represents a file then this flag must be set to 0.  If
+   the INode represents a directory then this flag must be set to 1.
+
+2.2.1.3.  is_executable
+
+   If the INode represents a binary file that can be executed then this
+   flag should be set to 1, otherwise it should be set to 0.
+
+2.2.1.4.  is_writable
+
+   If this flag is set then it must not be possible to write to or
+   modify the file in any way other than changing this flag.
+
+2.2.2.  parent_inode
+
+   This field contains the index of the INode's parent.  Every INode has
+   a parent except for the root INode whose parent is undefined and
+   ignored.
+
+2.2.3.  content_size
+
+   This field behaves differently depending on whether the INode
+   represents a file or a directory.  If the INode represents a file
+   then this field is set to the size of the file's contents in words.
+   If the INode represents a directory then this field is set to the
+   number of children the INode has.
+
+
+
+
+
+Jeffery                                                         [Page 5]
+
+                                   HAT                        April 2012
+
+
+2.2.4.  block_index
+
+   This field contains the index of the first data block.
+
+2.2.5.  file_name
+
+   This field contains a null terminated string, which is the file name
+   of the INode.
+
+   Only alphanumeric characters, periods(.) and underscores(_) are
+   allowed in the filename.
+
+2.3.  Block
+
+   The block structure is used to store raw data for the INodes.  When
+   an INode represents a file, blocks are used to store the file data.
+   When an INode represents a directory, blocks are used to store the
+   children of the INode.
+
+                   +----------------+------------------+
+                   |      Size      |       Name       |
+                   +----------------+------------------+
+                   |        1       | next_block_index |
+                   | block_size - 1 |    block_data    |
+                   +----------------+------------------+
+
+                         Table 6: Block Structure
+
+2.3.1.  next_block_index
+
+   This field contains the index of the block that follows this one.
+   When there is no such block this field's value is undefined as the
+   number of blocks known is determined by the content_size field of the
+   INode structure.
+
+2.3.2.  block_data
+
+   This field is used differently depending on whether the INode that
+   uses this block is representing a file or a directory.
+
+   If the INode is a file then this field contains the raw file data.
+
+   If the INode is a directory then this field contains a list of the
+   INode indexes of the children of the INode.
+
+   The size of this field is determined by the block_size field in the
+   header of the filesystem.
+
+
+
+
+Jeffery                                                         [Page 6]
+
+                                   HAT                        April 2012
+
+
+3.  Security Considerations
+
+   As there is no way to prevent programs from accessing the disk
+   directly and reading/writing data HAT makes no attempt at providing
+   any data security.
+
+
+Author's Address
+
+   Harry Jeffery (editor)
+
+   Email: harry@exec64.co.uk
+   URI:   http://www.exec64.co.uk/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jeffery                                                         [Page 7]
+
