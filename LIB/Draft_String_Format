@@ -1,0 +1,224 @@
+
+
+
+RFC X1005 (Draft-Lib)                                        M. Schuetze
+                                                              April 2012
+
+
+                             String Format
+
+Abstract
+
+   This document presents a general format for strings in libraries
+   intended to be shared accross programs and with other users.
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
+     1.1.  Requirements Language . . . . . . . . . . . . . . . . . . . 2
+     1.2.  Used Terms  . . . . . . . . . . . . . . . . . . . . . . . . 2
+   2.  Structure of P-Strings  . . . . . . . . . . . . . . . . . . . . 2
+   3.  Benefits of P-Strings . . . . . . . . . . . . . . . . . . . . . 3
+   4.  Disadvantages of P-Strings  . . . . . . . . . . . . . . . . . . 3
+   5.  Other Notes . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . . . 4
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schuetze                                                        [Page 1]
+
+                              String Format                   April 2012
+
+
+1.  Introduction
+
+   Shared Libraries depend on certain formats being given.  Strings,
+   being a common argument type for cross-library calls, should
+   therefore be standardized.  Length-prefixed strings are to be used
+   for security and efficency reasons.
+
+1.1.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
+1.2.  Used Terms
+
+   o  "String" or "string" refers to a sequence of characters of
+      variable length.
+
+   o  "P-String", "pstring" or "length-prefixed string" refers to a
+      8-bit value representing the length of the following string,
+      followed by n characters of length n, where n is the value of the
+      length-prefix.
+
+   o  "C-String", "cstring" or "null-terminated string" refers to a
+      sequence of characters that may not include the character with the
+      value 0, followed by the character with value 0 (also known as
+      "null-terminator" or "null character")
+
+   o  "Character" or "character" refers to a group of 16 bits
+      representing a letter, a number, a punctuation mark, or a control
+      character.  A control character is a non-printable character that
+      influences the text.
+
+   o  "Library" or "library" refers to a group of functions that are
+      used across different programs.
+
+   o  "Program" or "program" refers to a sequence of machine
+      instructions for the DCPU.
+
+   o  "User" or "user" refers to any person using or creating a program.
+
+
+2.  Structure of P-Strings
+
+   A P-String is composed of a 8-bit length prefix and a sequence of n
+   characters where n is the value of the prefix.
+
+
+
+
+
+Schuetze                                                        [Page 2]
+
+                              String Format                   April 2012
+
+
+   An example for the string "Hello, World" would be
+
+      | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |10 |11 |12 | Character
+    0 |1 2|3 4|5 6|7 8|9 0|1 2|3 4|5 6|7 8|9 0|1 2|3 4| Byte
+   +--+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |12| H | e | l | l | o | , |   | W | o | r | l | d | Data
+   +--+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                                 Figure 1
+
+   The prefix for such a string MUST be present and MUST represent the
+   exact number of following characters.
+
+
+3.  Benefits of P-Strings
+
+   o  Accessing the length of the string is O(1) fast.
+
+   o  Buffer overflows are prevented by being able to allocate enough
+      space ahead of time.
+
+      *  This also increases the security of programs by preventing
+         arbitrary shell code from being executed.
+
+   o  The null-character can be used in strings, while using it in
+      C-Strings would terminate the string.
+
+   o  The runtime cost of P-String concatenation is O(n), while the
+      runtime cost of C-String concatenation is O(n+m).
+
+
+4.  Disadvantages of P-Strings
+
+   o  Instead of the conventional 0, indexing begins at 1.
+
+   o  Even for fixed-length fields, the first byte would be needed for
+      the length.
+
+
+5.  Other Notes
+
+   o  Since characters in the DCPU are one word (16 bit) wide, the
+      length prefix should indicate the number of following characters,
+      not the number of following bytes.  This would mean a limit of 512
+      characters for a string, which is a reasonable restriction for the
+      DCPU.
+
+
+
+
+
+Schuetze                                                        [Page 3]
+
+                              String Format                   April 2012
+
+
+   o  Cutting off the beginning of a string is more expensive for
+      P-Strings, but cutting off the end is more expensive for C-Strings
+      (other solutions are possible, but introduce memory leaks).
+      Therefore, those two arguments negate each other.
+
+
+6.  Security Considerations
+
+   Using P-Strings reduces the risk of arbitrary shell code being
+   executed by overflowing the input buffer.  However, hidden
+   instructions in the string may be executed later when the sections
+   are not cleared and the stack or instruction pointer is moved there.
+   Measurements should be taken by the user to assure that this does not
+   happen.
+
+
+7.  References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+
+Author's Address
+
+   Malte Schuetze
+
+   Email: malte.schuetze@fgms.de
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schuetze                                                        [Page 4]
+
