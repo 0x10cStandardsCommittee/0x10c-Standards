@@ -32,19 +32,19 @@ Table of Contents
        2.2.2.  flags . . . . . . . . . . . . . . . . . . . . . . . . . 5
          2.2.2.1.  in_use  . . . . . . . . . . . . . . . . . . . . . . 5
          2.2.2.2.  is_directory  . . . . . . . . . . . . . . . . . . . 5
-         2.2.2.3.  is_executable . . . . . . . . . . . . . . . . . . . 5
-         2.2.2.4.  is_writable . . . . . . . . . . . . . . . . . . . . 5
-         2.2.2.5.  check_block_integrity . . . . . . . . . . . . . . . 5
+         2.2.2.3.  check_block_integrity . . . . . . . . . . . . . . . 5
        2.2.3.  parent_inode  . . . . . . . . . . . . . . . . . . . . . 5
-       2.2.4.  content_size  . . . . . . . . . . . . . . . . . . . . . 6
+       2.2.4.  content_size  . . . . . . . . . . . . . . . . . . . . . 5
        2.2.5.  block_index . . . . . . . . . . . . . . . . . . . . . . 6
        2.2.6.  file_name . . . . . . . . . . . . . . . . . . . . . . . 6
      2.3.  Block . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
        2.3.1.  hash  . . . . . . . . . . . . . . . . . . . . . . . . . 6
-       2.3.2.  next_block_index  . . . . . . . . . . . . . . . . . . . 7
-       2.3.3.  block_data  . . . . . . . . . . . . . . . . . . . . . . 7
+       2.3.2.  next_block_index  . . . . . . . . . . . . . . . . . . . 6
+       2.3.3.  block_data  . . . . . . . . . . . . . . . . . . . . . . 6
    3.  Security Considerations . . . . . . . . . . . . . . . . . . . . 7
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 7
+
+
 
 
 
@@ -235,10 +235,8 @@ Jeffery                                                         [Page 4]
                    +---------+-------------------------+
                    |    0    |          in_use         |
                    |    1    |       is_directory      |
-                   |    2    |      is_executable      |
-                   |    3    |       is_writable       |
-                   |    4    |  check_block_integrity  |
-                   | 5 to 15 | Reserved for future use |
+                   |    2    |  check_block_integrity  |
+                   | 3 to 15 | Reserved for future use |
                    +---------+-------------------------+
 
                            Table 5: INode Flags
@@ -254,17 +252,7 @@ Jeffery                                                         [Page 4]
    If the INode represents a file then this flag must be set to 0.  If
    the INode represents a directory then this flag must be set to 1.
 
-2.2.2.3.  is_executable
-
-   If the INode represents a binary file that can be executed then this
-   flag should be set to 1, otherwise it should be set to 0.
-
-2.2.2.4.  is_writable
-
-   If this flag is not set then it must not be possible to write to or
-   modify the file in any way other than changing this flag.
-
-2.2.2.5.  check_block_integrity
+2.2.2.3.  check_block_integrity
 
    If this flag is set the all blocks that are used by this INode must
    have their integrity checked when read from or written to.
@@ -273,14 +261,6 @@ Jeffery                                                         [Page 4]
 
    This field contains the index of the INode's parent.  Every INode has
    a parent except for the root INode whose parent is undefined and
-
-
-
-Jeffery                                                         [Page 5]
-
-                                   HAT                        April 2012
-
-
    ignored.
 
 2.2.4.  content_size
@@ -290,6 +270,16 @@ Jeffery                                                         [Page 5]
    then this field is set to the size of the file's contents in words.
    If the INode represents a directory then this field is set to the
    number of children the INode has.
+
+
+
+
+
+
+Jeffery                                                         [Page 5]
+
+                                   HAT                        April 2012
+
 
 2.2.5.  block_index
 
@@ -327,16 +317,6 @@ Jeffery                                                         [Page 5]
    field must contain the CRC16 hash of the rest of the rest of the
    block.
 
-
-
-
-
-
-Jeffery                                                         [Page 6]
-
-                                   HAT                        April 2012
-
-
 2.3.2.  next_block_index
 
    This field contains the index of the block that follows this one.
@@ -348,6 +328,14 @@ Jeffery                                                         [Page 6]
 
    This field is used differently depending on whether the INode that
    uses this block is representing a file or a directory.
+
+
+
+
+Jeffery                                                         [Page 6]
+
+                                   HAT                        April 2012
+
 
    If the INode is a file then this field contains the raw file data.
 
@@ -371,6 +359,18 @@ Author's Address
 
    Email: harry@exec64.co.uk
    URI:   http://www.exec64.co.uk/
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

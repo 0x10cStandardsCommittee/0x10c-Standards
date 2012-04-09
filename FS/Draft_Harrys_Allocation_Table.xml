@@ -145,10 +145,8 @@
             <ttcol align="center">Name</ttcol>
             <c>0</c><c>in_use</c>
             <c>1</c><c>is_directory</c>
-            <c>2</c><c>is_executable</c>
-            <c>3</c><c>is_writable</c>
-            <c>4</c><c>check_block_integrity</c>
-            <c>5 to 15</c><c>Reserved for future use</c>
+            <c>2</c><c>check_block_integrity</c>
+            <c>3 to 15</c><c>Reserved for future use</c>
           </texttable>
 
           <section anchor="INodeFlagInUse" title="in_use">
@@ -163,16 +161,6 @@
             </t>
           </section>
     
-          <section anchor="INodeFlagIsExecutable" title="is_executable">
-            <t>If the INode represents a binary file that can be executed then
-            this flag should be set to 1, otherwise it should be set to 0.</t>
-          </section>
-    
-          <section anchor="INodeFlagIsWritable" title="is_writable">
-            <t>If this flag is not set then it must not be possible to write to
-            or modify the file in any way other than changing this flag.</t>
-          </section>
-
           <section anchor="INodeFlagCheckBlockIntegrity" title="check_block_integrity">
             <t>If this flag is set the all blocks that are used by this INode
             must have their integrity checked when read from or written to.</t>
