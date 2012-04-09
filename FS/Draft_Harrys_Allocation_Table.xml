@@ -161,8 +161,8 @@
           </section>
     
           <section anchor="INodeFlagIsWritable" title="is_writable">
-            <t>If this flag is set then it must not be possible to write to or
-            modify the file in any way other than changing this flag.</t>
+            <t>If this flag is not set then it must not be possible to write to
+            or modify the file in any way other than changing this flag.</t>
           </section>
         </section>
 
