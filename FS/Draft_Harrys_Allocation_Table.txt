@@ -255,7 +255,7 @@ Jeffery                                                         [Page 4]
 
 2.2.1.4.  is_writable
 
-   If this flag is set then it must not be possible to write to or
+   If this flag is not set then it must not be possible to write to or
    modify the file in any way other than changing this flag.
 
 2.2.2.  parent_inode
