@@ -28,23 +28,23 @@ Table of Contents
        2.1.6.  inode_start . . . . . . . . . . . . . . . . . . . . . . 4
        2.1.7.  block_size  . . . . . . . . . . . . . . . . . . . . . . 4
      2.2.  INode . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
-       2.2.1.  flags . . . . . . . . . . . . . . . . . . . . . . . . . 4
-         2.2.1.1.  in_use  . . . . . . . . . . . . . . . . . . . . . . 5
-         2.2.1.2.  is_directory  . . . . . . . . . . . . . . . . . . . 5
-         2.2.1.3.  is_executable . . . . . . . . . . . . . . . . . . . 5
-         2.2.1.4.  is_writable . . . . . . . . . . . . . . . . . . . . 5
-       2.2.2.  parent_inode  . . . . . . . . . . . . . . . . . . . . . 5
-       2.2.3.  content_size  . . . . . . . . . . . . . . . . . . . . . 5
-       2.2.4.  block_index . . . . . . . . . . . . . . . . . . . . . . 6
-       2.2.5.  file_name . . . . . . . . . . . . . . . . . . . . . . . 6
+       2.2.1.  hash  . . . . . . . . . . . . . . . . . . . . . . . . . 4
+       2.2.2.  flags . . . . . . . . . . . . . . . . . . . . . . . . . 5
+         2.2.2.1.  in_use  . . . . . . . . . . . . . . . . . . . . . . 5
+         2.2.2.2.  is_directory  . . . . . . . . . . . . . . . . . . . 5
+         2.2.2.3.  is_executable . . . . . . . . . . . . . . . . . . . 5
+         2.2.2.4.  is_writable . . . . . . . . . . . . . . . . . . . . 5
+         2.2.2.5.  check_block_integrity . . . . . . . . . . . . . . . 5
+       2.2.3.  parent_inode  . . . . . . . . . . . . . . . . . . . . . 5
+       2.2.4.  content_size  . . . . . . . . . . . . . . . . . . . . . 6
+       2.2.5.  block_index . . . . . . . . . . . . . . . . . . . . . . 6
+       2.2.6.  file_name . . . . . . . . . . . . . . . . . . . . . . . 6
      2.3.  Block . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
-       2.3.1.  next_block_index  . . . . . . . . . . . . . . . . . . . 6
-       2.3.2.  block_data  . . . . . . . . . . . . . . . . . . . . . . 6
+       2.3.1.  hash  . . . . . . . . . . . . . . . . . . . . . . . . . 6
+       2.3.2.  next_block_index  . . . . . . . . . . . . . . . . . . . 7
+       2.3.3.  block_data  . . . . . . . . . . . . . . . . . . . . . . 7
    3.  Security Considerations . . . . . . . . . . . . . . . . . . . . 7
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 7
-
-
-
 
 
 
@@ -198,21 +198,21 @@ Jeffery                                                         [Page 3]
                           +------+--------------+
                           | Size |     Name     |
                           +------+--------------+
+                          |   1  |     hash     |
                           |   1  |     flags    |
                           |   1  | parent_inode |
                           |   2  | content_size |
                           |   1  |  block_index |
-                          |  27  |   file_name  |
+                          |  26  |   file_name  |
                           +------+--------------+
 
                          Table 4: INode Structure
 
-2.2.1.  flags
+2.2.1.  hash
 
-   Bit 0 is the least significant bit, Bit 15 is the most significant
-   bit.
-
-
+   This field contains the CRC16 hash of the rest of the INode.  The
+   integrity of INodes must be checked when INode's are read from or
+   written to.
 
 
 
@@ -225,6 +225,11 @@ Jeffery                                                         [Page 4]
                                    HAT                        April 2012
 
 
+2.2.2.  flags
+
+   Bit 0 is the least significant bit, Bit 15 is the most significant
+   bit.
+
                    +---------+-------------------------+
                    |   Bit   |           Name          |
                    +---------+-------------------------+
@@ -232,47 +237,42 @@ Jeffery                                                         [Page 4]
                    |    1    |       is_directory      |
                    |    2    |      is_executable      |
                    |    3    |       is_writable       |
-                   | 4 to 15 | Reserved for future use |
+                   |    4    |  check_block_integrity  |
+                   | 5 to 15 | Reserved for future use |
                    +---------+-------------------------+
 
                            Table 5: INode Flags
 
-2.2.1.1.  in_use
+2.2.2.1.  in_use
 
    If the INode represents a file or directory in the filesystem that is
    valid and has not been deleted then this field must be set to 1.  If
    the INode is not in use then this field must be set to 0.
 
-2.2.1.2.  is_directory
+2.2.2.2.  is_directory
 
    If the INode represents a file then this flag must be set to 0.  If
    the INode represents a directory then this flag must be set to 1.
 
-2.2.1.3.  is_executable
+2.2.2.3.  is_executable
 
    If the INode represents a binary file that can be executed then this
    flag should be set to 1, otherwise it should be set to 0.
 
-2.2.1.4.  is_writable
+2.2.2.4.  is_writable
 
    If this flag is not set then it must not be possible to write to or
    modify the file in any way other than changing this flag.
 
-2.2.2.  parent_inode
+2.2.2.5.  check_block_integrity
+
+   If this flag is set the all blocks that are used by this INode must
+   have their integrity checked when read from or written to.
+
+2.2.3.  parent_inode
 
    This field contains the index of the INode's parent.  Every INode has
    a parent except for the root INode whose parent is undefined and
-   ignored.
-
-2.2.3.  content_size
-
-   This field behaves differently depending on whether the INode
-   represents a file or a directory.  If the INode represents a file
-   then this field is set to the size of the file's contents in words.
-   If the INode represents a directory then this field is set to the
-   number of children the INode has.
-
-
 
 
 
@@ -281,11 +281,21 @@ Jeffery                                                         [Page 5]
                                    HAT                        April 2012
 
 
-2.2.4.  block_index
+   ignored.
+
+2.2.4.  content_size
+
+   This field behaves differently depending on whether the INode
+   represents a file or a directory.  If the INode represents a file
+   then this field is set to the size of the file's contents in words.
+   If the INode represents a directory then this field is set to the
+   number of children the INode has.
+
+2.2.5.  block_index
 
    This field contains the index of the first data block.
 
-2.2.5.  file_name
+2.2.6.  file_name
 
    This field contains a null terminated string, which is the file name
    of the INode.
@@ -303,20 +313,38 @@ Jeffery                                                         [Page 5]
                    +----------------+------------------+
                    |      Size      |       Name       |
                    +----------------+------------------+
+                   |        1       |       hash       |
                    |        1       | next_block_index |
-                   | block_size - 1 |    block_data    |
+                   | block_size - 2 |    block_data    |
                    +----------------+------------------+
 
                          Table 6: Block Structure
 
-2.3.1.  next_block_index
+2.3.1.  hash
+
+   This field is only used when the check_block_integrity flag is
+   enabled in the INode that this block is used by.  When used, this
+   field must contain the CRC16 hash of the rest of the rest of the
+   block.
+
+
+
+
+
+
+Jeffery                                                         [Page 6]
+
+                                   HAT                        April 2012
+
+
+2.3.2.  next_block_index
 
    This field contains the index of the block that follows this one.
    When there is no such block this field's value is undefined as the
    number of blocks known is determined by the content_size field of the
    INode structure.
 
-2.3.2.  block_data
+2.3.3.  block_data
 
    This field is used differently depending on whether the INode that
    uses this block is representing a file or a directory.
@@ -328,13 +356,6 @@ Jeffery                                                         [Page 5]
 
    The size of this field is determined by the block_size field in the
    header of the filesystem.
-
-
-
-
-Jeffery                                                         [Page 6]
-
-                                   HAT                        April 2012
 
 
 3.  Security Considerations
@@ -350,27 +371,6 @@ Author's Address
 
    Email: harry@exec64.co.uk
    URI:   http://www.exec64.co.uk/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

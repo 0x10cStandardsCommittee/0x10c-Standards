@@ -124,12 +124,19 @@
         <texttable anchor="INodeTable" title="INode Structure">
           <ttcol align="center">Size</ttcol>
           <ttcol align="center">Name</ttcol>
+          <c>1</c><c>hash</c>
           <c>1</c><c>flags</c>
           <c>1</c><c>parent_inode</c>
           <c>2</c><c>content_size</c>
           <c>1</c><c>block_index</c>
-          <c>27</c><c>file_name</c>
+          <c>26</c><c>file_name</c>
         </texttable>
+
+        <section anchor="INodeHash" title="hash">
+          <t>This field contains the CRC16 hash of the rest of the INode.
+          The integrity of INodes must be checked when INode's are read from or
+          written to.</t>
+        </section>
   
         <section anchor="INodeFlags" title="flags">
           <t>Bit 0 is the least significant bit, Bit 15 is the most significant bit.</t>
@@ -140,7 +147,8 @@
             <c>1</c><c>is_directory</c>
             <c>2</c><c>is_executable</c>
             <c>3</c><c>is_writable</c>
-            <c>4 to 15</c><c>Reserved for future use</c>
+            <c>4</c><c>check_block_integrity</c>
+            <c>5 to 15</c><c>Reserved for future use</c>
           </texttable>
 
           <section anchor="INodeFlagInUse" title="in_use">
@@ -163,6 +171,11 @@
           <section anchor="INodeFlagIsWritable" title="is_writable">
             <t>If this flag is not set then it must not be possible to write to
             or modify the file in any way other than changing this flag.</t>
+          </section>
+
+          <section anchor="INodeFlagCheckBlockIntegrity" title="check_block_integrity">
+            <t>If this flag is set the all blocks that are used by this INode
+            must have their integrity checked when read from or written to.</t>
           </section>
         </section>
 
@@ -190,7 +203,7 @@
           <t>Only alphanumeric characters, periods(.) and underscores(_) are
           allowed in the filename.</t>
         </section>
-    </section>
+      </section>
 
       <section anchor="Block" title="Block">
         <t>The block structure is used to store raw data for the INodes.
@@ -201,9 +214,17 @@
         <texttable anchor="BlockTable" title="Block Structure">
           <ttcol align="center">Size</ttcol>
           <ttcol align="center">Name</ttcol>
+          <c>1</c><c>hash</c>
           <c>1</c><c>next_block_index</c>
-          <c>block_size - 1</c><c>block_data</c>
+          <c>block_size - 2</c><c>block_data</c>
         </texttable>
+
+        <section anchor="BlockHash" title="hash">
+          <t>This field is only used when the check_block_integrity flag
+          is enabled in the INode that this block is used by. When used, this
+          field must contain the CRC16 hash of the rest of the rest of the
+          block.</t>
+        </section>
 
         <section anchor="BlockNextBlockINdex" title="next_block_index">
           <t>This field contains the index of the block that follows this one.
