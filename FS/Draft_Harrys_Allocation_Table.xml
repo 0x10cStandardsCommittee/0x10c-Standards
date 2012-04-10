@@ -24,12 +24,14 @@
     <area>Misc</area>
     <workgroup>0x10c Standards Committee</workgroup>
     <abstract>
-      <t>This draft provides the specification for the HAT(Harry's Allocation Table) filesystem. It is intended to provide a clear reference for anyone wishing to implement this filesystem.</t>
+      <t>This draft provides the specification for the HAT(Harry's Allocation
+      Table) filesystem. It is intended to provide a clear reference for
+      anyone wishing to implement this filesystem.</t>
     </abstract>
   </front>
 
   <middle>
-    <section title="Introduction">
+    <section anchor="Introduction" title="Introduction">
       <t>Currently there is no standard filesystem designed for use in a
       system built around the DCPU-16 architecture. This RFC provides a
       filesystem designed specifically for use on DCPU-16 systems.</t>
@@ -37,9 +39,40 @@
       providing all the features required of a filesystem.</t>
     </section>
 
+    <section anchor="Summary" title="Design Summary">
+      <t>HAT is a fairly simple filesystem made up of only a few basic
+      structures: the header, an inode map and sector map, inodes, sectors
+      and hard links.</t>
+
+      <t>The header is used to store basic information about the state of the
+      filesystem and where to find the other sections of it.</t>
+
+      <t>inodes are used to store metadata about files and directories. Each
+      file and directory has an inode which points to the first sector of
+      that file or directory on disk as well as storing the length or number
+      of children it has. inodes themsleves have no filename associated with
+      them or relationship to one another. The directory hierarchy is
+      constructed using hard links and directories.</t>
+
+      <t>sectors are used for two different things: storing file data and
+      storing hard links. If there is not enough space in a sector to store
+      all of the data the sector will also point to the next sector,
+      forming a linked list.</t>
+
+      <t>hard links are used to link file names to inodes, which can then be
+      sub directories, forming a tree.</t>
+
+      <t>inode 0 and sector 0 are always used to store the root directory.</t>
+
+      <t>inode_map and sector_map are bitmaps that are used to quickly locate
+      free inodes and sectors on disk.</t>
+    </section>
+
     <section anchor="Structures" title="Data Structures" >
-      <t>This section defines the data structures that comprise the HAT filesystem.</t>
-      <t>All sizes are given in words, which are considered to be 16 bits long.</t>
+      <t>This section defines the data structures that comprise the HAT
+      filesystem.</t>
+      <t>All sizes are given in words, which are considered to be 16 bits
+      long.</t>
       
       <texttable anchor="StructureTable" title="Filesystem Structure">
         <ttcol align="center">Section</ttcol>
@@ -80,12 +113,13 @@
         <section anchor="HeaderVersion" title="version">
           <t>The version field is a magic number that identifies both that the
           filesystem in use is HAT and the version of HAT.</t>
-          <t>The value of this field must be 0x4001. This magic number identifies
-          the filesystem as version one of HAT.</t>
+          <t>The value of this field must be 0x4001. This magic number
+          identifies the filesystem as version one of HAT.</t>
         </section>
   
         <section anchor="HeaderFlags" title="flags">
-          <t>Bit 0 is the least significant bit, Bit 15 is the most significant bit.</t>
+          <t>Bit 0 is the least significant bit, Bit 15 is the most significant
+          bit.</t>
           <texttable anchor="HeaderFlagsTable" title="Header Flags">
             <ttcol align="center">Bit</ttcol>
             <ttcol align="center">Name</ttcol>
@@ -100,11 +134,13 @@
         </section>
 
         <section anchor="HeaderNumInodes" title="num_inodes">
-          <t>This field contains the total number of inodes in the filesystem.</t>
+          <t>This field contains the total number of inodes in the filesystem.
+          </t>
         </section>
 
         <section anchor="HeaderNumSectors" title="num_sectors">
-          <t>This field contains the total number of sectors in the filesystem.</t>
+          <t>This field contains the total number of sectors in the filesystem.
+          </t>
         </section>
 
         <section anchor="HeaderInodeStart" title="inode_start">
@@ -124,7 +160,7 @@
           <t>This field contains the address of the start of the inode map.</t>
         </section>
 
-        <section anchor="HeaderBlockMapStart" title="sector_map_start">
+        <section anchor="HeaderSectorMapStart" title="sector_map_start">
           <t>This field contains the address of the start of the sector map.</t>
         </section>
 
@@ -159,11 +195,11 @@
         </section>
       </section>
 
-      <section anchor="BlockMap" title="sector map">
+      <section anchor="SectorMap" title="sector map">
         <t>This section is a bitmap representing which sectors are in use.
         It can be used to quickly locate free sectors for new files.</t>
 
-        <texttable anchor="BlockMapTable" title="sector map structure"> 
+        <texttable anchor="SectorMapTable" title="sector map structure"> 
           <ttcol align="center">Size</ttcol>
           <ttcol align="center">Name</ttcol>
           <c>ceil(num_sectors/16)</c><c>bitmap</c>
