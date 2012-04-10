@@ -131,9 +131,6 @@
 				</t>
 				<t>The null-character can be used in strings, while 
 				using it in a C-string would terminate the string.</t>
-				<t>The runtime cost of P-string concatenation is O(n), 
-				while the runtime cost of C-string concatenation is 
-				O(n+m).</t>
 			</list>
 			</t>
 		</section>
