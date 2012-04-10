@@ -12,13 +12,13 @@
 <rfc ipr="none" number="1005" category="std" docName="draft-string-format">
 	<front>
 		<title abbrev="String Format">String Format</title>
-		
+
 		<author initials="M.S." surname="Schuetze" fullname="Malte Schuetze">
 			<address>
 				<email>malte.schuetze@fgms.de</email>
 			</address>
 		</author>
-		
+
 		<date month="April" year="2012"/>
 		<area>Lib</area>
 		<workgroup>0x10c Standards Committee</workgroup>
@@ -31,14 +31,14 @@
 			other users.</t>
 		</abstract>
 	</front>
-	
+
 	<middle>
 		<section anchor="intro" title="Introduction">
 			<t>Shared Libraries depend on certain formats being given. 
 			Strings, being a common argument type for cross-library 
 			calls, should therefore be standardized. Length-prefixed 
 			strings are to be used for security and efficiency reasons.</t>
-			
+
 			<section anchor="intro-terms" title="Terminology">
 				<t>
 				<list style="hanging">
@@ -104,15 +104,13 @@
 			<t>Note that the empty P-string consists entirely of a length word
 			containing 0x0000.</t>
 			<figure>
-				<artwork>
-					<![CDATA[
+				<artwork><![CDATA[
   P-STRING  =  LENGTH BODY
   LENGTH    =  n
   BODY      =  nWORD
   WORD      =  %x0000-ffff
                     ; any 16-bit value
-]]>
-				</artwork>
+]]></artwork>
 			</figure>
 		</section>
 		<section anchor="rationale" title="Rationale">
@@ -133,9 +131,6 @@
 				</t>
 				<t>The null-character can be used in strings, while 
 				using it in a C-string would terminate the string.</t>
-				<t>The runtime cost of P-string concatenation is O(n), 
-				while the runtime cost of C-string concatenation is 
-				O(n+m).</t>
 			</list>
 			</t>
 		</section>
@@ -182,7 +177,7 @@
 			taken by the user to ensure this does not happen.</t>
 		</section>
 	</middle>
-	
+
 	<back>
 		<references title="References">
 			<?rfc include="reference.RFC.2119.xml"?>
