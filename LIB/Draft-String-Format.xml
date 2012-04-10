@@ -21,13 +21,13 @@
 		
 		<date month="April" year="2012"/>
 		<area>Lib</area>
-		<workgroup>0x10c Standards Commitee</workgroup>
+		<workgroup>0x10c Standards Committee</workgroup>
 		<keyword>String</keyword>
 		<keyword>String Format</keyword>
 		<keyword>Library Specifications</keyword>
 		<abstract>
 			<t>This document presents a general format for strings in 
-			libraries intended to be shared accross programs and with 
+			libraries intended to be shared across programs and with 
 			other users.</t>
 		</abstract>
 	</front>
@@ -37,7 +37,7 @@
 			<t>Shared Libraries depend on certain formats being given. 
 			Strings, being a common argument type for cross-library 
 			calls, should therefore be standardized. Length-prefixed 
-			strings are to be used for security and efficency reasons.</t>
+			strings are to be used for security and efficiency reasons.</t>
 			
 			<section anchor="intro-lang" title="Requirements Language">
 				<t>The key words "MUST", "MUST NOT", "REQUIRED", 
@@ -51,11 +51,11 @@
 				<list style="symbols">
 				<t>"String" or "string" refers to a sequence of 
 				characters of variable length.</t>
-				<t>"P-String", "pstring" or "length-prefixed string" 
-				refers to a 8-bit value representing the length of the 
+				<t>"P-string", "pstring" or "length-prefixed string" 
+				refers to an 8-bit value representing the length of the 
 				following string, followed by n characters of length n, 
 				where n is the value of the length-prefix.</t>
-				<t>"C-String", "cstring" or "null-terminated string" 
+				<t>"C-string", "cstring" or "null-terminated string" 
 				refers to a sequence of characters that may not include 
 				the character with the value 0, followed by the 
 				character with value 0 (also known as "null-terminator" 
@@ -78,17 +78,17 @@
 			</section>
 		</section>
 		<section anchor="structure" title="Structure of P-Strings">
-			<t>A P-String is composed of a 16-bit length prefix and a 
+			<t>A P-string is composed of a 16-bit length prefix and a 
 			sequence of n characters where n is the value of the prefix.
 			</t>
-			<t>P-String = n (nCHAR)</t>
+			<t>P-string = n (nCHAR)</t>
 			<t>The prefix for such a string MUST be present and MUST 
 			represent the exact number of following characters.</t>
 		</section>
 		<section anchor="rationale" title="Rationale for using P-Strings">
 		<section anchor="rationale-benefits" title="Benefits of P-Strings">
-			<t>The rationale of using P-Strings is a simple matter of
-			weighting benefits against disadvantages. Note that this is
+			<t>The rationale for using P-strings is a simple matter of
+			weighing benefits against disadvantages. Note that this is
 			not a normative rationale, but one developed by the
 			Standards Committee with focus on the DCPU design.</t>
 			<t>
@@ -103,9 +103,9 @@
 					</list>
 				</t>
 				<t>The null-character can be used in strings, while 
-				using it in C-Strings would terminate the string.</t>
-				<t>The runtime cost of P-String concatenation is O(n), 
-				while the runtime cost of C-String concatenation is 
+				using it in a C-string would terminate the string.</t>
+				<t>The runtime cost of P-string concatenation is O(n), 
+				while the runtime cost of C-string concatenation is 
 				O(n+m).</t>
 			</list>
 			</t>
@@ -113,9 +113,8 @@
 		<section anchor="rationale-disadvantages" title="Disadvantages of P-Strings">
 			<t>
 			<list style='symbols'>
-				<t>Instead of the conventional 0, indexing begins at 1.</t>
-				<t>Even for fixed-length fields, the first word would 
-				be needed for the length.</t>
+				<t>Indexing begins at 1 instead of 0.</t>
+				<t>Fixed-length strings still require a prefixed length word.</t>
 			</list>
 			</t>
 		</section>
@@ -124,16 +123,16 @@
 			<t>
 			<list style='symbols'>
 				<t>Since the smallest addressable size in the DCPU is a
-				word (16 bit), this effectively allows a maximum string
+				word (16 bits), this effectively allows a maximum string
 				length of 65536 characters without any loss in
-				efficency.</t>
+				efficiency.</t>
 				<t>Cutting off the beginning of a string is more 
-				expensive for P-Strings, but cutting off the end is 
-				more expensive for C-Strings (other solutions are 
-				possible, but introduce memory leaks). Therefore, those 
+				expensive for P-strings, but cutting off the end is 
+				more expensive for C-strings. (Other solutions are 
+				possible, but introduce memory leaks.) Therefore, the 
 				two arguments negate each other.</t>
-				<t>The names P-String and C-String come from Pascal and
-				C respectively, both using their respective format.</t>
+				<t>The names P-string and C-string come from Pascal and
+				C, which use the respective format.</t>
 			</list>
 			</t>
 		</section>
@@ -141,16 +140,15 @@
 			<t>The current implementation of characters in the DCPU
 			effectively leaves the high 8 bits empty. It is therefore
 			possible to store two characters in one word. Such packed
-			strings are out of the scope of this document and should
-			be defined in another RFC.</t>
+			strings are outside the scope of this RFC.</t>
 		</section>
 		<section anchor="security" title="Security Considerations">
-			<t>Using P-Strings reduces the risk of arbitrary shell 
+			<t>Using P-strings reduces the risk of arbitrary shell 
 			code being executed by overflowing the input buffer. 
 			However, hidden instructions in the string may be executed 
 			later when the sections are not cleared and the stack or 
-			instruction pointer is moved there. Measurements should be 
-			taken by the user to assure that this does not happen.</t>
+			instruction pointer is moved there. Measures should be 
+			taken by the user to ensure this does not happen.</t>
 		</section>
 	</middle>
 	
