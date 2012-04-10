@@ -188,11 +188,10 @@
           <ttcol align="center">Size</ttcol>
           <ttcol align="center">Name</ttcol>
           <c>1</c><c>type</c>
-          <c>1</c><c>parent_inode</c>
           <c>2</c><c>content_size</c>
           <c>1</c><c>sector_index</c>
           <c>1</c><c>link_count</c>
-          <c>2</c><c>padding</c>
+          <c>3</c><c>padding</c>
         </texttable>
 
         <section anchor="InodeType" title="type">
@@ -200,12 +199,6 @@
           set to 0 then the inode is not in use and represents nothing. If this
           field is set to 1 then the inode represents a directory. If this
           field is set to 2 then the inode represents a file.</t>
-        </section>
-
-        <section anchor="InodeParentinode" title="parent_inode">
-          <t>This field contains the index of the inode's parent. Every inode
-          has a parent except for the root inode whose parent is undefined and
-          ignored.</t>
         </section>
 
         <section anchor="InodeContentSize" title="content_size">

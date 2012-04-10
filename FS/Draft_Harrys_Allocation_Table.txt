@@ -37,15 +37,15 @@ Table of Contents
        2.3.1.  bitmap  . . . . . . . . . . . . . . . . . . . . . . . . 5
      2.4.  inode . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
        2.4.1.  type  . . . . . . . . . . . . . . . . . . . . . . . . . 6
-       2.4.2.  parent_inode  . . . . . . . . . . . . . . . . . . . . . 6
-       2.4.3.  content_size  . . . . . . . . . . . . . . . . . . . . . 6
-       2.4.4.  sector_index  . . . . . . . . . . . . . . . . . . . . . 6
-       2.4.5.  link_count  . . . . . . . . . . . . . . . . . . . . . . 6
+       2.4.2.  content_size  . . . . . . . . . . . . . . . . . . . . . 6
+       2.4.3.  sector_index  . . . . . . . . . . . . . . . . . . . . . 6
+       2.4.4.  link_count  . . . . . . . . . . . . . . . . . . . . . . 6
      2.5.  sector  . . . . . . . . . . . . . . . . . . . . . . . . . . 6
        2.5.1.  next_sector_index . . . . . . . . . . . . . . . . . . . 7
        2.5.2.  sector_data . . . . . . . . . . . . . . . . . . . . . . 7
          2.5.2.1.  hard_link . . . . . . . . . . . . . . . . . . . . . 7
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 8
+
 
 
 
@@ -285,11 +285,10 @@ Jeffery                                                         [Page 5]
                           | Size |     Name     |
                           +------+--------------+
                           |   1  |     type     |
-                          |   1  | parent_inode |
                           |   2  | content_size |
                           |   1  | sector_index |
                           |   1  |  link_count  |
-                          |   2  |    padding   |
+                          |   3  |    padding   |
                           +------+--------------+
 
                          Table 6: inode Structure
@@ -301,13 +300,7 @@ Jeffery                                                         [Page 5]
    field is set to 1 then the inode represents a directory.  If this
    field is set to 2 then the inode represents a file.
 
-2.4.2.  parent_inode
-
-   This field contains the index of the inode's parent.  Every inode has
-   a parent except for the root inode whose parent is undefined and
-   ignored.
-
-2.4.3.  content_size
+2.4.2.  content_size
 
    This field behaves differently depending on whether the inode
    represents a file or a directory.  If the inode represents a file
@@ -315,11 +308,11 @@ Jeffery                                                         [Page 5]
    If the inode represents a directory then this field is set to the
    number of children the inode has.
 
-2.4.4.  sector_index
+2.4.3.  sector_index
 
    This field contains the index of the first data sector.
 
-2.4.5.  link_count
+2.4.4.  link_count
 
    This field contains the number of hard_links there are that point to
    this inode.
@@ -329,6 +322,13 @@ Jeffery                                                         [Page 5]
    The sector structure is used to store raw data for the inodes.  When
    an inode represents a file, sectors are used to store the file data.
    When an inode represents a directory, sectors are used to store the
+   children of the inode.
+
+
+
+
+
+
 
 
 
@@ -336,8 +336,6 @@ Jeffery                                                         [Page 6]
 
                                    HAT                        April 2012
 
-
-   children of the inode.
 
                   +-----------------+-------------------+
                   |       Size      |        Name       |
@@ -383,6 +381,8 @@ Jeffery                                                         [Page 6]
 2.5.2.1.1.  inode_index
 
    This field contains the index of the inode that is referenced.
+
+
 
 
 
