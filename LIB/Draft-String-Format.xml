@@ -39,14 +39,7 @@
 			calls, should therefore be standardized. Length-prefixed 
 			strings are to be used for security and efficiency reasons.</t>
 			
-			<section anchor="intro-lang" title="Requirements Language">
-				<t>The key words "MUST", "MUST NOT", "REQUIRED", 
-				"SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", 
-				"RECOMMENDED", "MAY", and "OPTIONAL" in this document 
-				are to be interpreted as described in <xref 
-				target="RFC2119">RFC 2119</xref>.</t>
-			</section>
-			<section anchor="intro-terms" title="Used Terms">
+			<section anchor="intro-terms" title="Terminology">
 				<t>
 				<list style="hanging">
 				<t hangText="word">
@@ -89,12 +82,20 @@
 				</t>
 				<t hangText="user">
 					<vspace />
-					Any person using or creating a program.</t>
+					Any person using or creating a program.
+				</t>
 				</list>
 				</t>
 			</section>
+			<section anchor="intro-lang" title="Notational Conventions">
+				<t>The key words "MUST", "MUST NOT", "REQUIRED", 
+				"SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", 
+				"RECOMMENDED", "MAY", and "OPTIONAL" in this document 
+				are to be interpreted as described in <xref 
+				target="RFC2119">RFC 2119</xref>.</t>
+			</section>
 		</section>
-		<section anchor="structure" title="Structure of P-Strings">
+		<section anchor="structure" title="Format">
 			<t>A P-string is composed of a 16-bit length prefix and a 
 			sequence of n characters where n is the value of the prefix.
 			</t>
@@ -102,12 +103,11 @@
 			<t>The prefix for such a string MUST be present and MUST 
 			represent the exact number of following characters.</t>
 		</section>
-		<section anchor="rationale" title="Rationale for using P-Strings">
-		<section anchor="rationale-benefits" title="Benefits of P-Strings">
+		<section anchor="rationale" title="Rationale">
+			<t>This section is not normative.</t>
 			<t>The rationale for using P-strings is a simple matter of
-			weighing benefits against disadvantages. Note that this is
-			not a normative rationale, but one developed by the
-			Standards Committee with focus on the DCPU design.</t>
+			weighing benefits against disadvantages.</t>
+		<section anchor="rationale-benefits" title="Benefits">
 			<t>
 			<list style='symbols'>
 				<t>Accessing the length of the string is O(1) fast.</t>
@@ -127,11 +127,15 @@
 			</list>
 			</t>
 		</section>
-		<section anchor="rationale-disadvantages" title="Disadvantages of P-Strings">
+		<section anchor="rationale-disadvantages" title="Disadvantages">
 			<t>
 			<list style='symbols'>
 				<t>Indexing begins at 1 instead of 0.</t>
-				<t>Fixed-length strings still require a prefixed length word.</t>
+				<t>Fixed-length strings still require a prefixed length word.
+				The same would be true of fixed-length C-strings. Both formats
+				can be abbreviated by omitting the known prefix/terminator
+				at the cost of ceasing to be a P- or C-string per the
+				definitions given here.</t>
 			</list>
 			</t>
 		</section>
@@ -150,14 +154,12 @@
 				two arguments negate each other.</t>
 				<t>The names P-string and C-string come from Pascal and
 				C, which use the respective format.</t>
+				<t>The current implementation of characters in the DCPU
+				effectively leaves the high 8 bits empty. It is therefore
+				possible to store two characters in one word. Such packed
+				strings are outside the scope of this RFC.</t>
 			</list>
 			</t>
-		</section>
-		<section anchor="packed-strings" title="Packed P-Strings">
-			<t>The current implementation of characters in the DCPU
-			effectively leaves the high 8 bits empty. It is therefore
-			possible to store two characters in one word. Such packed
-			strings are outside the scope of this RFC.</t>
 		</section>
 		<section anchor="security" title="Security Considerations">
 			<t>Using P-strings reduces the risk of arbitrary shell 

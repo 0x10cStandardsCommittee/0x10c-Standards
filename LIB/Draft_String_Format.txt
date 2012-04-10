@@ -16,17 +16,17 @@ Abstract
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
-     1.1.  Requirements Language . . . . . . . . . . . . . . . . . . . 2
-     1.2.  Used Terms  . . . . . . . . . . . . . . . . . . . . . . . . 2
-   2.  Structure of P-Strings  . . . . . . . . . . . . . . . . . . . . 3
-   3.  Rationale for using P-Strings . . . . . . . . . . . . . . . . . 3
-     3.1.  Benefits of P-Strings . . . . . . . . . . . . . . . . . . . 3
-     3.2.  Disadvantages of P-Strings  . . . . . . . . . . . . . . . . 3
+     1.1.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . 2
+     1.2.  Notational Conventions  . . . . . . . . . . . . . . . . . . 2
+   2.  Format  . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   3.  Rationale . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+     3.1.  Benefits  . . . . . . . . . . . . . . . . . . . . . . . . . 3
+     3.2.  Disadvantages . . . . . . . . . . . . . . . . . . . . . . . 3
    4.  Other Notes . . . . . . . . . . . . . . . . . . . . . . . . . . 3
-   5.  Packed P-Strings  . . . . . . . . . . . . . . . . . . . . . . . 4
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . . . 4
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 4
+   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 4
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 4
+
 
 
 
@@ -64,13 +64,7 @@ Schuetze                                                        [Page 1]
    therefore be standardized.  Length-prefixed strings are to be used
    for security and efficiency reasons.
 
-1.1.  Requirements Language
-
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-   document are to be interpreted as described in RFC 2119 [RFC2119].
-
-1.2.  Used Terms
+1.1.  Terminology
 
    word
       16 bits.  This is the smallest unit addressable by the DCPU.
@@ -104,6 +98,12 @@ Schuetze                                                        [Page 1]
    user
       Any person using or creating a program.
 
+1.2.  Notational Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
 
 
 
@@ -113,7 +113,7 @@ Schuetze                                                        [Page 2]
                               String Format                   April 2012
 
 
-2.  Structure of P-Strings
+2.  Format
 
    A P-string is composed of a 16-bit length prefix and a sequence of n
    characters where n is the value of the prefix.
@@ -124,14 +124,14 @@ Schuetze                                                        [Page 2]
    exact number of following characters.
 
 
-3.  Rationale for using P-Strings
+3.  Rationale
 
-3.1.  Benefits of P-Strings
+   This section is not normative.
 
    The rationale for using P-strings is a simple matter of weighing
-   benefits against disadvantages.  Note that this is not a normative
-   rationale, but one developed by the Standards Committee with focus on
-   the DCPU design.
+   benefits against disadvantages.
+
+3.1.  Benefits
 
    o  Accessing the length of the string is O(1) fast.
 
@@ -147,18 +147,18 @@ Schuetze                                                        [Page 2]
    o  The runtime cost of P-string concatenation is O(n), while the
       runtime cost of C-string concatenation is O(n+m).
 
-3.2.  Disadvantages of P-Strings
+3.2.  Disadvantages
 
    o  Indexing begins at 1 instead of 0.
 
-   o  Fixed-length strings still require a prefixed length word.
+   o  Fixed-length strings still require a prefixed length word.  The
+      same would be true of fixed-length C-strings.  Both formats can be
+      abbreviated by omitting the known prefix/terminator at the cost of
+      ceasing to be a P- or C-string per the definitions given here.
 
 
 4.  Other Notes
 
-   o  Since the smallest addressable size in the DCPU is a word (16
-      bits), this effectively allows a maximum string length of 65536
-      characters without any loss in efficiency.
 
 
 
@@ -169,6 +169,10 @@ Schuetze                                                        [Page 3]
                               String Format                   April 2012
 
 
+   o  Since the smallest addressable size in the DCPU is a word (16
+      bits), this effectively allows a maximum string length of 65536
+      characters without any loss in efficiency.
+
    o  Cutting off the beginning of a string is more expensive for
       P-strings, but cutting off the end is more expensive for
       C-strings.  (Other solutions are possible, but introduce memory
@@ -177,16 +181,13 @@ Schuetze                                                        [Page 3]
    o  The names P-string and C-string come from Pascal and C, which use
       the respective format.
 
-
-5.  Packed P-Strings
-
-   The current implementation of characters in the DCPU effectively
-   leaves the high 8 bits empty.  It is therefore possible to store two
-   characters in one word.  Such packed strings are outside the scope of
-   this RFC.
+   o  The current implementation of characters in the DCPU effectively
+      leaves the high 8 bits empty.  It is therefore possible to store
+      two characters in one word.  Such packed strings are outside the
+      scope of this RFC.
 
 
-6.  Security Considerations
+5.  Security Considerations
 
    Using P-strings reduces the risk of arbitrary shell code being
    executed by overflowing the input buffer.  However, hidden
@@ -195,7 +196,7 @@ Schuetze                                                        [Page 3]
    Measures should be taken by the user to ensure this does not happen.
 
 
-7.  References
+6.  References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
@@ -206,7 +207,6 @@ Author's Address
    Malte Schuetze
 
    Email: malte.schuetze@fgms.de
-
 
 
 
