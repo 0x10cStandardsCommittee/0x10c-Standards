@@ -2,7 +2,7 @@
 
 
 RFC (Draft-Fs)                                           H. Jeffery, Ed.
-                                                          April 10, 2012
+                                                          April 11, 2012
 
 
                         Harry's Allocation Table
@@ -40,11 +40,11 @@ Table of Contents
        3.4.1.  type  . . . . . . . . . . . . . . . . . . . . . . . . . 6
        3.4.2.  content_size  . . . . . . . . . . . . . . . . . . . . . 6
        3.4.3.  sector_index  . . . . . . . . . . . . . . . . . . . . . 6
-       3.4.4.  link_count  . . . . . . . . . . . . . . . . . . . . . . 7
+       3.4.4.  link_count  . . . . . . . . . . . . . . . . . . . . . . 6
      3.5.  sector  . . . . . . . . . . . . . . . . . . . . . . . . . . 7
        3.5.1.  next_sector_index . . . . . . . . . . . . . . . . . . . 7
        3.5.2.  sector_data . . . . . . . . . . . . . . . . . . . . . . 7
-         3.5.2.1.  hard_link . . . . . . . . . . . . . . . . . . . . . 8
+         3.5.2.1.  link  . . . . . . . . . . . . . . . . . . . . . . . 7
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 8
 
 
@@ -71,25 +71,25 @@ Jeffery                                                         [Page 1]
 
    HAT is a fairly simple filesystem made up of only a few basic
    structures: the header, an inode map and sector map, inodes, sectors
-   and hard links.
+   and links.
 
    The header is used to store basic information about the state of the
    filesystem and where to find the other sections of it.
 
    inodes are used to store metadata about files and directories.  Each
    file and directory has an inode which points to the first sector of
-   that file or directory on disk as well as storing the length or
-   number of children it has. inodes themsleves have no filename
-   associated with them or relationship to one another.  The directory
-   hierarchy is constructed using hard links and directories.
+   that file or directory on disk as well as storing the length of the
+   data stored. inodes themselves have no filename associated with them
+   or relationship to one another.  The directory hierarchy is
+   constructed using links and directories.
 
    sectors are used for two different things: storing file data and
-   storing hard links.  If there is not enough space in a sector to
-   store all of the data the sector will also point to the next sector,
-   forming a linked list.
+   storing links.  If there is not enough space in a sector to store all
+   of the data the sector will also point to the next sector, forming a
+   linked list.
 
-   hard links are used to link file names to inodes, which can then be
-   sub directories, forming a tree.
+   links are used to link file names to inodes, which can then be sub
+   directories, forming a tree.
 
    inode 0 and sector 0 are always used to store the root directory.
 
@@ -319,16 +319,16 @@ Jeffery                                                         [Page 5]
 
 3.4.2.  content_size
 
-   This field behaves differently depending on whether the inode
-   represents a file or a directory.  If the inode represents a file
-   then this field is set to the size of the file's contents in words.
-   If the inode represents a directory then this field is set to the
-   number of children the inode has.
+   This field contains the amount of data stored by the inode in words.
 
 3.4.3.  sector_index
 
    This field contains the index of the first data sector.
 
+3.4.4.  link_count
+
+   This field contains the number of links there are that point to this
+   inode.
 
 
 
@@ -337,17 +337,12 @@ Jeffery                                                         [Page 6]
                                    HAT                        April 2012
 
 
-3.4.4.  link_count
-
-   This field contains the number of hard_links there are that point to
-   this inode.
-
 3.5.  sector
 
    The sector structure is used to store raw data for the inodes.  When
    an inode represents a file, sectors are used to store the file data.
    When an inode represents a directory, sectors are used to store the
-   children of the inode.
+   links in that directory.
 
                   +-----------------+-------------------+
                   |       Size      |        Name       |
@@ -372,17 +367,22 @@ Jeffery                                                         [Page 6]
 
    If the inode is a file then this field contains the raw file data.
 
-   If the inode is a directory then this field contains an array of the
-   hard_link structures, each one representing a hard link to a child
-   inode.
+   If the inode is a directory then this field contains an array of
+   links pointing to more inodes.
 
    The size of this field is determined by the sector_size field in the
    header of the filesystem.
 
+3.5.2.1.  link
 
+                          +------+-------------+
+                          | Size |     Name    |
+                          +------+-------------+
+                          |   1  | inode_index |
+                          |  15  |  file_name  |
+                          +------+-------------+
 
-
-
+                          Table 8: link structure
 
 
 
@@ -392,17 +392,6 @@ Jeffery                                                         [Page 7]
 
                                    HAT                        April 2012
 
-
-3.5.2.1.  hard_link
-
-                          +------+-------------+
-                          | Size |     Name    |
-                          +------+-------------+
-                          |   1  | inode_index |
-                          |  15  |  file_name  |
-                          +------+-------------+
-
-                       Table 8: hard_link structure
 
 3.5.2.1.1.  inode_index
 
@@ -422,6 +411,17 @@ Author's Address
 
    Email: harry@exec64.co.uk
    URI:   http://www.exec64.co.uk/
+
+
+
+
+
+
+
+
+
+
+
 
 
 

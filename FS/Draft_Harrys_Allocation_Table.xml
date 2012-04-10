@@ -42,24 +42,24 @@
     <section anchor="Summary" title="Design Summary">
       <t>HAT is a fairly simple filesystem made up of only a few basic
       structures: the header, an inode map and sector map, inodes, sectors
-      and hard links.</t>
+      and links.</t>
 
       <t>The header is used to store basic information about the state of the
       filesystem and where to find the other sections of it.</t>
 
       <t>inodes are used to store metadata about files and directories. Each
       file and directory has an inode which points to the first sector of
-      that file or directory on disk as well as storing the length or number
-      of children it has. inodes themsleves have no filename associated with
-      them or relationship to one another. The directory hierarchy is
-      constructed using hard links and directories.</t>
+      that file or directory on disk as well as storing the length of the data
+      stored. inodes themselves have no filename associated with them or
+      relationship to one another. The directory hierarchy is constructed using
+      links and directories.</t>
 
       <t>sectors are used for two different things: storing file data and
-      storing hard links. If there is not enough space in a sector to store
+      storing links. If there is not enough space in a sector to store
       all of the data the sector will also point to the next sector,
       forming a linked list.</t>
 
-      <t>hard links are used to link file names to inodes, which can then be
+      <t>links are used to link file names to inodes, which can then be
       sub directories, forming a tree.</t>
 
       <t>inode 0 and sector 0 are always used to store the root directory.</t>
@@ -238,11 +238,8 @@
         </section>
 
         <section anchor="InodeContentSize" title="content_size">
-          <t>This field behaves differently depending on whether the inode
-          represents a file or a directory. If the inode represents a file
-          then this field is set to the size of the file's contents in words.
-          If the inode represents a directory then this field is set to the
-          number of children the inode has.</t>
+          <t>This field contains the amount of data stored by the inode
+          in words.</t>
         </section>
 
         <section anchor="InodeSectorIndex" title="sector_index">
@@ -250,7 +247,7 @@
         </section>
 
         <section anchor="InodeLinkAccount" title="link_count">
-          <t>This field contains the number of hard_links there are that
+          <t>This field contains the number of links there are that
           point to this inode.</t>
         </section>
 
@@ -260,7 +257,7 @@
         <t>The sector structure is used to store raw data for the inodes.
         When an inode represents a file, sectors are used to store the file
         data. When an inode represents a directory, sectors are used to
-        store the children of the inode.</t>
+        store the links in that directory.</t>
 
         <texttable anchor="SectorTable" title="sector Structure">
           <ttcol align="center">Size</ttcol>
@@ -282,25 +279,24 @@
           <t>If the inode is a file then this field contains the raw file data.
           </t>
           <t>If the inode is a directory then this field contains an array of
-          the hard_link structures, each one representing a hard link to a
-          child inode.</t>
+          links pointing to more inodes.</t>
           <t>The size of this field is determined by the sector_size field in
           the header of the filesystem.</t>
 
-          <section anchor="HardLink" title="hard_link">
-            <texttable anchor="HardLinkTable" title="hard_link structure">
+          <section anchor="Link" title="link">
+            <texttable anchor="LinkTable" title="link structure">
               <ttcol align="center">Size</ttcol>
               <ttcol align="center">Name</ttcol>
               <c>1</c><c>inode_index</c>
               <c>15</c><c>file_name</c>
             </texttable>
 
-            <section anchor="HardLinkInodeIndex" title="inode_index">
+            <section anchor="LinkInodeIndex" title="inode_index">
               <t>This field contains the index of the inode that is referenced.
               </t>
             </section>
 
-            <section anchor="HardLinkFileName" title="file_name">
+            <section anchor="LinkFileName" title="file_name">
               <t>This field contains the file name associated with the inode.
               The filename consists of only alphanumeric characters, periods(.)
               and underscores(_). Any unused characters at the end of the
