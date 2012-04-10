@@ -56,7 +56,7 @@
         <c>...</c>
       </texttable>
 
-      <section anchor="Header" title="Header">
+      <section anchor="Header" title="header">
         <t>This structure contains the header information for HAT.</t>
         <t>The total size of the header is 16 words.</t>
 
@@ -179,7 +179,7 @@
           <c>1</c><c>parent_inode</c>
           <c>2</c><c>content_size</c>
           <c>1</c><c>sector_index</c>
-          <c>27</c><c>file_name</c>
+          <c>3</c><c>padding</c>
         </texttable>
 
         <section anchor="InodeFlags" title="flags">
@@ -189,8 +189,7 @@
             <ttcol align="center">Name</ttcol>
             <c>0</c><c>in_use</c>
             <c>1</c><c>is_directory</c>
-            <c>2</c><c>check_sector_integrity</c>
-            <c>3 to 15</c><c>Reserved for future use</c>
+            <c>2 to 15</c><c>Reserved for future use</c>
           </texttable>
 
           <section anchor="InodeFlagInUse" title="in_use">
@@ -205,10 +204,6 @@
             </t>
           </section>
     
-          <section anchor="InodeFlagCheckSectorIntegrity" title="check_sector_integrity">
-            <t>If this flag is set the all sectors that are used by this inode
-            must have their integrity checked when read from or written to.</t>
-          </section>
         </section>
 
         <section anchor="InodeParentinode" title="parent_inode">
@@ -229,12 +224,6 @@
           <t>This field contains the index of the first data sector.</t>
         </section>
 
-        <section anchor="InodeFileName" title="file_name">
-          <t>This field contains a null terminated string, which is the
-          file name of the inode.</t>
-          <t>Only alphanumeric characters, periods(.) and underscores(_) are
-          allowed in the filename.</t>
-        </section>
       </section>
 
       <section anchor="Sector" title="sector">
@@ -262,10 +251,32 @@
           uses this sector is representing a file or a directory.</t>
           <t>If the inode is a file then this field contains the raw file data.
           </t>
-          <t>If the inode is a directory then this field contains a list of the
-          inode indexes of the children of the inode.</t>
+          <t>If the inode is a directory then this field contains an array of
+          the hard_link structures, each one representing a hard link to a
+          child inode.</t>
           <t>The size of this field is determined by the sector_size field in
           the header of the filesystem.</t>
+
+          <section anchor="HardLink" title="hard_link">
+            <texttable anchor="HardLinkTable" title="hard_link structure">
+              <ttcol align="center">Size</ttcol>
+              <ttcol align="center">Name</ttcol>
+              <c>1</c><c>inode_index</c>
+              <c>15</c><c>file_name</c>
+            </texttable>
+
+            <section anchor="HardLinkInodeIndex" title="inode_index">
+              <t>This field contains the index of the inode that is referenced.
+              </t>
+            </section>
+
+            <section anchor="HardLinkFileName" title="file_name">
+              <t>This field contains the file name associated with the inode.
+              The filename consists of only alphanumeric characters, periods(.)
+              and underscores(_). Any unused characters at the end of the
+              filename must be set to 0x00.</t>
+            </section>
+          </section>
         </section>
 
       </section>
