@@ -37,20 +37,22 @@
       providing all the features required of a filesystem.</t>
     </section>
 
-    <section anchor="Structures " title="Data Structures" >
+    <section anchor="Structures" title="Data Structures" >
       <t>This section defines the data structures that comprise the HAT filesystem.</t>
       <t>All sizes are given in words, which are considered to be 16 bits long.</t>
       
       <texttable anchor="StructureTable" title="Filesystem Structure">
         <ttcol align="center">Section</ttcol>
         <c>Header</c>
-        <c>INode 0</c>
-        <c>INode 1</c>
-        <c>INode 2</c>
+        <c>inode map</c>
+        <c>block map</c>
+        <c>inode 0</c>
+        <c>inode 1</c>
+        <c>inode 2</c>
         <c>...</c>
-        <c>Block 0</c>
-        <c>Block 1</c>
-        <c>Block 2</c>
+        <c>block 0</c>
+        <c>block 1</c>
+        <c>block 2</c>
         <c>...</c>
       </texttable>
 
@@ -68,7 +70,10 @@
           <c>2</c><c>inode_start</c>
           <c>2</c><c>block_start</c>
           <c>1</c><c>block_size</c>
-          <c>7</c><c>padding</c>
+          <c>2</c><c>inode_map_start</c>
+          <c>2</c><c>block_map_start</c>
+          <c>1</c><c>hash</c>
+          <c>2</c><c>padding</c>
         </texttable>
 
         <section anchor="HeaderVersion" title="version">
@@ -93,35 +98,98 @@
           </section>
         </section>
 
-        <section anchor="HeaderNumINodes" title="num_inodes">
-          <t>This field contains the total number of INodes in the filesystem.</t>
+        <section anchor="HeaderNuminodes" title="num_inodes">
+          <t>This field contains the total number of inodes in the filesystem.</t>
         </section>
 
-        <section anchor="HeaderNumBlocks" title="num_blocks">
-          <t>This field contains the total number of Blocks in the filesystem.</t>
+        <section anchor="HeaderNumblocks" title="num_blocks">
+          <t>This field contains the total number of blocks in the filesystem.</t>
         </section>
 
-        <section anchor="HeaderINodeStart" title="inode_start">
+        <section anchor="HeaderinodeStart" title="inode_start">
           <t>This field contains the address of the first inode on disk.</t>
         </section>
 
-        <section anchor="HeaderBlockStart" title="inode_start">
+        <section anchor="HeaderblockStart" title="inode_start">
           <t>This field contains the address of the first block on disk.</t>
         </section>
 
-        <section anchor="HeaderBlockSize" title="block_size">
+        <section anchor="HeaderblockSize" title="block_size">
           <t>This field contains the size of each block in the filesystem.</t>
           <t>This must be a power of 2, such as 128, 256 or 512.</t>
         </section>
+
+        <section anchor="HeaderInodeMapStart" title="inode_map_start">
+          <t>This field contains the address of the start of the inode map.</t>
+        </section>
+
+        <section anchor="HeaderBlockMapStart" title="block_map_start">
+          <t>This field contains the address of the start of the block map.</t>
+        </section>
+
+        <section anchor="HeaderHash" title="hash">
+          <t>This field contains the CRC16 hash of the rest of the header. The
+          padding and the hash fields are not included in the hash, only the
+          words from the version field up to, but excluding the hash field are
+          included in the hash.</t>
+        </section>
       </section>
 
-      <section anchor="INode" title="INode">
-        <t>The INode structure is used to store metadata about files.
+      <section anchor="InodeMap" title="inode map">
+        <t>This section is a bitmap representing which inodes are in use.
+        It can be used to quickly locate free inodes for new files.</t>
+
+        <texttable anchor="InodeMapTable" title="inode map Structure"> 
+          <ttcol align="center">Size</ttcol>
+          <ttcol align="center">Name</ttcol>
+          <c>1</c><c>hash</c>
+          <c>ceil(num_inodes/16)</c><c>bitmap</c>
+        </texttable>
+
+        <section anchor="InodeMapHash" title="hash">
+          <t>This field is a hash of the bitmap field.</t>
+        </section>
+
+        <section anchor="InodeMapBitmap" title="bitmap">
+          <t>This field is a bitmap that represents all the inodes in the
+          filesystem. Each bit of the bitmap represents whether an inode
+          is in use. When an inode is in use the corresponding bit is set
+          to 1. When an inode is free, the corresponding bit is set to 0.</t>
+          <t>Any spare bits at the end of the bitmap must be set to 1.</t>
+        </section>
+      </section>
+
+      <section anchor="BlockMap" title="block map">
+        <t>This section is a bitmap representing which blocks are in use.
+        It can be used to quickly locate free blocks for new files.</t>
+
+        <texttable anchor="BlockMapTable" title="block map structure"> 
+          <ttcol align="center">Size</ttcol>
+          <ttcol align="center">Name</ttcol>
+          <c>1</c><c>hash</c>
+          <c>ceil(num_blocks/16)</c><c>bitmap</c>
+        </texttable>
+
+        <section anchor="BlockMapHash" title="hash">
+          <t>This field is a hash of the bitmap field.</t>
+        </section>
+
+        <section anchor="blockMapBitmap" title="bitmap">
+          <t>This field is a bitmap that represents all the blocks in the
+          filesystem. Each bit of the bitmap represents whether an block
+          is in use. When an block is in use the corresponding bit is set
+          to 1. When an block is free, the corresponding bit is set to 0.</t>
+          <t>Any spare bits at the end of the bitmap must be set to 1.</t>
+        </section>
+      </section>
+
+      <section anchor="inode" title="inode">
+        <t>The inode structure is used to store metadata about files.
         It is used to find the contents of the file on disk and the
         relationship of that file to the directory structure.</t>
-        <t>The INode structure is 32 words.</t>
+        <t>The inode structure is 32 words.</t>
   
-        <texttable anchor="INodeTable" title="INode Structure">
+        <texttable anchor="inodeTable" title="inode Structure">
           <ttcol align="center">Size</ttcol>
           <ttcol align="center">Name</ttcol>
           <c>1</c><c>hash</c>
@@ -132,15 +200,13 @@
           <c>26</c><c>file_name</c>
         </texttable>
 
-        <section anchor="INodeHash" title="hash">
-          <t>This field contains the CRC16 hash of the rest of the INode.
-          The integrity of INodes must be checked when INode's are read from or
-          written to.</t>
+        <section anchor="inodeHash" title="hash">
+          <t>This field contains the CRC16 hash of the rest of the inode.</t>
         </section>
   
-        <section anchor="INodeFlags" title="flags">
+        <section anchor="inodeFlags" title="flags">
           <t>Bit 0 is the least significant bit, Bit 15 is the most significant bit.</t>
-          <texttable anchor="INodeFlagsTable" title="INode Flags">
+          <texttable anchor="inodeFlagsTable" title="inode Flags">
             <ttcol align="center">Bit</ttcol>
             <ttcol align="center">Name</ttcol>
             <c>0</c><c>in_use</c>
@@ -149,57 +215,57 @@
             <c>3 to 15</c><c>Reserved for future use</c>
           </texttable>
 
-          <section anchor="INodeFlagInUse" title="in_use">
-            <t>If the INode represents a file or directory in the filesystem that
+          <section anchor="inodeFlagInUse" title="in_use">
+            <t>If the inode represents a file or directory in the filesystem that
             is valid and has not been deleted then this field must be set to 1.
-            If the INode is not in use then this field must be set to 0.</t>
+            If the inode is not in use then this field must be set to 0.</t>
           </section>
     
-          <section anchor="INodeFlagIsDirectory" title="is_directory">
-            <t>If the INode represents a file then this flag must be set to 0.
-            If the INode represents a directory then this flag must be set to 1.
+          <section anchor="inodeFlagIsDirectory" title="is_directory">
+            <t>If the inode represents a file then this flag must be set to 0.
+            If the inode represents a directory then this flag must be set to 1.
             </t>
           </section>
     
-          <section anchor="INodeFlagCheckBlockIntegrity" title="check_block_integrity">
-            <t>If this flag is set the all blocks that are used by this INode
+          <section anchor="inodeFlagCheckblockIntegrity" title="check_block_integrity">
+            <t>If this flag is set the all blocks that are used by this inode
             must have their integrity checked when read from or written to.</t>
           </section>
         </section>
 
-        <section anchor="INodeParentINode" title="parent_inode">
-          <t>This field contains the index of the INode's parent. Every INode
-          has a parent except for the root INode whose parent is undefined and
+        <section anchor="inodeParentinode" title="parent_inode">
+          <t>This field contains the index of the inode's parent. Every inode
+          has a parent except for the root inode whose parent is undefined and
           ignored.</t>
         </section>
 
-        <section anchor="INodeContentSize" title="content_size">
-          <t>This field behaves differently depending on whether the INode
-          represents a file or a directory. If the INode represents a file
+        <section anchor="inodeContentSize" title="content_size">
+          <t>This field behaves differently depending on whether the inode
+          represents a file or a directory. If the inode represents a file
           then this field is set to the size of the file's contents in words.
-          If the INode represents a directory then this field is set to the
-          number of children the INode has.</t>
+          If the inode represents a directory then this field is set to the
+          number of children the inode has.</t>
         </section>
 
-        <section anchor="INodeBlockIndex" title="block_index">
+        <section anchor="inodeblockIndex" title="block_index">
           <t>This field contains the index of the first data block.</t>
         </section>
 
-        <section anchor="INodeFileName" title="file_name">
+        <section anchor="inodeFileName" title="file_name">
           <t>This field contains a null terminated string, which is the
-          file name of the INode.</t>
+          file name of the inode.</t>
           <t>Only alphanumeric characters, periods(.) and underscores(_) are
           allowed in the filename.</t>
         </section>
       </section>
 
-      <section anchor="Block" title="Block">
-        <t>The block structure is used to store raw data for the INodes.
-        When an INode represents a file, blocks are used to store the file
-        data. When an INode represents a directory, blocks are used to
-        store the children of the INode.</t>
+      <section anchor="block" title="block">
+        <t>The block structure is used to store raw data for the inodes.
+        When an inode represents a file, blocks are used to store the file
+        data. When an inode represents a directory, blocks are used to
+        store the children of the inode.</t>
 
-        <texttable anchor="BlockTable" title="Block Structure">
+        <texttable anchor="blockTable" title="block Structure">
           <ttcol align="center">Size</ttcol>
           <ttcol align="center">Name</ttcol>
           <c>1</c><c>hash</c>
@@ -207,27 +273,27 @@
           <c>block_size - 2</c><c>block_data</c>
         </texttable>
 
-        <section anchor="BlockHash" title="hash">
+        <section anchor="blockHash" title="hash">
           <t>This field is only used when the check_block_integrity flag
-          is enabled in the INode that this block is used by. When used, this
+          is enabled in the inode that this block is used by. When used, this
           field must contain the CRC16 hash of the rest of the rest of the
           block.</t>
         </section>
 
-        <section anchor="BlockNextBlockINdex" title="next_block_index">
+        <section anchor="blockNextblockINdex" title="next_block_index">
           <t>This field contains the index of the block that follows this one.
           When there is no such block this field's value is undefined as the
           number of blocks known is determined by the content_size field of
-          the INode structure.</t>
+          the inode structure.</t>
         </section>
 
-        <section anchor="BlockBlockData" title="block_data">
-          <t>This field is used differently depending on whether the INode that
+        <section anchor="blockblockData" title="block_data">
+          <t>This field is used differently depending on whether the inode that
           uses this block is representing a file or a directory.</t>
-          <t>If the INode is a file then this field contains the raw file data.
+          <t>If the inode is a file then this field contains the raw file data.
           </t>
-          <t>If the INode is a directory then this field contains a list of the
-          INode indexes of the children of the INode.</t>
+          <t>If the inode is a directory then this field contains a list of the
+          inode indexes of the children of the inode.</t>
           <t>The size of this field is determined by the block_size field in
           the header of the filesystem.</t>
         </section>
