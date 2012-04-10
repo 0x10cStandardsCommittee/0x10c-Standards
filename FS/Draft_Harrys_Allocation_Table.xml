@@ -72,7 +72,9 @@
           <c>1</c><c>sector_size</c>
           <c>2</c><c>inode_map_start</c>
           <c>2</c><c>sector_map_start</c>
-          <c>3</c><c>padding</c>
+          <c>1</c><c>inodes_used</c>
+          <c>1</c><c>sectors_used</c>
+          <c>1</c><c>padding</c>
         </texttable>
 
         <section anchor="HeaderVersion" title="version">
@@ -126,6 +128,16 @@
           <t>This field contains the address of the start of the sector map.</t>
         </section>
 
+        <section anchor="HeaderInodesUsed" title="inodes_used">
+          <t>This field contains the number of inodes that are currently in
+          use.</t>
+        </section>
+
+        <section anchor="HeaderSectorsUsed" title="sectors_used">
+          <t>This field contains the number of sectors that are currently in
+          use.</t>
+        </section>
+
       </section>
 
       <section anchor="InodeMap" title="inode map">
@@ -175,35 +187,19 @@
         <texttable anchor="InodeTable" title="inode Structure">
           <ttcol align="center">Size</ttcol>
           <ttcol align="center">Name</ttcol>
-          <c>1</c><c>flags</c>
+          <c>1</c><c>type</c>
           <c>1</c><c>parent_inode</c>
           <c>2</c><c>content_size</c>
           <c>1</c><c>sector_index</c>
-          <c>3</c><c>padding</c>
+          <c>1</c><c>link_count</c>
+          <c>2</c><c>padding</c>
         </texttable>
 
-        <section anchor="InodeFlags" title="flags">
-          <t>Bit 0 is the least significant bit, Bit 15 is the most significant bit.</t>
-          <texttable anchor="InodeFlagsTable" title="inode Flags">
-            <ttcol align="center">Bit</ttcol>
-            <ttcol align="center">Name</ttcol>
-            <c>0</c><c>in_use</c>
-            <c>1</c><c>is_directory</c>
-            <c>2 to 15</c><c>Reserved for future use</c>
-          </texttable>
-
-          <section anchor="InodeFlagInUse" title="in_use">
-            <t>If the inode represents a file or directory in the filesystem that
-            is valid and has not been deleted then this field must be set to 1.
-            If the inode is not in use then this field must be set to 0.</t>
-          </section>
-    
-          <section anchor="InodeFlagIsDirectory" title="is_directory">
-            <t>If the inode represents a file then this flag must be set to 0.
-            If the inode represents a directory then this flag must be set to 1.
-            </t>
-          </section>
-    
+        <section anchor="InodeType" title="type">
+          <t>This field indicates what type of inode it is. If this field is
+          set to 0 then the inode is not in use and represents nothing. If this
+          field is set to 1 then the inode represents a directory. If this
+          field is set to 2 then the inode represents a file.</t>
         </section>
 
         <section anchor="InodeParentinode" title="parent_inode">
@@ -222,6 +218,11 @@
 
         <section anchor="InodeSectorIndex" title="sector_index">
           <t>This field contains the index of the first data sector.</t>
+        </section>
+
+        <section anchor="InodeLinkAccount" title="link_count">
+          <t>This field contains the number of hard_links there are that
+          point to this inode.</t>
         </section>
 
       </section>
