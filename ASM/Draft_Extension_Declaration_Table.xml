@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc private="RFC X____ (Draft-Asm)" ?>
+<rfc ipr="none" number="____" category="info" docName="draft-assembly-relocation-table">
+  <front>
+    <title abbrev="Extension Declaration Table">Extension Declaration Table</title>
+
+    <author fullname="James Rhodes" initials="J.R." role="editor"
+            surname="Rhodes">
+      <organization>Redpoint Software</organization>
+
+      <address>
+        <email>jrhodes@redpointsoftware.com.au</email>
+        <uri>http://www.redpointsoftware.com.au/</uri>
+      </address>
+    </author>
+
+    <date month="April" year="2012" />
+    <area>Asm</area>
+    <workgroup>0x10c Standards Committee</workgroup>
+    <abstract>
+      <t>This draft provides a formal structure for assemblers to notify
+      emulators what non-standard extensions a specific set of binary
+      code is relying on (such as input or hardware interfaces).</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+      <t>There are currently a wide variety of implementations for hardware
+      components such as screens and keyboard input.  Each implementation
+      of this hardware varies between emulator causing unintended discrepancies
+      when running assembly code in a different emulator.</t>
+      <t>This RFC strives
+      to ensure that emulators provide only standard functionality unless
+      experimental features are explicitly requested when assembling the code
+      originally.</t>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+    </section>
+    
+    <section anchor="extension-definition" title="Extension Definition">
+      <t>An extension is herein defined as a request for additional functionality
+      to be provided by the emulator or assembler which is not yet an approved
+      standard.</t>
+      <t>This includes functionality which is widely used in the
+      community (screens and keyboard input at the time of writing) that has
+      not yet been confirmed by Notch.</t>
+    </section>
+    
+    <section anchor="role-of-assemblers" title="Role of Assemblers">
+      <t>For the purposes of this draft, the role of assemblers is to generate
+      code from a defined syntax to DCPU-16 bytecode.</t>
+      <t>In this case, assemblers MUST generate an extension table, unless
+      the total number of extensions requested is 0, in which case the
+      assembler MUST NOT generate an extension table.</t>
+      <t>Assemblers SHOULD support a directive format that allows users to
+      specify which extensions they wish to use, although the exact syntax
+      of the format is not specified.  If an assembler provides syntax to
+      the user to enable a given extension, they MUST use the extension
+      names specified in this document.  If an assembler does not provide
+      a syntax to enable specific extensions, it MUST NOT emit an extension
+      table under any circumstances.  From herein, the syntax through which
+      an assembler allows extensions to be enabled will be referred to as
+      the 'extension directive'.</t>
+      <t>When functionality that was previously provided via an extension
+      becomes standardized, assemblers that have support for recognising the specific
+      extension SHOULD continue to recognise it in the extension directive
+      for a reasonable period, after which they MAY drop recognising it
+      (for example, at a next major release).</t>
+      <t>If an assembler did not previously recognise a specific
+      extension name, and the extension becomes standardized, then the
+      assembler SHOULD NOT recognise the extension name in the extension
+      directive, unless it is still widely used.</t>
+    </section>
+    
+    <section anchor="role-of-emulators" title="Role of Emulators">
+      <t>For the purposes of this draft, the role of emulators is to execute
+      DCPU-16 bytecode produced by an assembler according to standards laid
+      out officially by Notch and the committee.</t>
+      <t>If an emulator is executing bytecode which does not have an extension
+      table in the specified format, it MUST NOT provide any additional features
+      other than those defined in standards.</t>
+      <t>Emulators MUST NOT provide non-standard functionality unless it is
+      specifically requested by the code.  This includes current non-standard
+      extensions such as screens and keyboard input; emulators MUST stop providing
+      this functionality to code that does not request it.  [The author of this
+      draft is aware that this will prevent existing compiled code from working
+      in standardized emulators; this is intended to ensure code standardization]</t>
+      <t>Emulators MAY drop support or add support for extensions at any time,
+      without any prerequisites on doing so.</t>
+      <t>Unlike assemblers, when functionality that was previously provided
+      via an extension becomes standardized, emulators MUST continue to support
+      the extension in the extension table.</t>
+      <t>In addition, when functionality that was previously provided via
+      an extension that the emulator did not support becomes standardized,
+      emulators MUST support the new standard and MUST recognise the previously
+      used extension name (although it will not affect emulator functionality
+      as the extension functionality is now standard).</t>
+    </section>
+    
+    <section anchor="extension-table-format" title="Extension Table Format">
+      <t>For purposes of future versioning, this document specifies version 1
+         of the extension table format.</t>
+      <t>The format of the extension table is as follows:</t>
+      <texttable anchor="extension-table" title="Extension Table">
+        <ttcol align="center">Field</ttcol>
+        <ttcol align="center">Size</ttcol>
+        <c>Magic number (0xF100)</c>
+        <c>Single word</c>
+        <c>Version number (0x0001)</c>
+        <c>Single word</c>
+        <c>Number of entries in table</c>
+        <c>Single word</c>
+        <c>Entry 1</c>
+        <c>String length + 1</c>
+        <c>...</c>
+        <c>...</c>
+        <c>Entry N</c>
+        <c>String length + 1</c>
+      </texttable>
+      <t>Each string is a unique entry, and one either defined in the
+      table below, or may be a non-standard name (providing it is
+      unique and meaningful) that is defined by either an assembler
+      or emulator.</t>
+      <t>Strings are formatted with each ASCII character taking up a
+      single word, plus a NULL terminator (which also takes up a single
+      word).  Thus the size of a string is the number of characters,
+      plus one for the terminator (as shown in the table above).</t>
+      <t>Note that the "Number of entries" is strictly this; the table
+      does not expose it's total size in words.</t>
+    </section>
+
+    <section anchor="extension-table-position" title="Extension Table Positioning">
+      <t>The assembly extension table must be positioned inside the generated
+      code, but have no effect on the program execution.</t>
+      <t>When an assembler generates an extension table, the first instruction
+      MUST be a jump to the start of the actual program code.  This results
+      in the first two words being:</t>
+      <texttable anchor="extension-setup-table" title="Extension Setup Table">
+        <ttcol align="center">Contents of single Word</ttcol>
+        <c>SET PC, &lt;next word literally&gt;</c>
+        <c>Location of first program instruction</c>
+      </texttable>
+      <t>It is important to note that assemblers will have to offset all label
+      addresses by the total size (not number of entries) of the extension
+      table, plus the two words at the start.</t>
+    </section>
+    
+    <section anchor="extension-names" title="Extension Names">
+      <t>The following is a list of extension names currently applicable.
+      Assemblers and emulators SHOULD support these directives until such
+      time as the specific functionality is standardized.</t>
+      <texttable anchor="extension-names-table" title="Extension Names">
+        <ttcol align="center">Name</ttcol>
+        <c>experimental-output-screen-32x12-0x8000</c>
+        <c>experimental-output-screen-32x16-0x8000</c>
+        <c>experimental-input-keyboard-single-0x9000</c>
+      </texttable>
+      <t>Individual assemblers and emulators may support names outside
+      these values.  If an emulator encounters an extension name that
+      it can not handle, it MUST NOT execute the byte code.</t>
+      <t>Likewise, if an assembler encounters an extension name that it does not
+      recognise, it MUST NOT assemble the byte code and MUST inform
+      the user that it does not support the extension name.</t>
+
+      <section title="experimental-output-screen-32x12-0x8000">
+        <t>Indiciates that the code wishes for a memory-mapped screen to
+        be positioned at 0x8000 in RAM, with a size of 32x12.</t>
+      </section>
+      
+      <section title="experimental-output-screen-32x16-0x8000">
+        <t>Indiciates that the code wishes for a memory-mapped screen to
+        be positioned at 0x8000 in RAM, with a size of 32x16.</t>
+      </section>
+      
+      <section title="experimental-input-keyboard-single-0x9000">
+        <t>Indiciates that the code wishes for the ASCII code of the last
+        key pressed to be placed at 0x9000.  The emulator only exposes the single,
+        last key pressed and MUST NOT clear the position when the key
+        is released.  The emulator MUST continue to set the value of
+        0x9000 whileever a key is held down.</t>
+      </section>
+    </section>
+    
+    <section anchor="security" title="Security Considerations">
+      <t>The extension table is read once at the start by an emulator and hence
+      even if the program overwrites it's own extension table, it has no effect
+      on on-going execution.</t>
+      <t>Emulators MUST NOT enable features if the extension table changes
+      at run-time.</t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      <?rfc include="reference.RFC.2119.xml"?>
+    </references>
+  </back>
+
+</rfc>
+
