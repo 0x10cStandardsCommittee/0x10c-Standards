@@ -2,7 +2,7 @@
 
 
 RFC (Draft-Fs)                                           H. Jeffery, Ed.
-                                                           April 9, 2012
+                                                          April 10, 2012
 
 
                         Harry's Allocation Table
@@ -18,34 +18,34 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
    2.  Data Structures . . . . . . . . . . . . . . . . . . . . . . . . 2
-     2.1.  Header  . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+     2.1.  header  . . . . . . . . . . . . . . . . . . . . . . . . . . 2
        2.1.1.  version . . . . . . . . . . . . . . . . . . . . . . . . 3
        2.1.2.  flags . . . . . . . . . . . . . . . . . . . . . . . . . 3
          2.1.2.1.  is_mounted  . . . . . . . . . . . . . . . . . . . . 3
-       2.1.3.  num_inodes  . . . . . . . . . . . . . . . . . . . . . . 3
-       2.1.4.  num_blocks  . . . . . . . . . . . . . . . . . . . . . . 4
+       2.1.3.  num_inodes  . . . . . . . . . . . . . . . . . . . . . . 4
+       2.1.4.  num_sectors . . . . . . . . . . . . . . . . . . . . . . 4
        2.1.5.  inode_start . . . . . . . . . . . . . . . . . . . . . . 4
-       2.1.6.  inode_start . . . . . . . . . . . . . . . . . . . . . . 4
-       2.1.7.  block_size  . . . . . . . . . . . . . . . . . . . . . . 4
-     2.2.  INode . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
-       2.2.1.  hash  . . . . . . . . . . . . . . . . . . . . . . . . . 4
-       2.2.2.  flags . . . . . . . . . . . . . . . . . . . . . . . . . 5
-         2.2.2.1.  in_use  . . . . . . . . . . . . . . . . . . . . . . 5
-         2.2.2.2.  is_directory  . . . . . . . . . . . . . . . . . . . 5
-         2.2.2.3.  is_executable . . . . . . . . . . . . . . . . . . . 5
-         2.2.2.4.  is_writable . . . . . . . . . . . . . . . . . . . . 5
-         2.2.2.5.  check_block_integrity . . . . . . . . . . . . . . . 5
-       2.2.3.  parent_inode  . . . . . . . . . . . . . . . . . . . . . 5
-       2.2.4.  content_size  . . . . . . . . . . . . . . . . . . . . . 6
-       2.2.5.  block_index . . . . . . . . . . . . . . . . . . . . . . 6
-       2.2.6.  file_name . . . . . . . . . . . . . . . . . . . . . . . 6
-     2.3.  Block . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
-       2.3.1.  hash  . . . . . . . . . . . . . . . . . . . . . . . . . 6
-       2.3.2.  next_block_index  . . . . . . . . . . . . . . . . . . . 7
-       2.3.3.  block_data  . . . . . . . . . . . . . . . . . . . . . . 7
-   3.  Security Considerations . . . . . . . . . . . . . . . . . . . . 7
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 7
-
+       2.1.6.  sector_start  . . . . . . . . . . . . . . . . . . . . . 4
+       2.1.7.  sector_size . . . . . . . . . . . . . . . . . . . . . . 4
+       2.1.8.  inode_map_start . . . . . . . . . . . . . . . . . . . . 4
+       2.1.9.  sector_map_start  . . . . . . . . . . . . . . . . . . . 4
+       2.1.10. inodes_used . . . . . . . . . . . . . . . . . . . . . . 4
+       2.1.11. sectors_used  . . . . . . . . . . . . . . . . . . . . . 4
+     2.2.  inode map . . . . . . . . . . . . . . . . . . . . . . . . . 4
+       2.2.1.  bitmap  . . . . . . . . . . . . . . . . . . . . . . . . 5
+     2.3.  sector map  . . . . . . . . . . . . . . . . . . . . . . . . 5
+       2.3.1.  bitmap  . . . . . . . . . . . . . . . . . . . . . . . . 5
+     2.4.  inode . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+       2.4.1.  type  . . . . . . . . . . . . . . . . . . . . . . . . . 6
+       2.4.2.  parent_inode  . . . . . . . . . . . . . . . . . . . . . 6
+       2.4.3.  content_size  . . . . . . . . . . . . . . . . . . . . . 6
+       2.4.4.  sector_index  . . . . . . . . . . . . . . . . . . . . . 6
+       2.4.5.  link_count  . . . . . . . . . . . . . . . . . . . . . . 6
+     2.5.  sector  . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+       2.5.1.  next_sector_index . . . . . . . . . . . . . . . . . . . 7
+       2.5.2.  sector_data . . . . . . . . . . . . . . . . . . . . . . 7
+         2.5.2.1.  hard_link . . . . . . . . . . . . . . . . . . . . . 7
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 8
 
 
 
@@ -75,29 +75,29 @@ Jeffery                                                         [Page 1]
    All sizes are given in words, which are considered to be 16 bits
    long.
 
-                                +---------+
-                                | Section |
-                                +---------+
-                                |  Header |
-                                | INode 0 |
-                                | INode 1 |
-                                | INode 2 |
-                                |   ...   |
-                                | Block 0 |
-                                | Block 1 |
-                                | Block 2 |
-                                |   ...   |
-                                +---------+
+                              +------------+
+                              |   Section  |
+                              +------------+
+                              |   header   |
+                              |  inode map |
+                              | sector map |
+                              |   inode 0  |
+                              |   inode 1  |
+                              |   inode 2  |
+                              |     ...    |
+                              |  sector 0  |
+                              |  sector 1  |
+                              |  sector 2  |
+                              |     ...    |
+                              +------------+
 
                        Table 1: Filesystem Structure
 
-2.1.  Header
+2.1.  header
 
    This structure contains the header information for HAT.
 
    The total size of the header is 16 words.
-
-
 
 
 
@@ -113,18 +113,22 @@ Jeffery                                                         [Page 2]
                                    HAT                        April 2012
 
 
-                          +------+-------------+
-                          | Size |     Name    |
-                          +------+-------------+
-                          |   1  |   version   |
-                          |   1  |    flags    |
-                          |   1  |  num_inodes |
-                          |   1  |  num_blocks |
-                          |   2  | inode_start |
-                          |   2  | block_start |
-                          |   1  |  block_size |
-                          |   7  |   padding   |
-                          +------+-------------+
+                        +------+------------------+
+                        | Size |       Name       |
+                        +------+------------------+
+                        |   1  |      version     |
+                        |   1  |       flags      |
+                        |   1  |    num_inodes    |
+                        |   1  |    num_sectors   |
+                        |   2  |    inode_start   |
+                        |   2  |   sector_start   |
+                        |   1  |    sector_size   |
+                        |   2  |  inode_map_start |
+                        |   2  | sector_map_start |
+                        |   1  |    inodes_used   |
+                        |   1  |   sectors_used   |
+                        |   1  |      padding     |
+                        +------+------------------+
 
                          Table 2: Header Structure
 
@@ -155,10 +159,6 @@ Jeffery                                                         [Page 2]
    If this filesystem is currently mounted then this field must be set
    to 1, otherwise it must be set to 0.
 
-2.1.3.  num_inodes
-
-   This field contains the total number of INodes in the filesystem.
-
 
 
 
@@ -169,50 +169,50 @@ Jeffery                                                         [Page 3]
                                    HAT                        April 2012
 
 
-2.1.4.  num_blocks
+2.1.3.  num_inodes
 
-   This field contains the total number of Blocks in the filesystem.
+   This field contains the total number of inodes in the filesystem.
+
+2.1.4.  num_sectors
+
+   This field contains the total number of sectors in the filesystem.
 
 2.1.5.  inode_start
 
    This field contains the address of the first inode on disk.
 
-2.1.6.  inode_start
+2.1.6.  sector_start
 
-   This field contains the address of the first block on disk.
+   This field contains the address of the first sector on disk.
 
-2.1.7.  block_size
+2.1.7.  sector_size
 
-   This field contains the size of each block in the filesystem.
+   This field contains the size of each sector in the filesystem.
 
    This must be a power of 2, such as 128, 256 or 512.
 
-2.2.  INode
+2.1.8.  inode_map_start
 
-   The INode structure is used to store metadata about files.  It is
-   used to find the contents of the file on disk and the relationship of
-   that file to the directory structure.
+   This field contains the address of the start of the inode map.
 
-   The INode structure is 32 words.
+2.1.9.  sector_map_start
 
-                          +------+--------------+
-                          | Size |     Name     |
-                          +------+--------------+
-                          |   1  |     hash     |
-                          |   1  |     flags    |
-                          |   1  | parent_inode |
-                          |   2  | content_size |
-                          |   1  |  block_index |
-                          |  26  |   file_name  |
-                          +------+--------------+
+   This field contains the address of the start of the sector map.
 
-                         Table 4: INode Structure
+2.1.10.  inodes_used
 
-2.2.1.  hash
+   This field contains the number of inodes that are currently in use.
 
-   This field contains the CRC16 hash of the rest of the INode.  The
-   integrity of INodes must be checked when INode's are read from or
-   written to.
+2.1.11.  sectors_used
+
+   This field contains the number of sectors that are currently in use.
+
+2.2.  inode map
+
+   This section is a bitmap representing which inodes are in use.  It
+   can be used to quickly locate free inodes for new files.
+
+
 
 
 
@@ -225,54 +225,54 @@ Jeffery                                                         [Page 4]
                                    HAT                        April 2012
 
 
-2.2.2.  flags
+                     +---------------------+--------+
+                     |         Size        |  Name  |
+                     +---------------------+--------+
+                     | ceil(num_inodes/16) | bitmap |
+                     +---------------------+--------+
 
-   Bit 0 is the least significant bit, Bit 15 is the most significant
-   bit.
+                       Table 4: inode map Structure
 
-                   +---------+-------------------------+
-                   |   Bit   |           Name          |
-                   +---------+-------------------------+
-                   |    0    |          in_use         |
-                   |    1    |       is_directory      |
-                   |    2    |      is_executable      |
-                   |    3    |       is_writable       |
-                   |    4    |  check_block_integrity  |
-                   | 5 to 15 | Reserved for future use |
-                   +---------+-------------------------+
+2.2.1.  bitmap
 
-                           Table 5: INode Flags
+   This field is a bitmap that represents all the inodes in the
+   filesystem.  Each bit of the bitmap represents whether an inode is in
+   use.  When an inode is in use the corresponding bit is set to 1.
+   When an inode is free, the corresponding bit is set to 0.
 
-2.2.2.1.  in_use
+   Any spare bits at the end of the bitmap must be set to 1.
 
-   If the INode represents a file or directory in the filesystem that is
-   valid and has not been deleted then this field must be set to 1.  If
-   the INode is not in use then this field must be set to 0.
+2.3.  sector map
 
-2.2.2.2.  is_directory
+   This section is a bitmap representing which sectors are in use.  It
+   can be used to quickly locate free sectors for new files.
 
-   If the INode represents a file then this flag must be set to 0.  If
-   the INode represents a directory then this flag must be set to 1.
+                     +----------------------+--------+
+                     |         Size         |  Name  |
+                     +----------------------+--------+
+                     | ceil(num_sectors/16) | bitmap |
+                     +----------------------+--------+
 
-2.2.2.3.  is_executable
+                       Table 5: sector map structure
 
-   If the INode represents a binary file that can be executed then this
-   flag should be set to 1, otherwise it should be set to 0.
+2.3.1.  bitmap
 
-2.2.2.4.  is_writable
+   This field is a bitmap that represents all the sectors in the
+   filesystem.  Each bit of the bitmap represents whether an sector is
+   in use.  When an sector is in use the corresponding bit is set to 1.
+   When an sector is free, the corresponding bit is set to 0.
 
-   If this flag is not set then it must not be possible to write to or
-   modify the file in any way other than changing this flag.
+   Any spare bits at the end of the bitmap must be set to 1.
 
-2.2.2.5.  check_block_integrity
+2.4.  inode
 
-   If this flag is set the all blocks that are used by this INode must
-   have their integrity checked when read from or written to.
+   The inode structure is used to store metadata about files.  It is
+   used to find the contents of the file on disk and the relationship of
+   that file to the directory structure.
 
-2.2.3.  parent_inode
+   The inode structure is 32 words.
 
-   This field contains the index of the INode's parent.  Every INode has
-   a parent except for the root INode whose parent is undefined and
+
 
 
 
@@ -281,54 +281,54 @@ Jeffery                                                         [Page 5]
                                    HAT                        April 2012
 
 
+                          +------+--------------+
+                          | Size |     Name     |
+                          +------+--------------+
+                          |   1  |     type     |
+                          |   1  | parent_inode |
+                          |   2  | content_size |
+                          |   1  | sector_index |
+                          |   1  |  link_count  |
+                          |   2  |    padding   |
+                          +------+--------------+
+
+                         Table 6: inode Structure
+
+2.4.1.  type
+
+   This field indicates what type of inode it is.  If this field is set
+   to 0 then the inode is not in use and represents nothing.  If this
+   field is set to 1 then the inode represents a directory.  If this
+   field is set to 2 then the inode represents a file.
+
+2.4.2.  parent_inode
+
+   This field contains the index of the inode's parent.  Every inode has
+   a parent except for the root inode whose parent is undefined and
    ignored.
 
-2.2.4.  content_size
+2.4.3.  content_size
 
-   This field behaves differently depending on whether the INode
-   represents a file or a directory.  If the INode represents a file
+   This field behaves differently depending on whether the inode
+   represents a file or a directory.  If the inode represents a file
    then this field is set to the size of the file's contents in words.
-   If the INode represents a directory then this field is set to the
-   number of children the INode has.
+   If the inode represents a directory then this field is set to the
+   number of children the inode has.
 
-2.2.5.  block_index
+2.4.4.  sector_index
 
-   This field contains the index of the first data block.
+   This field contains the index of the first data sector.
 
-2.2.6.  file_name
+2.4.5.  link_count
 
-   This field contains a null terminated string, which is the file name
-   of the INode.
+   This field contains the number of hard_links there are that point to
+   this inode.
 
-   Only alphanumeric characters, periods(.) and underscores(_) are
-   allowed in the filename.
+2.5.  sector
 
-2.3.  Block
-
-   The block structure is used to store raw data for the INodes.  When
-   an INode represents a file, blocks are used to store the file data.
-   When an INode represents a directory, blocks are used to store the
-   children of the INode.
-
-                   +----------------+------------------+
-                   |      Size      |       Name       |
-                   +----------------+------------------+
-                   |        1       |       hash       |
-                   |        1       | next_block_index |
-                   | block_size - 2 |    block_data    |
-                   +----------------+------------------+
-
-                         Table 6: Block Structure
-
-2.3.1.  hash
-
-   This field is only used when the check_block_integrity flag is
-   enabled in the INode that this block is used by.  When used, this
-   field must contain the CRC16 hash of the rest of the rest of the
-   block.
-
-
-
+   The sector structure is used to store raw data for the inodes.  When
+   an inode represents a file, sectors are used to store the file data.
+   When an inode represents a directory, sectors are used to store the
 
 
 
@@ -337,32 +337,68 @@ Jeffery                                                         [Page 6]
                                    HAT                        April 2012
 
 
-2.3.2.  next_block_index
+   children of the inode.
 
-   This field contains the index of the block that follows this one.
-   When there is no such block this field's value is undefined as the
-   number of blocks known is determined by the content_size field of the
-   INode structure.
+                  +-----------------+-------------------+
+                  |       Size      |        Name       |
+                  +-----------------+-------------------+
+                  |        1        | next_sector_index |
+                  | sector_size - 2 |    sector_data    |
+                  +-----------------+-------------------+
 
-2.3.3.  block_data
+                         Table 7: sector Structure
 
-   This field is used differently depending on whether the INode that
-   uses this block is representing a file or a directory.
+2.5.1.  next_sector_index
 
-   If the INode is a file then this field contains the raw file data.
+   This field contains the index of the sector that follows this one.
+   When there is no such sector this field's value is undefined as the
+   number of sectors known is determined by the content_size field of
+   the inode structure.
 
-   If the INode is a directory then this field contains a list of the
-   INode indexes of the children of the INode.
+2.5.2.  sector_data
 
-   The size of this field is determined by the block_size field in the
+   This field is used differently depending on whether the inode that
+   uses this sector is representing a file or a directory.
+
+   If the inode is a file then this field contains the raw file data.
+
+   If the inode is a directory then this field contains an array of the
+   hard_link structures, each one representing a hard link to a child
+   inode.
+
+   The size of this field is determined by the sector_size field in the
    header of the filesystem.
 
+2.5.2.1.  hard_link
 
-3.  Security Considerations
+                          +------+-------------+
+                          | Size |     Name    |
+                          +------+-------------+
+                          |   1  | inode_index |
+                          |  15  |  file_name  |
+                          +------+-------------+
 
-   As there is no way to prevent programs from accessing the disk
-   directly and reading/writing data HAT makes no attempt at providing
-   any data security.
+                       Table 8: hard_link structure
+
+2.5.2.1.1.  inode_index
+
+   This field contains the index of the inode that is referenced.
+
+
+
+
+
+Jeffery                                                         [Page 7]
+
+                                   HAT                        April 2012
+
+
+2.5.2.1.2.  file_name
+
+   This field contains the file name associated with the inode.  The
+   filename consists of only alphanumeric characters, periods(.) and
+   underscores(_).  Any unused characters at the end of the filename
+   must be set to 0x00.
 
 
 Author's Address
@@ -388,5 +424,25 @@ Author's Address
 
 
 
-Jeffery                                                         [Page 7]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jeffery                                                         [Page 8]
 
