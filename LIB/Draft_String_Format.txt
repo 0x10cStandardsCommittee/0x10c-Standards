@@ -124,13 +124,11 @@ Schuetze                                                        [Page 2]
    Note that the empty P-string consists entirely of a length word
    containing 0x0000.
 
-
      P-STRING  =  LENGTH BODY
      LENGTH    =  n
      BODY      =  nWORD
      WORD      =  %x0000-ffff
                        ; any 16-bit value
-
 
 
 3.  Rationale
@@ -153,14 +151,16 @@ Schuetze                                                        [Page 2]
    o  The null-character can be used in strings, while using it in a
       C-string would terminate the string.
 
-   o  The runtime cost of P-string concatenation is O(n), while the
-      runtime cost of C-string concatenation is O(n+m).
+   o  The same format can be used for other data structures such as
+      length-prefixed arrays.  This means that functions such as concat
+      must only be implemented once.
 
 3.2.  Disadvantages
 
    o  Indexing begins at 1 instead of 0.
 
-
+   o  Fixed-length strings still require a prefixed length word.  The
+      same would be true of fixed-length C-strings.  Both formats can be
 
 
 
@@ -169,8 +169,6 @@ Schuetze                                                        [Page 3]
                               String Format                   April 2012
 
 
-   o  Fixed-length strings still require a prefixed length word.  The
-      same would be true of fixed-length C-strings.  Both formats can be
       abbreviated by omitting the known prefix/terminator at the cost of
       ceasing to be a P- or C-string per the definitions given here.
 
@@ -220,5 +218,8 @@ Author's Address
 
 
 
+
+
 Schuetze                                                        [Page 4]
+
 

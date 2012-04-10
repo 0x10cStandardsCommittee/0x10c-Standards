@@ -131,6 +131,9 @@
 				</t>
 				<t>The null-character can be used in strings, while 
 				using it in a C-string would terminate the string.</t>
+				<t>The same format can be used for other data structures
+				such as length-prefixed arrays. This means that
+				functions such as concat must only be implemented once.</t>
 			</list>
 			</t>
 		</section>
