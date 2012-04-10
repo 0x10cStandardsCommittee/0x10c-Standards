@@ -22,7 +22,7 @@ Table of Contents
    3.  Rationale . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
      3.1.  Benefits  . . . . . . . . . . . . . . . . . . . . . . . . . 3
      3.2.  Disadvantages . . . . . . . . . . . . . . . . . . . . . . . 3
-   4.  Other Notes . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   4.  Other Notes . . . . . . . . . . . . . . . . . . . . . . . . . . 4
    5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 4
    6.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 4
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 4
@@ -116,12 +116,21 @@ Schuetze                                                        [Page 2]
 2.  Format
 
    A P-string is composed of a 16-bit length prefix and a sequence of n
-   characters where n is the value of the prefix.
+   words where n is the value of the prefix.
 
-   P-string = n (nCHAR)
+   The prefix word MUST be present and MUST represent the exact number
+   of following words.
 
-   The prefix for such a string MUST be present and MUST represent the
-   exact number of following characters.
+   Note that the empty P-string consists entirely of a length word
+   containing 0x0000.
+
+
+     P-STRING  =  LENGTH BODY
+     LENGTH    =  n
+     BODY      =  nWORD
+     WORD      =  %x0000-ffff
+                       ; any 16-bit value
+
 
 
 3.  Rationale
@@ -151,15 +160,6 @@ Schuetze                                                        [Page 2]
 
    o  Indexing begins at 1 instead of 0.
 
-   o  Fixed-length strings still require a prefixed length word.  The
-      same would be true of fixed-length C-strings.  Both formats can be
-      abbreviated by omitting the known prefix/terminator at the cost of
-      ceasing to be a P- or C-string per the definitions given here.
-
-
-4.  Other Notes
-
-
 
 
 
@@ -168,6 +168,14 @@ Schuetze                                                        [Page 3]
 
                               String Format                   April 2012
 
+
+   o  Fixed-length strings still require a prefixed length word.  The
+      same would be true of fixed-length C-strings.  Both formats can be
+      abbreviated by omitting the known prefix/terminator at the cost of
+      ceasing to be a P- or C-string per the definitions given here.
+
+
+4.  Other Notes
 
    o  Since the smallest addressable size in the DCPU is a word (16
       bits), this effectively allows a maximum string length of 65536
@@ -207,14 +215,6 @@ Author's Address
    Malte Schuetze
 
    Email: malte.schuetze@fgms.de
-
-
-
-
-
-
-
-
 
 
 

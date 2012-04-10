@@ -97,11 +97,23 @@
 		</section>
 		<section anchor="structure" title="Format">
 			<t>A P-string is composed of a 16-bit length prefix and a 
-			sequence of n characters where n is the value of the prefix.
+			sequence of n words where n is the value of the prefix.
 			</t>
-			<t>P-string = n (nCHAR)</t>
-			<t>The prefix for such a string MUST be present and MUST 
-			represent the exact number of following characters.</t>
+			<t>The prefix word MUST be present and MUST represent the exact
+			number of following words.</t>
+			<t>Note that the empty P-string consists entirely of a length word
+			containing 0x0000.</t>
+			<figure>
+				<artwork>
+					<![CDATA[
+  P-STRING  =  LENGTH BODY
+  LENGTH    =  n
+  BODY      =  nWORD
+  WORD      =  %x0000-ffff
+                    ; any 16-bit value
+]]>
+				</artwork>
+			</figure>
 		</section>
 		<section anchor="rationale" title="Rationale">
 			<t>This section is not normative.</t>
