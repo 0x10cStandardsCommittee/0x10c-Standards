@@ -37,24 +37,26 @@
       providing all the features required of a filesystem.</t>
     </section>
 
-    <section anchor="Structures " title="Data Structures" >
+    <section anchor="Structures" title="Data Structures" >
       <t>This section defines the data structures that comprise the HAT filesystem.</t>
       <t>All sizes are given in words, which are considered to be 16 bits long.</t>
       
       <texttable anchor="StructureTable" title="Filesystem Structure">
         <ttcol align="center">Section</ttcol>
-        <c>Header</c>
-        <c>INode 0</c>
-        <c>INode 1</c>
-        <c>INode 2</c>
+        <c>header</c>
+        <c>inode map</c>
+        <c>sector map</c>
+        <c>inode 0</c>
+        <c>inode 1</c>
+        <c>inode 2</c>
         <c>...</c>
-        <c>Block 0</c>
-        <c>Block 1</c>
-        <c>Block 2</c>
+        <c>sector 0</c>
+        <c>sector 1</c>
+        <c>sector 2</c>
         <c>...</c>
       </texttable>
 
-      <section anchor="Header" title="Header">
+      <section anchor="Header" title="header">
         <t>This structure contains the header information for HAT.</t>
         <t>The total size of the header is 16 words.</t>
 
@@ -64,11 +66,15 @@
           <c>1</c><c>version</c>
           <c>1</c><c>flags</c>
           <c>1</c><c>num_inodes</c>
-          <c>1</c><c>num_blocks</c>
+          <c>1</c><c>num_sectors</c>
           <c>2</c><c>inode_start</c>
-          <c>2</c><c>block_start</c>
-          <c>1</c><c>block_size</c>
-          <c>7</c><c>padding</c>
+          <c>2</c><c>sector_start</c>
+          <c>1</c><c>sector_size</c>
+          <c>2</c><c>inode_map_start</c>
+          <c>2</c><c>sector_map_start</c>
+          <c>1</c><c>inodes_used</c>
+          <c>1</c><c>sectors_used</c>
+          <c>1</c><c>padding</c>
         </texttable>
 
         <section anchor="HeaderVersion" title="version">
@@ -93,166 +99,191 @@
           </section>
         </section>
 
-        <section anchor="HeaderNumINodes" title="num_inodes">
-          <t>This field contains the total number of INodes in the filesystem.</t>
+        <section anchor="HeaderNumInodes" title="num_inodes">
+          <t>This field contains the total number of inodes in the filesystem.</t>
         </section>
 
-        <section anchor="HeaderNumBlocks" title="num_blocks">
-          <t>This field contains the total number of Blocks in the filesystem.</t>
+        <section anchor="HeaderNumSectors" title="num_sectors">
+          <t>This field contains the total number of sectors in the filesystem.</t>
         </section>
 
-        <section anchor="HeaderINodeStart" title="inode_start">
+        <section anchor="HeaderInodeStart" title="inode_start">
           <t>This field contains the address of the first inode on disk.</t>
         </section>
 
-        <section anchor="HeaderBlockStart" title="inode_start">
-          <t>This field contains the address of the first block on disk.</t>
+        <section anchor="HeaderSectorStart" title="sector_start">
+          <t>This field contains the address of the first sector on disk.</t>
         </section>
 
-        <section anchor="HeaderBlockSize" title="block_size">
-          <t>This field contains the size of each block in the filesystem.</t>
+        <section anchor="HeaderSectorSize" title="sector_size">
+          <t>This field contains the size of each sector in the filesystem.</t>
           <t>This must be a power of 2, such as 128, 256 or 512.</t>
+        </section>
+
+        <section anchor="HeaderInodeMapStart" title="inode_map_start">
+          <t>This field contains the address of the start of the inode map.</t>
+        </section>
+
+        <section anchor="HeaderBlockMapStart" title="sector_map_start">
+          <t>This field contains the address of the start of the sector map.</t>
+        </section>
+
+        <section anchor="HeaderInodesUsed" title="inodes_used">
+          <t>This field contains the number of inodes that are currently in
+          use.</t>
+        </section>
+
+        <section anchor="HeaderSectorsUsed" title="sectors_used">
+          <t>This field contains the number of sectors that are currently in
+          use.</t>
+        </section>
+
+      </section>
+
+      <section anchor="InodeMap" title="inode map">
+        <t>This section is a bitmap representing which inodes are in use.
+        It can be used to quickly locate free inodes for new files.</t>
+
+        <texttable anchor="InodeMapTable" title="inode map Structure"> 
+          <ttcol align="center">Size</ttcol>
+          <ttcol align="center">Name</ttcol>
+          <c>ceil(num_inodes/16)</c><c>bitmap</c>
+        </texttable>
+
+        <section anchor="InodeMapBitmap" title="bitmap">
+          <t>This field is a bitmap that represents all the inodes in the
+          filesystem. Each bit of the bitmap represents whether an inode
+          is in use. When an inode is in use the corresponding bit is set
+          to 1. When an inode is free, the corresponding bit is set to 0.</t>
+          <t>Any spare bits at the end of the bitmap must be set to 1.</t>
         </section>
       </section>
 
-      <section anchor="INode" title="INode">
-        <t>The INode structure is used to store metadata about files.
-        It is used to find the contents of the file on disk and the
-        relationship of that file to the directory structure.</t>
-        <t>The INode structure is 32 words.</t>
-  
-        <texttable anchor="INodeTable" title="INode Structure">
+      <section anchor="BlockMap" title="sector map">
+        <t>This section is a bitmap representing which sectors are in use.
+        It can be used to quickly locate free sectors for new files.</t>
+
+        <texttable anchor="BlockMapTable" title="sector map structure"> 
           <ttcol align="center">Size</ttcol>
           <ttcol align="center">Name</ttcol>
-          <c>1</c><c>hash</c>
-          <c>1</c><c>flags</c>
-          <c>1</c><c>parent_inode</c>
-          <c>2</c><c>content_size</c>
-          <c>1</c><c>block_index</c>
-          <c>26</c><c>file_name</c>
+          <c>ceil(num_sectors/16)</c><c>bitmap</c>
         </texttable>
 
-        <section anchor="INodeHash" title="hash">
-          <t>This field contains the CRC16 hash of the rest of the INode.
-          The integrity of INodes must be checked when INode's are read from or
-          written to.</t>
+        <section anchor="SectorMapBitmap" title="bitmap">
+          <t>This field is a bitmap that represents all the sectors in the
+          filesystem. Each bit of the bitmap represents whether an sector
+          is in use. When an sector is in use the corresponding bit is set
+          to 1. When an sector is free, the corresponding bit is set to 0.</t>
+          <t>Any spare bits at the end of the bitmap must be set to 1.</t>
         </section>
+      </section>
+
+      <section anchor="Inode" title="inode">
+        <t>The inode structure is used to store metadata about files.
+        It is used to find the contents of the file on disk and the
+        relationship of that file to the directory structure.</t>
+        <t>The inode structure is 32 words.</t>
   
-        <section anchor="INodeFlags" title="flags">
-          <t>Bit 0 is the least significant bit, Bit 15 is the most significant bit.</t>
-          <texttable anchor="INodeFlagsTable" title="INode Flags">
-            <ttcol align="center">Bit</ttcol>
-            <ttcol align="center">Name</ttcol>
-            <c>0</c><c>in_use</c>
-            <c>1</c><c>is_directory</c>
-            <c>2</c><c>is_executable</c>
-            <c>3</c><c>is_writable</c>
-            <c>4</c><c>check_block_integrity</c>
-            <c>5 to 15</c><c>Reserved for future use</c>
-          </texttable>
+        <texttable anchor="InodeTable" title="inode Structure">
+          <ttcol align="center">Size</ttcol>
+          <ttcol align="center">Name</ttcol>
+          <c>1</c><c>type</c>
+          <c>1</c><c>parent_inode</c>
+          <c>2</c><c>content_size</c>
+          <c>1</c><c>sector_index</c>
+          <c>1</c><c>link_count</c>
+          <c>2</c><c>padding</c>
+        </texttable>
 
-          <section anchor="INodeFlagInUse" title="in_use">
-            <t>If the INode represents a file or directory in the filesystem that
-            is valid and has not been deleted then this field must be set to 1.
-            If the INode is not in use then this field must be set to 0.</t>
-          </section>
-    
-          <section anchor="INodeFlagIsDirectory" title="is_directory">
-            <t>If the INode represents a file then this flag must be set to 0.
-            If the INode represents a directory then this flag must be set to 1.
-            </t>
-          </section>
-    
-          <section anchor="INodeFlagIsExecutable" title="is_executable">
-            <t>If the INode represents a binary file that can be executed then
-            this flag should be set to 1, otherwise it should be set to 0.</t>
-          </section>
-    
-          <section anchor="INodeFlagIsWritable" title="is_writable">
-            <t>If this flag is not set then it must not be possible to write to
-            or modify the file in any way other than changing this flag.</t>
-          </section>
-
-          <section anchor="INodeFlagCheckBlockIntegrity" title="check_block_integrity">
-            <t>If this flag is set the all blocks that are used by this INode
-            must have their integrity checked when read from or written to.</t>
-          </section>
+        <section anchor="InodeType" title="type">
+          <t>This field indicates what type of inode it is. If this field is
+          set to 0 then the inode is not in use and represents nothing. If this
+          field is set to 1 then the inode represents a directory. If this
+          field is set to 2 then the inode represents a file.</t>
         </section>
 
-        <section anchor="INodeParentINode" title="parent_inode">
-          <t>This field contains the index of the INode's parent. Every INode
-          has a parent except for the root INode whose parent is undefined and
+        <section anchor="InodeParentinode" title="parent_inode">
+          <t>This field contains the index of the inode's parent. Every inode
+          has a parent except for the root inode whose parent is undefined and
           ignored.</t>
         </section>
 
-        <section anchor="INodeContentSize" title="content_size">
-          <t>This field behaves differently depending on whether the INode
-          represents a file or a directory. If the INode represents a file
+        <section anchor="InodeContentSize" title="content_size">
+          <t>This field behaves differently depending on whether the inode
+          represents a file or a directory. If the inode represents a file
           then this field is set to the size of the file's contents in words.
-          If the INode represents a directory then this field is set to the
-          number of children the INode has.</t>
+          If the inode represents a directory then this field is set to the
+          number of children the inode has.</t>
         </section>
 
-        <section anchor="INodeBlockIndex" title="block_index">
-          <t>This field contains the index of the first data block.</t>
+        <section anchor="InodeSectorIndex" title="sector_index">
+          <t>This field contains the index of the first data sector.</t>
         </section>
 
-        <section anchor="INodeFileName" title="file_name">
-          <t>This field contains a null terminated string, which is the
-          file name of the INode.</t>
-          <t>Only alphanumeric characters, periods(.) and underscores(_) are
-          allowed in the filename.</t>
+        <section anchor="InodeLinkAccount" title="link_count">
+          <t>This field contains the number of hard_links there are that
+          point to this inode.</t>
         </section>
+
       </section>
 
-      <section anchor="Block" title="Block">
-        <t>The block structure is used to store raw data for the INodes.
-        When an INode represents a file, blocks are used to store the file
-        data. When an INode represents a directory, blocks are used to
-        store the children of the INode.</t>
+      <section anchor="Sector" title="sector">
+        <t>The sector structure is used to store raw data for the inodes.
+        When an inode represents a file, sectors are used to store the file
+        data. When an inode represents a directory, sectors are used to
+        store the children of the inode.</t>
 
-        <texttable anchor="BlockTable" title="Block Structure">
+        <texttable anchor="SectorTable" title="sector Structure">
           <ttcol align="center">Size</ttcol>
           <ttcol align="center">Name</ttcol>
-          <c>1</c><c>hash</c>
-          <c>1</c><c>next_block_index</c>
-          <c>block_size - 2</c><c>block_data</c>
+          <c>1</c><c>next_sector_index</c>
+          <c>sector_size - 2</c><c>sector_data</c>
         </texttable>
 
-        <section anchor="BlockHash" title="hash">
-          <t>This field is only used when the check_block_integrity flag
-          is enabled in the INode that this block is used by. When used, this
-          field must contain the CRC16 hash of the rest of the rest of the
-          block.</t>
+        <section anchor="SectorNextSectorINdex" title="next_sector_index">
+          <t>This field contains the index of the sector that follows this one.
+          When there is no such sector this field's value is undefined as the
+          number of sectors known is determined by the content_size field of
+          the inode structure.</t>
         </section>
 
-        <section anchor="BlockNextBlockINdex" title="next_block_index">
-          <t>This field contains the index of the block that follows this one.
-          When there is no such block this field's value is undefined as the
-          number of blocks known is determined by the content_size field of
-          the INode structure.</t>
-        </section>
-
-        <section anchor="BlockBlockData" title="block_data">
-          <t>This field is used differently depending on whether the INode that
-          uses this block is representing a file or a directory.</t>
-          <t>If the INode is a file then this field contains the raw file data.
+        <section anchor="SectorSectorData" title="sector_data">
+          <t>This field is used differently depending on whether the inode that
+          uses this sector is representing a file or a directory.</t>
+          <t>If the inode is a file then this field contains the raw file data.
           </t>
-          <t>If the INode is a directory then this field contains a list of the
-          INode indexes of the children of the INode.</t>
-          <t>The size of this field is determined by the block_size field in
+          <t>If the inode is a directory then this field contains an array of
+          the hard_link structures, each one representing a hard link to a
+          child inode.</t>
+          <t>The size of this field is determined by the sector_size field in
           the header of the filesystem.</t>
+
+          <section anchor="HardLink" title="hard_link">
+            <texttable anchor="HardLinkTable" title="hard_link structure">
+              <ttcol align="center">Size</ttcol>
+              <ttcol align="center">Name</ttcol>
+              <c>1</c><c>inode_index</c>
+              <c>15</c><c>file_name</c>
+            </texttable>
+
+            <section anchor="HardLinkInodeIndex" title="inode_index">
+              <t>This field contains the index of the inode that is referenced.
+              </t>
+            </section>
+
+            <section anchor="HardLinkFileName" title="file_name">
+              <t>This field contains the file name associated with the inode.
+              The filename consists of only alphanumeric characters, periods(.)
+              and underscores(_). Any unused characters at the end of the
+              filename must be set to 0x00.</t>
+            </section>
+          </section>
         </section>
 
       </section>
 
     </section>
     
-    <section anchor="Security" title="Security Considerations">
-      <t>As there is no way to prevent programs from accessing the disk
-      directly and reading/writing data HAT makes no attempt at providing any
-      data security.</t>
-    </section>
   </middle>
 
   <back>
