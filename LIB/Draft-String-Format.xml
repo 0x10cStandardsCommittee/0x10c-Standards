@@ -48,31 +48,48 @@
 			</section>
 			<section anchor="intro-terms" title="Used Terms">
 				<t>
-				<list style="symbols">
-				<t>"String" or "string" refers to a sequence of 
-				characters of variable length.</t>
-				<t>"P-string", "pstring" or "length-prefixed string" 
-				refers to an 8-bit value representing the length of the 
-				following string, followed by n characters of length n, 
-				where n is the value of the length-prefix.</t>
-				<t>"C-string", "cstring" or "null-terminated string" 
-				refers to a sequence of characters that may not include 
-				the character with the value 0, followed by the 
-				character with value 0 (also known as "null-terminator" 
-				or "null character")</t>
-				<t>"Character" or "character" refers to a group of 
-				bits representing a letter, a number, a punctuation 
-				mark, or a control character. A control character is a 
-				non-printable character that influences the text.</t>
-				<t>"Word" or "word" refers to a group of 16 bits
-				representing a value. A word is the smallest addressable
-				space in the DCPU.</t>
-				<t>"Library" or "library" refers to a group of 
-				functions that are used across different programs.</t>
-				<t>"Program" or "program" refers to a sequence of 
-				machine instructions for the DCPU.</t>
-				<t>"User" or "user" refers to any person using or 
-				creating a program.</t>
+				<list style="hanging">
+				<t hangText="word">
+					<vspace />
+					16 bits.
+					This is the smallest unit addressable by the DCPU.
+				</t>
+				<t hangText="character">
+					<vspace />
+					A group of bits representing a glyph or control sequence. A
+					control sequence is a non-printing character that
+					influences the text.
+				</t>
+				<t hangText="string">
+					<vspace />
+					A sequence of characters.
+					The length of the sequence can vary at runtime.
+				</t>
+				<t hangText="P-string">
+					<vspace />
+					A string whose length in words is indicated by prefixing
+					a word containing that length to the character string.
+					The prefix word itself MUST NOT be included when
+					determining the length.
+				</t>
+				<t hangText="C-string">
+					<vspace />
+					A string whose length is indicated by suffixing a NUL
+					character to the character string. The first occurrence of
+					such NUL character terminates the string. The NUL character
+					is the character whose bits are all zero.
+				</t>
+				<t hangText="library">
+					<vspace />
+					A group of functions used by different programs.
+				</t>
+				<t hangText="program">
+					<vspace />
+					A sequence of machine instructions for the DCPU.
+				</t>
+				<t hangText="user">
+					<vspace />
+					Any person using or creating a program.</t>
 				</list>
 				</t>
 			</section>

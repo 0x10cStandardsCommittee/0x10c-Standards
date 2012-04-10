@@ -10,7 +10,7 @@ RFC X1005 (Draft-Lib)                                        M. Schuetze
 Abstract
 
    This document presents a general format for strings in libraries
-   intended to be shared accross programs and with other users.
+   intended to be shared across programs and with other users.
 
 
 Table of Contents
@@ -62,7 +62,7 @@ Schuetze                                                        [Page 1]
    Shared Libraries depend on certain formats being given.  Strings,
    being a common argument type for cross-library calls, should
    therefore be standardized.  Length-prefixed strings are to be used
-   for security and efficency reasons.
+   for security and efficiency reasons.
 
 1.1.  Requirements Language
 
@@ -72,37 +72,37 @@ Schuetze                                                        [Page 1]
 
 1.2.  Used Terms
 
-   o  "String" or "string" refers to a sequence of characters of
-      variable length.
+   word
+      16 bits.  This is the smallest unit addressable by the DCPU.
 
-   o  "P-String", "pstring" or "length-prefixed string" refers to a
-      8-bit value representing the length of the following string,
-      followed by n characters of length n, where n is the value of the
-      length-prefix.
-
-   o  "C-String", "cstring" or "null-terminated string" refers to a
-      sequence of characters that may not include the character with the
-      value 0, followed by the character with value 0 (also known as
-      "null-terminator" or "null character")
-
-   o  "Character" or "character" refers to a group of bits representing
-      a letter, a number, a punctuation mark, or a control character.  A
-      control character is a non-printable character that influences the
+   character
+      A group of bits representing a glyph or control sequence.  A
+      control sequence is a non-printing character that influences the
       text.
 
-   o  "Word" or "word" refers to a group of 16 bits representing a
-      value.  A word is the smallest addressable space in the DCPU.
+   string
+      A sequence of characters.  The length of the sequence can vary at
+      runtime.
 
-   o  "Library" or "library" refers to a group of functions that are
-      used across different programs.
+   P-string
+      A string whose length in words is indicated by prefixing a word
+      containing that length to the character string.  The prefix word
+      itself MUST NOT be included when determining the length.
 
-   o  "Program" or "program" refers to a sequence of machine
-      instructions for the DCPU.
+   C-string
+      A string whose length is indicated by suffixing a NUL character to
+      the character string.  The first occurrence of such NUL character
+      terminates the string.  The NUL character is the character whose
+      bits are all zero.
 
-   o  "User" or "user" refers to any person using or creating a program.
+   library
+      A group of functions used by different programs.
 
+   program
+      A sequence of machine instructions for the DCPU.
 
-
+   user
+      Any person using or creating a program.
 
 
 
@@ -115,10 +115,10 @@ Schuetze                                                        [Page 2]
 
 2.  Structure of P-Strings
 
-   A P-String is composed of a 16-bit length prefix and a sequence of n
+   A P-string is composed of a 16-bit length prefix and a sequence of n
    characters where n is the value of the prefix.
 
-   P-String = n (nCHAR)
+   P-string = n (nCHAR)
 
    The prefix for such a string MUST be present and MUST represent the
    exact number of following characters.
@@ -128,7 +128,7 @@ Schuetze                                                        [Page 2]
 
 3.1.  Benefits of P-Strings
 
-   The rationale of using P-Strings is a simple matter of weighting
+   The rationale for using P-strings is a simple matter of weighing
    benefits against disadvantages.  Note that this is not a normative
    rationale, but one developed by the Standards Committee with focus on
    the DCPU design.
@@ -141,25 +141,25 @@ Schuetze                                                        [Page 2]
       *  This also increases the security of programs by preventing
          arbitrary shell code from being executed.
 
-   o  The null-character can be used in strings, while using it in
-      C-Strings would terminate the string.
+   o  The null-character can be used in strings, while using it in a
+      C-string would terminate the string.
 
-   o  The runtime cost of P-String concatenation is O(n), while the
-      runtime cost of C-String concatenation is O(n+m).
+   o  The runtime cost of P-string concatenation is O(n), while the
+      runtime cost of C-string concatenation is O(n+m).
 
 3.2.  Disadvantages of P-Strings
 
-   o  Instead of the conventional 0, indexing begins at 1.
+   o  Indexing begins at 1 instead of 0.
 
-   o  Even for fixed-length fields, the first word would be needed for
-      the length.
+   o  Fixed-length strings still require a prefixed length word.
 
 
 4.  Other Notes
 
    o  Since the smallest addressable size in the DCPU is a word (16
-      bit), this effectively allows a maximum string length of 65536
-      characters without any loss in efficency.
+      bits), this effectively allows a maximum string length of 65536
+      characters without any loss in efficiency.
+
 
 
 
@@ -170,30 +170,29 @@ Schuetze                                                        [Page 3]
 
 
    o  Cutting off the beginning of a string is more expensive for
-      P-Strings, but cutting off the end is more expensive for C-Strings
-      (other solutions are possible, but introduce memory leaks).
-      Therefore, those two arguments negate each other.
+      P-strings, but cutting off the end is more expensive for
+      C-strings.  (Other solutions are possible, but introduce memory
+      leaks.)  Therefore, the two arguments negate each other.
 
-   o  The names P-String and C-String come from Pascal and C
-      respectively, both using their respective format.
+   o  The names P-string and C-string come from Pascal and C, which use
+      the respective format.
 
 
 5.  Packed P-Strings
 
    The current implementation of characters in the DCPU effectively
    leaves the high 8 bits empty.  It is therefore possible to store two
-   characters in one word.  Such packed strings are out of the scope of
-   this document and should be defined in another RFC.
+   characters in one word.  Such packed strings are outside the scope of
+   this RFC.
 
 
 6.  Security Considerations
 
-   Using P-Strings reduces the risk of arbitrary shell code being
+   Using P-strings reduces the risk of arbitrary shell code being
    executed by overflowing the input buffer.  However, hidden
    instructions in the string may be executed later when the sections
    are not cleared and the stack or instruction pointer is moved there.
-   Measurements should be taken by the user to assure that this does not
-   happen.
+   Measures should be taken by the user to ensure this does not happen.
 
 
 7.  References
@@ -207,6 +206,7 @@ Author's Address
    Malte Schuetze
 
    Email: malte.schuetze@fgms.de
+
 
 
 
