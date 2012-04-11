@@ -61,9 +61,10 @@
       <t>The format of the relocation table is as follows:</t>
       <texttable anchor="relocation-table" title="Relocation Table">
         <ttcol align="center">Contents of single Word</ttcol>
-        <c>Magic number (0x1234)</c>
+        <c>Magic number ("RT" literally as packed 7-bit ASCII, 0x5254)</c>
         <c>Version number (0x0001)</c>
-        <c>Size of table</c>
+        <c><t>Size of table
+        This value must be equal to the size of the complete table, including the magic number, the version number and this value in words.</c>
         <c>Entry 1</c>
         <c>...</c>
         <c>Entry N</c>
