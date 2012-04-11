@@ -13,24 +13,47 @@ Abstract
 
 Status of this Memo
 
-   This document is an Internet-Draft and is in full conformance with
+   This document is a Draft and is in full conformance with
    all provisions of Section 10 of RFC 2026.
 
-   Internet-Drafts are working documents of the Internet Engineering
-   Task Force (IETF).  Note that other groups may also distribute
-   working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
 
-   Internet-Drafts are draft documents valid for a maximum of six months
-   and may be updated, replaced, or obsoleted by other documents at any
-   time.  It is inappropriate to use Internet-Drafts as reference
-   material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 14, 2012.
 
-Copyright Notice
 
-   Copyright (C) The Internet Society (2012).  All Rights Reserved.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mansfield               Expires October 14, 2012                [Page 1]
+
+Internet-Draft  A Physical layer application for DCPU-16      April 2012
 
 
 1.  Preamble
@@ -59,6 +82,36 @@ Copyright Notice
       transfer
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mansfield               Expires October 14, 2012                [Page 2]
+
+Internet-Draft  A Physical layer application for DCPU-16      April 2012
+
+
 2.  Hardware Limitations
 
 2.1.  Full details unknown
@@ -67,55 +120,10 @@ Copyright Notice
    the full specifications of the DCPU-16 processor are subject to
    change at any time in the future.
 
-2.2.  Currently Known Specifications
+   At the last revision of this RFC, version 1.1 of the DCPU-16
+   specifications have been released.
 
-   The current specifications at the time of the last update of this
-   document (Wednesday 11th April 2012) are:
-
-      16 bit unsigned words
-
-      0x10000 words of ram
-
-      8 registers (A, B, C, X, Y, Z, I, J)
-
-      program counter (PC)
-
-      stack pointer (SP)
-
-      overflow (O)
-
-      Instructions are 1-3 words long and are fully defined by the first
-      word.
-
-      In a basic instruction, the lower four bits of the first word of
-      the instruction are the opcode, and the remaining twelve bits are
-      split into two six bit values, called a and b. a is always handled
-      by the processor before b, and is the lower six bits.  In bits
-      (with the least significant being last), a basic instruction has
-      the format: bbbbbbaaaaaaoooo
-
-      If any instruction tries to assign a literal value, the assignment
-      fails silently.  Other than that, the instruction behaves as
-      normal.
-
-      All values that read a word (0x10-0x17, 0x1e, and 0x1f) take 1
-      cycle to look up.  The rest take 0 cycles.
-
-      By using 0x18, 0x19, 0x1a as POP, PEEK and PUSH, there's a reverse
-      stack starting at memory location 0xffff.  Example: "SET PUSH,
-      10", "SET X, POP"
-
-      Non-basic opcodes always have their lower four bits unset, have
-      one value and a six bit opcode.  In binary, they have the format:
-      aaaaaaoooooo0000 The value (a) is in the same six bit format as
-      defined earlier.
-
-      JSR takes 2 cycles, plus the cost of a.
-
-   For clarity, the opcodes and FAQ have not been included in this
-   summary.
-
-2.3.  Assumed Information
+2.2.  Assumed Information
 
    There have been no official press releases from Mojang on the
    following information, however this document was written with the
@@ -127,6 +135,37 @@ Copyright Notice
       output operations
 
       The 0x10c game realistically simulates electrical physics
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mansfield               Expires October 14, 2012                [Page 3]
+
+Internet-Draft  A Physical layer application for DCPU-16      April 2012
 
 
 3.  Implementation
@@ -177,6 +216,14 @@ Copyright Notice
    PTS MUST NOT begin transferring data.  It MUST withdraw the PTS after
    a reasonable amount of time, and try again later
 
+
+
+
+Mansfield               Expires October 14, 2012                [Page 4]
+
+Internet-Draft  A Physical layer application for DCPU-16      April 2012
+
+
    A sending CPU SHOULD NOT attempt to start a transfer while an
    existing transfer is taking place, however the transfer-start PTS
    exists as a failsafe for this not being observed.
@@ -214,6 +261,26 @@ Copyright Notice
    not responding to a PTS.  This SHOULD activate the sending CPU's
    timeout, and cause it to abort the transfer.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Internet-Draft  A Physical layer application for DCPU-16      April 2012
+
+Mansfield               Expires October 14, 2012                [Page 5]
+
+
+
    An example transfer of the binary data "10110101010101" would go as
    follows:
 
@@ -241,12 +308,18 @@ ATU Frame:      0000000001111111111222222222233333333334444444444555555555566666
                                  Figure 1
 
 
+
+
+
 4.  Security Considerations
 
    This memo raises no security issues; however, according to RFC2223,
    your document should contain a section near the end that discusses
    the security considerations of the protocol or procedures that are
    the main topic of your document.
+
+
+
 
 
 Author's Address
@@ -257,60 +330,47 @@ Author's Address
    Email: cyberjacob@gmail.com
 
 
-Full Copyright Statement
 
-   Copyright (C) The Internet Society (2012).  All Rights Reserved.
-
-   This document and translations of it may be copied and furnished to
-   others, and derivative works that comment on or otherwise explain it
-   or assist in its implementation may be prepared, copied, published
-   and distributed, in whole or in part, without restriction of any
-   kind, provided that the above copyright notice and this paragraph are
-   included on all such copies and derivative works.  However, this
-   document itself may not be modified in any way, such as by removing
-   the copyright notice or references to the Internet Society or other
-   Internet organizations, except as needed for the purpose of
-   developing Internet standards in which case the procedures for
-   copyrights defined in the Internet Standards process must be
-   followed, or as required to translate it into languages other than
-   English.
-
-   The limited permissions granted above are perpetual and will not be
-   revoked by the Internet Society or its successors or assigns.
-
-   This document and the information contained herein is provided on an
-   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
-   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
-   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
-   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
-   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+Mansfield               Expires October 14, 2012                [Page 8]
 
 
-Intellectual Property
-
-   The IETF takes no position regarding the validity or scope of any
-   intellectual property or other rights that might be claimed to
-   pertain to the implementation or use of the technology described in
-   this document or the extent to which any license under such rights
-   might or might not be available; neither does it represent that it
-   has made any effort to identify any such rights.  Information on the
-   IETF's procedures with respect to rights in standards-track and
-   standards-related documentation can be found in BCP 11.  Copies of
-   claims of rights made available for publication and any assurances of
-   licenses to be made available, or the result of an attempt made to
-   obtain a general license or permission for the use of such
-   proprietary rights by implementors or users of this specification can
-   be obtained from the IETF Secretariat.
-
-   The IETF invites any interested party to bring to its attention any
-   copyrights, patents or patent applications, or other proprietary
-   rights which may cover technology that may be required to practice
-   this standard.  Please address the information to the IETF Executive
-   Director.
 
 
-Acknowledgment
 
-   Funding for the RFC Editor function is currently provided by the
-   Internet Society.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mansfield               Expires October 14, 2012               [Page 10]
 
