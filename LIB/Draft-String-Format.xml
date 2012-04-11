@@ -8,8 +8,8 @@
 <?rfc sortrefs="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<?rfc private="RFC X1005 (Draft-Lib)"?>
-<rfc ipr="none" number="1005" category="std" docName="draft-string-format">
+<?rfc private="RFC (Draft-Lib)"?>
+<rfc ipr="none" category="std" docName="draft-string-format">
 	<front>
 		<title abbrev="String Format">String Format</title>
 

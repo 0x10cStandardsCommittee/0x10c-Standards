@@ -1,8 +1,8 @@
 
 
 
-RFC X1005 (Draft-Lib)                                        M. Schuetze
-                                                              April 2012
+RFC (Draft-Lib)                                              M. Schuetze
+                                                          April 11, 2012
 
 
                              String Format
@@ -222,4 +222,3 @@ Author's Address
 
 Schuetze                                                        [Page 4]
 
-
