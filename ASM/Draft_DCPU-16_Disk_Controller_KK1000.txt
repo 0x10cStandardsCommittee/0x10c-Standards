@@ -1,0 +1,92 @@
+DCPU-16 Disk Controller KK1000 (Draft v. 0.9)
+Copyright 2012, Robert "King Korihor" Horning
+
+Licensing for reuse under the terms of the Creative Commons Attribution 3.0 United States license
+http://creativecommons.org/licenses/by/3.0/us/
+
+For commentary and discussion about this standard, please visit:
+
+http://www.0x10cforum.com/forum/m/4932880/viewthread/2727631-dcpu16-disc-controller
+
+*Note* - This standard has been written using an informal tone.  Future versions of this standard will be updated to conform to a format and style similar to the other DCPU-16 standards that may be found with the DCPU-16 standards committee.
+
+Here is what we know:  The external storage device attached to the DCPU-16 will be one (or more) floppy disc drives each of which will contain 1.44 MiB of data storage (the 3-1/2" discs that originally came with the Macintosh computer and later on PCs and other computers later on).  Sector sizes traditionally have been 512 bytes, or in DCPU-16 terms, 256 words (close enough for our needs).  This is a total of 2,880 sectors on a given floppy disc.  The physical addressing composed of reading in 18 sectors per track, 80 tracks per side and two sides of the disc.  The data transfer rate (if this is simulated) was about 500 kilobits per second (or about 125 sectors per second and with the DCPU-16 about 800 machine cycles to load a sector as the limiting factor from the disc controller itself).
+
+I'm proposing that the access to this controller be done through a two word "register" selector/data access combination for software control of the disc controller:
+
++-----+------------------+
+|  0  |  Register Select |
++-----+------------------+
+|  1  |  Register Value  |
++-----+------------------+
+
+With this access, there will be several configuration "registers" that will control how the DCPU-16 will communicate with the drive controller.  The following are the registers which will be used in this proposal:
+
++---+-----+----------------------------+
+| 0 | WSB | Write Sector Buffer        |
++---+-----+----------------------------+
+| 1 | RSB | Read Sector Buffer         |
++---+-----+----------------------------+
+| 2 | DSR | Disk Status Register       |
++---+-----+----------------------------+
+| 3 | CC  | Controller Command         |
++---+-----+----------------------------+
+| 4 | SCR | Side Control Register      |
++---+-----+----------------------------+
+| 5 | TCR | Track Control Register     |
++---+-----+----------------------------+
+| 6 | SAR | Sector Access Register     |
++---+-----+----------------------------+
+
+Subsequent registers will be treated as reserved values.
+
+
+A - Write Sector Buffer - This is the DCPU-16 address where the sector data is located at which is to be written to the disk drive
+
+B - Read Sector Buffer - The DCPU-16 address where sector data from the floppy disk will be placed after it has been read from the disk drive.
+
+C - Disk Status Register - Bit flags and other general status information relevant to operating system developers.
+
++---+------------------------------------+
+| 4 | Missing Disk Error                 |
++---+------------------------------------+
+| 3 | Data Read Error                    |
++---+------------------------------------+
+| 2 | Drive Connect Error                |
++---+------------------------------------+
+| 1 | Write Protect                      |
++---+------------------------------------+
+| 0 | Busy Indicator                     |
++---+------------------------------------+
+
+D - Controller Command - Any words written to this register give "commands" to the disk controller that will impact the operation of the disk.  Reading this register will always return the value 0.
+
++---+-------------------------+
+| 0 | Read Sector             |
++---+-------------------------+
+| 1 | Write Sector            |
++---+-------------------------+
+| 2 | Format Sector           |
++---+-------------------------+
+| 3 | Reset Controller        |
++---+-------------------------+
+| 4 | Query Controller Status |
++---+-------------------------+
+
+  1 - Read Sector - Initiates the actions that reads data from the controller and places that data in the DCPU address based upon the Read Sector address.
+  2 - Write Sector - Similar to the Read Sector command, but writes data to the disk instead.
+  3 - Format Sector - Resets the data at the sector indicated by the sector locator registers to become all zeros
+  4 - Reset Controller - Resets the state of all registers in the controller to zero 
+  5 - Query Controller Status - Used primarily to update the status flags of the Disk Status Register.
+
+Other command words may be implemented in this specification in the future, so they should be treated as "reserved" and will produce unpredictable results if used.
+
+E - Side Control Register - Indicates which "side" of the disk is currently being written
+
+F - Track Control Register - Indicates which "track" is currently being read or written
+
+G - Sector Access Register - Indicates which sector on a given track is currently being accessed
+
+I envision that the boot process of the computer would reset all of the registers in this controller to zero, which would include a "read command" to take "Side 0, Track 0, Sector 0" and place the first sector data at address 0 in the DCPU-16.  This would effectively be the first software that the DCPU-16 would be executing upon power-up or re-boot, and it would be at that point the responsibility of the OS developer to designate other memory locations and sectors that will be read by this device, if any.
+
+I'm not sure if there ought to be any sort of simulated time elapsed from when a sector read is requested to when the sector data actually appears in the DCPU-16.  If such a simulated elapsed time does happen, partial sectors may be put into the DCPU and the Disk Status Register will indicate when the full sector has been read.  If this was being completely faithful to how disk controllers work IRL, it would take about 800 DCPU-16 clock cycles to read in a sector.  With this schema, the DCPU-16 could perform other tasks during the sector loading process like scanning the keyboard or doing other application and OS related operations.
