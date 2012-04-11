@@ -235,6 +235,52 @@
       </section>
 
     </section>
+
+    <section anchor="Usage" title="Usage">
+      <t>This section contains information and examples on the operation
+      and usage of the HAT filesystem. It is meant only as a rough guide
+      for someone who is wishing to implement HAT.</t>
+
+      <section anchor="UsageCreation" title="Constructing a HAT filesystem">
+        <t>The HAT filesystem is very simple to construct. The creation
+        of the filesystem can be split into a few simple steps.</t>
+        <t><list style="format %d.">
+          <t>Calculate size and number of sectors from disk space.</t>
+          <t>Write the header to disk, the sector map and initialise all
+          the sectors as unused.</t>
+          <t>Create the root directory's inode using a strip starting at
+          sector 0.</t>
+        </list></t>
+        <t>Once the structure of the filesystem has been initialised it is
+        ready for use.</t>
+
+        <t>For 16 sectors on a disk the amount of disk space required is
+        (sector_size * 16) + 1. So, to calculate the amount of sectors
+        you can fit on a disk simply minus the size of the header from the
+        disk and then divide it by (sector_size * 16) + 1. Round the resulting
+        number down to have the maximum number of sectors that can go onto the
+        disk.</t>
+
+        <t>It is highly recommended to set the sector size less than or equal
+        to the size of blocks on the disk that the filesystem is being
+        created on. It is also highly advised to align the first sector to
+        a block to maximise io performance.</t>
+
+      </section>
+
+      <section anchor="UsageFinding" title="Finding a file's inode">
+        <t>To open a file is very simple. HAT is simply passed an absolute
+        path to the file. The path is then broken up into a list of of
+        directories. The list is traversed, starting at the root inode until
+        the file's inode is found.</t>
+      </section>
+
+      <section anchor="UsageAllocatingSectors" title="Allocating sectors">
+        <t>Unused sectors can be found very quickly using the sector map.
+        By performing NOT(word AND 0xFFFF) against each word of the bitmap
+        a free sector can be found.</t>
+      </section>
+    </section>
     
   </middle>
 

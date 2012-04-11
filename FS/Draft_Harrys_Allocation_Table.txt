@@ -40,11 +40,11 @@ Table of Contents
        3.2.2.  link  . . . . . . . . . . . . . . . . . . . . . . . . . 6
          3.2.2.1.  strip_start_sector  . . . . . . . . . . . . . . . . 6
          3.2.2.2.  file_name . . . . . . . . . . . . . . . . . . . . . 6
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 7
-
-
-
-
+   4.  Usage . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+     4.1.  Constructing a HAT filesystem . . . . . . . . . . . . . . . 7
+     4.2.  Finding a file's inode  . . . . . . . . . . . . . . . . . . 7
+     4.3.  Allocating sectors  . . . . . . . . . . . . . . . . . . . . 8
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 8
 
 
 
@@ -341,6 +341,65 @@ Jeffery                                                         [Page 6]
    the filename must be set to 0x0000.
 
 
+4.  Usage
+
+   This section contains information and examples on the operation and
+   usage of the HAT filesystem.  It is meant only as a rough guide for
+   someone who is wishing to implement HAT.
+
+4.1.  Constructing a HAT filesystem
+
+   The HAT filesystem is very simple to construct.  The creation of the
+   filesystem can be split into a few simple steps.
+
+   1.  Calculate size and number of sectors from disk space.
+
+   2.  Write the header to disk, the sector map and initialise all the
+       sectors as unused.
+
+   3.  Create the root directory's inode using a strip starting at
+       sector 0.
+
+   Once the structure of the filesystem has been initialised it is ready
+   for use.
+
+   For 16 sectors on a disk the amount of disk space required is
+   (sector_size * 16) + 1.  So, to calculate the amount of sectors you
+   can fit on a disk simply minus the size of the header from the disk
+   and then divide it by (sector_size * 16) + 1.  Round the resulting
+   number down to have the maximum number of sectors that can go onto
+   the disk.
+
+   It is highly recommended to set the sector size less than or equal to
+   the size of blocks on the disk that the filesystem is being created
+   on.  It is also highly advised to align the first sector to a block
+   to maximise io performance.
+
+4.2.  Finding a file's inode
+
+   To open a file is very simple.  HAT is simply passed an absolute path
+   to the file.  The path is then broken up into a list of of
+   directories.  The list is traversed, starting at the root inode until
+   the file's inode is found.
+
+
+
+
+
+
+
+Jeffery                                                         [Page 7]
+
+                                   HAT                        April 2012
+
+
+4.3.  Allocating sectors
+
+   Unused sectors can be found very quickly using the sector map.  By
+   performing NOT(word AND 0xFFFF) against each word of the bitmap a
+   free sector can be found.
+
+
 Author's Address
 
    Harry Jeffery (editor)
@@ -385,8 +444,5 @@ Author's Address
 
 
 
-
-
-
-Jeffery                                                         [Page 7]
+Jeffery                                                         [Page 8]
 
