@@ -1,0 +1,316 @@
+Network Working Group                                       J. Mansfield
+Internet-Draft                                                 0x10C-Std
+Expires: October 14, 2012                                 April 12, 2012
+
+
+                A Physical layer application for DCPU-16
+                        Draft_OSI_Physical_Layer
+
+Abstract
+
+   This document provides a theoretical implementation of the physical
+   layer of the OSI model on the DCPU-16 platform.
+
+Status of this Memo
+
+   This document is an Internet-Draft and is in full conformance with
+   all provisions of Section 10 of RFC 2026.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on October 14, 2012.
+
+Copyright Notice
+
+   Copyright (C) The Internet Society (2012).  All Rights Reserved.
+
+
+1.  Preamble
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119.
+
+   This implementation has been written in such a way that more than one
+   CPU can communicate on the same physical bus. it does not cover
+   routing and addressing of data, as this is not part of the physical/
+   link level.
+
+1.1.  Definitions
+
+      ATU: arbitrary time unit.  A period of time or delay that MAY vary
+      due to circumstances outside the control of the player.  E.G. CPU
+      response time, link latency, etc.
+
+      sender: the CPU initiating the data transfer, from which the
+      transfer originates, that contains the data to be transferred
+      before the transfer is started.
+
+      recipient: the CPU accepting data from the sender, which does not
+      have any of the data used in the transfer at the start of the
+      transfer
+
+
+2.  Hardware Limitations
+
+2.1.  Full details unknown
+
+   It SHOULD be noted that as the 0x10c game is still in development,
+   the full specifications of the DCPU-16 processor are subject to
+   change at any time in the future.
+
+2.2.  Currently Known Specifications
+
+   The current specifications at the time of the last update of this
+   document (Wednesday 11th April 2012) are:
+
+      16 bit unsigned words
+
+      0x10000 words of ram
+
+      8 registers (A, B, C, X, Y, Z, I, J)
+
+      program counter (PC)
+
+      stack pointer (SP)
+
+      overflow (O)
+
+      Instructions are 1-3 words long and are fully defined by the first
+      word.
+
+      In a basic instruction, the lower four bits of the first word of
+      the instruction are the opcode, and the remaining twelve bits are
+      split into two six bit values, called a and b. a is always handled
+      by the processor before b, and is the lower six bits.  In bits
+      (with the least significant being last), a basic instruction has
+      the format: bbbbbbaaaaaaoooo
+
+      If any instruction tries to assign a literal value, the assignment
+      fails silently.  Other than that, the instruction behaves as
+      normal.
+
+      All values that read a word (0x10-0x17, 0x1e, and 0x1f) take 1
+      cycle to look up.  The rest take 0 cycles.
+
+      By using 0x18, 0x19, 0x1a as POP, PEEK and PUSH, there's a reverse
+      stack starting at memory location 0xffff.  Example: "SET PUSH,
+      10", "SET X, POP"
+
+      Non-basic opcodes always have their lower four bits unset, have
+      one value and a six bit opcode.  In binary, they have the format:
+      aaaaaaoooooo0000 The value (a) is in the same six bit format as
+      defined earlier.
+
+      JSR takes 2 cycles, plus the cost of a.
+
+   For clarity, the opcodes and FAQ have not been included in this
+   summary.
+
+2.3.  Assumed Information
+
+   There have been no official press releases from Mojang on the
+   following information, however this document was written with the
+   following assumptions:
+
+      The DCPU-16 processor has no support for interrupts
+
+      The DCPU-16 processor has support for basic electrical input/
+      output operations
+
+      The 0x10c game realistically simulates electrical physics
+
+
+3.  Implementation
+
+   The lack of interrupts can mainly be solved by a vigorous clocking of
+   all the data.
+
+   This would be achieved by the use of three physical signalling lines
+   between the CPUs wishing to communicate.  These lines would be titled
+   PTS, PTS-ACK and DATA.
+
+3.1.  Data
+
+   The data line would be used for the actual data being transferred
+   between two CPUs.
+
+   Each bit of data would be present on the Data line for 4 ATUs,
+   without a need to clear the line between bits.
+
+   The data line SHOULD be kept low at all times when a data transfer is
+   not taking place.
+
+   If a sending CPU needs to abort a data transfer, it MUST remove it's
+   PTS before the data.
+
+3.2.  PTS
+
+   The PTS (Permission To Send) line is used by the sending CPU to
+   request the recipient CPU's attention.
+
+   The PTS line is pulled high by the sending CPU for two ATUs in each
+   data transfer bit, to indicate that the next bit of data has been
+   placed onto the data line.
+
+3.2.1.  transfer-start requests
+
+   The PTS line SHOULD be pulled high by the sending CPU when no
+   transfer is taking place, to indicate that the CPU wishes to start a
+   transfer.
+
+   The transfer-start PTS is RECOMMENDED, and is used to ensure that two
+   sending CPUs do not start a transfer at the same time.
+
+   A sending CPU MUST NOT ack a PTS transfer-start request when is is
+   sending, or wishes to start sending.
+
+   A sending CPU that does not receive an ack for it's transfer-start
+   PTS MUST NOT begin transferring data.  It MUST withdraw the PTS after
+   a reasonable amount of time, and try again later
+
+   A sending CPU SHOULD NOT attempt to start a transfer while an
+   existing transfer is taking place, however the transfer-start PTS
+   exists as a failsafe for this not being observed.
+
+   If the sending CPU detects the PTS line has been brought high by
+   another CPU during it's data transfer, the sending CPU SHOULD abort
+   it's data transfer immediately.
+
+3.3.  PTS-ACK
+
+   The PTS-ACK line is used by the recipient CPU(s) to indicate they
+   have PTS from the sending CPU, and have acted accordingly.
+
+   If the PTS indicates that the sending CPU wants to initiate a
+   transfer, the PTS-ACK would indicate that the recipient CPU is ready
+   to start the transfer.
+
+   If the PTS indicates that the next bit of data has been stored on the
+   CPU, and that it can safely be removed from the data line.
+
+   The PTS-ACK line is inverse to it's meaning, to enable multiple CPUs
+   to communicate on the same physical bus.  This ensures that all CPUs
+   on the bus have ack'd the PTS before the sending CPU will recognise
+   the PTS-ACK signal.
+
+   Because of this, a quick link latency will result in the PTS-ACK line
+   mirroring the PTS line, with approximately 1 CPU cycle delay.
+
+   A sending CPU MAY choose to withdraw it's transmission attempt if a
+   recipient CPU does not ack the PTS within a reasonable amount of
+   time.  If doing this, the sending CPU MUST remove the PTS before the
+   data
+
+   If a recipient CPU needs to abort a data transfer, it MAY be done by
+   not responding to a PTS.  This SHOULD activate the sending CPU's
+   timeout, and cause it to abort the transfer.
+
+   An example transfer of the binary data "10110101010101" would go as
+   follows:
+
+Dir     Line    Data
+O       Data:   _____****____********____****____*********____****____****____****____
+O       PTS:    __**__**__**__**__**__**__**__**__*******__**__**__**__**__**__**_____
+I       PTS-ACK:***_**_*_*__**__**__**__**__**__*******__**__**__**__**__**__**__*****
+ATU Frame:      0000000001111111111222222222233333333334444444444555555555566666666677
+                1234567890123456789012345678901234567890123456780123456789012345678901
+
+   Notes:
+
+      Direction is relative to the sender.
+
+      Each character represents one ATU frame, which is one ATU in
+      length.
+
+      A "*" is equivalent to binary 1.
+
+      An "_" is equivalent to binary 0.
+
+      The demonstration shows an example of a CPU taking a long time to
+      respond between frames 35 and 39
+
+                                 Figure 1
+
+
+4.  Security Considerations
+
+   This memo raises no security issues; however, according to RFC2223,
+   your document should contain a section near the end that discusses
+   the security considerations of the protocol or procedures that are
+   the main topic of your document.
+
+
+Author's Address
+
+   Jacob Mansfield
+   the 0x10c Standards Committee
+
+   Email: cyberjacob@gmail.com
+
+
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (2012).  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the Internet Society or other
+   Internet organizations, except as needed for the purpose of
+   developing Internet standards in which case the procedures for
+   copyrights defined in the Internet Standards process must be
+   followed, or as required to translate it into languages other than
+   English.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by the Internet Society or its successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   intellectual property or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; neither does it represent that it
+   has made any effort to identify any such rights.  Information on the
+   IETF's procedures with respect to rights in standards-track and
+   standards-related documentation can be found in BCP 11.  Copies of
+   claims of rights made available for publication and any assurances of
+   licenses to be made available, or the result of an attempt made to
+   obtain a general license or permission for the use of such
+   proprietary rights by implementors or users of this specification can
+   be obtained from the IETF Secretariat.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights which may cover technology that may be required to practice
+   this standard.  Please address the information to the IETF Executive
+   Director.
+
+
+Acknowledgment
+
+   Funding for the RFC Editor function is currently provided by the
+   Internet Society.
+

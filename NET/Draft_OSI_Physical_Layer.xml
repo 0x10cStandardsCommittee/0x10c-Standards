@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<rfc ipr="full2026" docName="Draft_OSI_Physical_Layer" >
+	<front>
+		<title>A Physical layer application for DCPU-16</title>
+		<author initials="J." surname="Mansfield" fullname="Jacob Mansfield">
+			<organization abbrev="0x10C-Std">
+				the 0x10c Standards Committee
+			</organization>
+			<address>
+				<email>cyberjacob@gmail.com</email>
+			</address>
+		</author>
+		<date month="April" year="2012" />
+		<area>Networking</area>
+		<abstract>
+		<t>This document provides a theoretical implementation of the physical layer of the OSI model on the DCPU-16 platform.</t>
+		</abstract>
+	</front>
+	<middle>
+		<section title="Preamble">
+			<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119.</t>
+			<t>This implementation has been written in such a way that more than one CPU can communicate on the same physical bus. it does not cover routing and addressing of data, as this is not part of the physical/link level.</t>
+			<section title="Definitions">
+				<list>
+					<t>ATU: arbitrary time unit. A period of time or delay that MAY vary due to circumstances outside the control of the player. E.G. CPU response time, link latency, etc.</t>
+					<t>sender: the CPU initiating the data transfer, from which the transfer originates, that contains the data to be transferred before the transfer is started.</t>
+					<t>recipient: the CPU accepting data from the sender, which does not have any of the data used in the transfer at the start of the transfer</t>
+				</list>
+			</section>
+		</section>
+		<section title="Hardware Limitations">
+			<section title="Full details unknown">
+				<t>It SHOULD be noted that as the 0x10c game is still in development, the full specifications of the DCPU-16 processor are subject to change at any time in the future.</t>
+			</section>
+			<section title="Currently Known Specifications">
+				<t>The current specifications at the time of the last update of this document (Wednesday 11th April 2012) are:</t>
+				<list>
+					<t>16 bit unsigned words</t>
+					<t>0x10000 words of ram</t>
+					<t>8 registers (A, B, C, X, Y, Z, I, J)</t>
+					<t>program counter (PC)</t>
+					<t>stack pointer (SP)</t>
+					<t>overflow (O)</t>
+					<t>Instructions are 1-3 words long and are fully defined by the first word.</t>
+					<t>In a basic instruction, the lower four bits of the first word of the instruction are the opcode, and the remaining twelve bits are split into two six bit values, called a and b. a is always handled by the processor before b, and is the lower six bits. In bits (with the least significant being last), a basic instruction has the format: bbbbbbaaaaaaoooo</t>
+					<t>If any instruction tries to assign a literal value, the assignment fails silently. Other than that, the instruction behaves as normal.</t>
+					<t>All values that read a word (0x10-0x17, 0x1e, and 0x1f) take 1 cycle to look up. The rest take 0 cycles.</t>
+					<t>By using 0x18, 0x19, 0x1a as POP, PEEK and PUSH, there's a reverse stack starting at memory location 0xffff. Example: "SET PUSH, 10", "SET X, POP"</t>
+					<t>Non-basic opcodes always have their lower four bits unset, have one value and a six bit opcode. In binary, they have the format: aaaaaaoooooo0000 The value (a) is in the same six bit format as defined earlier.</t>
+					<t>JSR takes 2 cycles, plus the cost of a.</t>
+				</list>
+				<t>For clarity, the opcodes and FAQ have not been included in this summary.</t>
+			</section>
+			<section title="Assumed Information">
+				<t>There have been no official press releases from Mojang on the following information, however this document was written with the following assumptions:</t>
+				<list>
+					<t>The DCPU-16 processor has no support for interrupts</t>
+					<t>The DCPU-16 processor has support for basic electrical input/output operations</t>
+					<t>The 0x10c game realistically simulates electrical physics</t>
+				</list>
+			</section>
+		</section>
+		<section title="Implementation">
+			<t>The lack of interrupts can mainly be solved by a vigorous clocking of all the data.</t>
+			<t>This would be achieved by the use of three physical signalling lines between the CPUs wishing to communicate. These lines would be titled PTS, PTS-ACK and DATA.</t>
+			<section title="Data">
+				<t>The data line would be used for the actual data being transferred between two CPUs.</t>
+				<t>Each bit of data would be present on the Data line for 4 ATUs, without a need to clear the line between bits.</t>
+				<t>The data line SHOULD be kept low at all times when a data transfer is not taking place.</t>
+				<t>If a sending CPU needs to abort a data transfer, it MUST remove it's PTS before the data.</t>
+			</section>
+			<section title="PTS">
+				<t>The PTS (Permission To Send) line is used by the sending CPU to request the recipient CPU's attention.</t>
+				<t>The PTS line is pulled high by the sending CPU for two ATUs in each data transfer bit, to indicate that the next bit of data has been placed onto the data line.</t>
+				<section title="transfer-start requests">
+					<t>The PTS line SHOULD be pulled high by the sending CPU when no transfer is taking place, to indicate that the CPU wishes to start a transfer.</t>
+					<t>The transfer-start PTS is RECOMMENDED, and is used to ensure that two sending CPUs do not start a transfer at the same time.</t>
+					<t>A sending CPU MUST NOT ack a PTS transfer-start request when is is sending, or wishes to start sending.</t>
+					<t>A sending CPU that does not receive an ack for it's transfer-start PTS MUST NOT begin transferring data. It MUST withdraw the PTS after a reasonable amount of time, and try again later</t>
+					<t>A sending CPU SHOULD NOT attempt to start a transfer while an existing transfer is taking place, however the transfer-start PTS exists as a failsafe for this not being observed.</t>
+					<t>If the sending CPU detects the PTS line has been brought high by another CPU during it's data transfer, the sending CPU SHOULD abort it's data transfer immediately.</t>
+				</section>
+			</section>
+			<section title="PTS-ACK">
+				<t>The PTS-ACK line is used by the recipient CPU(s) to indicate they have PTS from the sending CPU, and have acted accordingly.</t>
+				<t>If the PTS indicates that the sending CPU wants to initiate a transfer, the PTS-ACK would indicate that the recipient CPU is ready to start the transfer.</t>
+				<t>If the PTS indicates that the next bit of data has been stored on the CPU, and that it can safely be removed from the data line.</t>
+				<t>The PTS-ACK line is inverse to it's meaning, to enable multiple CPUs to communicate on the same physical bus. This ensures that all CPUs on the bus have ack'd the PTS before the sending CPU will recognise the PTS-ACK signal.</t>
+				<t>Because of this, a quick link latency will result in the PTS-ACK line mirroring the PTS line, with approximately 1 CPU cycle delay.</t>
+				<t>A sending CPU MAY choose to withdraw it's transmission attempt if a recipient CPU does not ack the PTS within a reasonable amount of time. If doing this, the sending CPU MUST remove the PTS before the data</t>
+				<t>If a recipient CPU needs to abort a data transfer, it MAY be done by not responding to a PTS. This SHOULD activate the sending CPU's timeout, and cause it to abort the transfer.</t>
+			</section>
+			<figure anchor="figure_example">
+				<preamble><t>An example transfer of the binary data "10110101010101" would go as follows:</t></preamble>
+				<artwork>
+Dir	Line	Data
+O	Data:	_____****____********____****____*********____****____****____****____
+O	PTS:	__**__**__**__**__**__**__**__**__*******__**__**__**__**__**__**_____
+I	PTS-ACK:***_**_*_*__**__**__**__**__**__*******__**__**__**__**__**__**__*****
+ATU Frame:	0000000001111111111222222222233333333334444444444555555555566666666677
+		1234567890123456789012345678901234567890123456780123456789012345678901
+				</artwork>
+				<postamble>
+					<t>Notes:</t>
+					<list>
+						<t>Direction is relative to the sender.</t>
+						<t>Each character represents one ATU frame, which is one ATU in length.</t>
+						<t>A "*" is equivalent to binary 1.</t>
+						<t>An "_" is equivalent to binary 0.</t>
+						<t>The demonstration shows an example of a CPU taking a long time to respond between frames 35 and 39</t>
+					</list>
+				</postamble>
+			</figure>
+		</section>
+		<section title="Security Considerations">
+			<t>This memo raises no security issues; however, according to RFC2223, your document should contain a section near the end that discusses the security considerations of the protocol or procedures that are the main topic of your document.</t>
+		</section>
+	</middle>
+	<back>
+	</back>
+</rfc>
