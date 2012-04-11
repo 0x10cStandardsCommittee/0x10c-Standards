@@ -44,8 +44,8 @@ Table of Contents
      4.1.  Constructing a HAT filesystem . . . . . . . . . . . . . . . 7
      4.2.  Finding a file's inode  . . . . . . . . . . . . . . . . . . 7
      4.3.  Allocating sectors  . . . . . . . . . . . . . . . . . . . . 8
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 8
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 8
-
 
 
 
@@ -400,19 +400,19 @@ Jeffery                                                         [Page 7]
    free sector can be found.
 
 
+5.  Security Considerations
+
+   As there is no way to stop a program reading from or writing straight
+   to the disk HAT makes no attempt at providing any security.  Any file
+   security should be done in userspace using encryption.
+
+
 Author's Address
 
    Harry Jeffery (editor)
 
    Email: harry@exec64.co.uk
    URI:   http://www.exec64.co.uk/
-
-
-
-
-
-
-
 
 
 

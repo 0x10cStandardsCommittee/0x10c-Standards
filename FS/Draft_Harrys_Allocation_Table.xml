@@ -282,6 +282,12 @@
       </section>
     </section>
     
+    <section anchor="Security" title="Security Considerations">
+      <t>As there is no way to stop a program reading from or writing straight
+      to the disk HAT makes no attempt at providing any security. Any file
+      security should be done in userspace using encryption.</t>
+    </section>
+
   </middle>
 
   <back>
