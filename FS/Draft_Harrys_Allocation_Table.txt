@@ -34,13 +34,13 @@ Table of Contents
          3.1.3.2.  sector_data . . . . . . . . . . . . . . . . . . . . 5
      3.2.  Higher Layer  . . . . . . . . . . . . . . . . . . . . . . . 5
        3.2.1.  inode . . . . . . . . . . . . . . . . . . . . . . . . . 5
-         3.2.1.1.  type  . . . . . . . . . . . . . . . . . . . . . . . 5
-         3.2.1.2.  content_size  . . . . . . . . . . . . . . . . . . . 5
+         3.2.1.1.  type  . . . . . . . . . . . . . . . . . . . . . . . 6
+         3.2.1.2.  content_size  . . . . . . . . . . . . . . . . . . . 6
          3.2.1.3.  link_count  . . . . . . . . . . . . . . . . . . . . 6
        3.2.2.  link  . . . . . . . . . . . . . . . . . . . . . . . . . 6
          3.2.2.1.  strip_start_sector  . . . . . . . . . . . . . . . . 6
          3.2.2.2.  file_name . . . . . . . . . . . . . . . . . . . . . 6
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 7
 
 
 
@@ -59,9 +59,8 @@ Jeffery                                                         [Page 1]
 
 1.  Introduction
 
-   Currently there is no standard filesystem designed for use in a
-   system built around the DCPU-16 architecture.  This RFC provides a
-   filesystem designed specifically for use on DCPU-16 systems.
+   This RFC provides a filesystem designed specifically for use on
+   DCPU-16 systems.
 
    HAT is designed to be simple and easy to implement while still
    providing all the features required of a filesystem.
@@ -98,6 +97,7 @@ Jeffery                                                         [Page 1]
 
    All sizes are given in words, which are considered to be 16 bits
    long.
+
 
 
 
@@ -177,6 +177,10 @@ Jeffery                                                         [Page 3]
 
    This field contains the address of the first sector on disk.
 
+   This is required because the first sector may not be positioned
+   immediately after the header.  The first sector may be positioned to
+   provide alignment with the underlying disk's blocks.
+
 3.1.1.5.  sector_size
 
    This field contains the size of each sector in the filesystem.
@@ -203,9 +207,9 @@ Jeffery                                                         [Page 3]
 3.1.2.1.  bitmap
 
    This field is a bitmap that represents all the sectors in the
-   filesystem.  Each bit of the bitmap represents whether an sector is
-   in use.  When an sector is in use the corresponding bit is set to 1.
-   When an sector is free, the corresponding bit is set to 0.
+   filesystem.  Each bit of the bitmap represents whether a sector is in
+   use.  When a sector is in use the corresponding bit is set to 1.
+   When a sector is free, the corresponding bit is set to 0.
 
    Any spare bits at the end of the bitmap must be set to 1.
 
@@ -213,10 +217,6 @@ Jeffery                                                         [Page 3]
 
    The sector structure is used to store blocks of raw data.  Each
    sector may point to another sector.  The chain of sectors that forms
-   is then provided to the higher layer in the form of a strip that
-   masks the non-contiguous nature of the sectors.
-
-
 
 
 
@@ -225,6 +225,9 @@ Jeffery                                                         [Page 4]
                                    HAT                        April 2012
 
 
+   is then provided to the higher layer in the form of a strip that
+   masks the non-contiguous nature of the sectors.
+
                   +-----------------+-------------------+
                   |       Size      |        Name       |
                   +-----------------+-------------------+
@@ -232,7 +235,7 @@ Jeffery                                                         [Page 4]
                   | sector_size - 1 |    sector_data    |
                   +-----------------+-------------------+
 
-                         Table 4: sector Structure
+                         Table 4: sector structure
 
 3.1.3.1.  next_sector_index
 
@@ -260,9 +263,35 @@ Jeffery                                                         [Page 4]
                           |   1  |  link_count  |
                           +------+--------------+
 
-                         Table 5: inode Structure
+                         Table 5: inode structure
+
+
+
+
+
+
+
+
+
+
+
+
+Jeffery                                                         [Page 5]
+
+                                   HAT                        April 2012
+
 
 3.2.1.1.  type
+
+                     +-------+----------------------+
+                     | value |        meaning       |
+                     +-------+----------------------+
+                     |   0   |    inode is unused   |
+                     |   1   | inode is a directory |
+                     |   2   |    inode is a file   |
+                     +-------+----------------------+
+
+                           Table 6: type values
 
    This field indicates what type of inode it is.  If this field is set
    to 0 then the inode is not in use and represents nothing.  If this
@@ -273,13 +302,6 @@ Jeffery                                                         [Page 4]
 
    This field contains the amount of data stored with this inode in
    words.
-
-
-
-Jeffery                                                         [Page 5]
-
-                                   HAT                        April 2012
-
 
 3.2.1.3.  link_count
 
@@ -295,7 +317,7 @@ Jeffery                                                         [Page 5]
                        |  15  |      file_name     |
                        +------+--------------------+
 
-                          Table 6: link structure
+                          Table 7: link structure
 
 3.2.2.1.  strip_start_sector
 
@@ -307,6 +329,14 @@ Jeffery                                                         [Page 5]
    This field contains the file name to be associated with the inode
    that is being linked.  Only alphanumeric characters, periods(.) and
    underscores(_) are allowed in the filename.  The maximum length of
+
+
+
+Jeffery                                                         [Page 6]
+
+                                   HAT                        April 2012
+
+
    the filename is 15 characters, any unused characters at the end of
    the filename must be set to 0x0000.
 
@@ -332,5 +362,31 @@ Author's Address
 
 
 
-Jeffery                                                         [Page 6]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jeffery                                                         [Page 7]
 

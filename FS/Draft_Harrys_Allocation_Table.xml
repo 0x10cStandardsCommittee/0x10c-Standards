@@ -32,9 +32,8 @@
 
   <middle>
     <section anchor="Introduction" title="Introduction">
-      <t>Currently there is no standard filesystem designed for use in a
-      system built around the DCPU-16 architecture. This RFC provides a
-      filesystem designed specifically for use on DCPU-16 systems.</t>
+      <t>This RFC provides a filesystem designed specifically for use on
+      DCPU-16 systems.</t>
       <t>HAT is designed to be simple and easy to implement while still
       providing all the features required of a filesystem.</t>
     </section>
@@ -107,6 +106,9 @@
   
           <section anchor="HeaderSectorStart" title="sector_start">
             <t>This field contains the address of the first sector on disk.</t>
+            <t>This is required because the first sector may not be positioned
+            immediately after the header. The first sector may be positioned
+            to provide alignment with the underlying disk's blocks.</t>
           </section>
   
           <section anchor="HeaderSectorSize" title="sector_size">
@@ -133,9 +135,9 @@
   
           <section anchor="SectorMapBitmap" title="bitmap">
             <t>This field is a bitmap that represents all the sectors in the
-            filesystem. Each bit of the bitmap represents whether an sector
-            is in use. When an sector is in use the corresponding bit is set
-            to 1. When an sector is free, the corresponding bit is set to 0.</t>
+            filesystem. Each bit of the bitmap represents whether a sector
+            is in use. When a sector is in use the corresponding bit is set
+            to 1. When a sector is free, the corresponding bit is set to 0.</t>
             <t>Any spare bits at the end of the bitmap must be set to 1.</t>
           </section>
         </section>
@@ -146,7 +148,7 @@
           that forms is then provided to the higher layer in the form
           of a strip that masks the non-contiguous nature of the sectors.</t>
   
-          <texttable anchor="SectorTable" title="sector Structure">
+          <texttable anchor="SectorTable" title="sector structure">
             <ttcol align="center">Size</ttcol>
             <ttcol align="center">Name</ttcol>
             <c>1</c><c>next_sector_index</c>
@@ -173,7 +175,7 @@
         <section anchor="Inode" title="inode">
           <t>The inode structure is used to store metadata about files.</t>
     
-          <texttable anchor="InodeTable" title="inode Structure">
+          <texttable anchor="InodeTable" title="inode structure">
             <ttcol align="center">Size</ttcol>
             <ttcol align="center">Name</ttcol>
             <c>1</c><c>type</c>
@@ -182,6 +184,15 @@
           </texttable>
 
           <section anchor="InodeType" title="type">
+
+            <texttable anchor="InodeTypeTable" title="type values">
+              <ttcol align="center">value</ttcol>
+              <ttcol align="center">meaning</ttcol>
+              <c>0</c><c>inode is unused</c>
+              <c>1</c><c>inode is a directory</c>
+              <c>2</c><c>inode is a file</c>
+            </texttable>
+
             <t>This field indicates what type of inode it is. If this field is
             set to 0 then the inode is not in use and represents nothing. If
             this field is set to 1 then the inode represents a directory. If
