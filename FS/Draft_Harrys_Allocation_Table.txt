@@ -19,33 +19,33 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
    2.  Design Summary  . . . . . . . . . . . . . . . . . . . . . . . . 2
    3.  Data Structures . . . . . . . . . . . . . . . . . . . . . . . . 2
-     3.1.  header  . . . . . . . . . . . . . . . . . . . . . . . . . . 3
-       3.1.1.  version . . . . . . . . . . . . . . . . . . . . . . . . 3
-       3.1.2.  flags . . . . . . . . . . . . . . . . . . . . . . . . . 4
-         3.1.2.1.  is_mounted  . . . . . . . . . . . . . . . . . . . . 4
-       3.1.3.  num_inodes  . . . . . . . . . . . . . . . . . . . . . . 4
-       3.1.4.  num_sectors . . . . . . . . . . . . . . . . . . . . . . 4
-       3.1.5.  inode_start . . . . . . . . . . . . . . . . . . . . . . 4
-       3.1.6.  sector_start  . . . . . . . . . . . . . . . . . . . . . 4
-       3.1.7.  sector_size . . . . . . . . . . . . . . . . . . . . . . 4
-       3.1.8.  inode_map_start . . . . . . . . . . . . . . . . . . . . 4
-       3.1.9.  sector_map_start  . . . . . . . . . . . . . . . . . . . 5
-       3.1.10. inodes_used . . . . . . . . . . . . . . . . . . . . . . 5
-       3.1.11. sectors_used  . . . . . . . . . . . . . . . . . . . . . 5
-     3.2.  inode map . . . . . . . . . . . . . . . . . . . . . . . . . 5
-       3.2.1.  bitmap  . . . . . . . . . . . . . . . . . . . . . . . . 5
-     3.3.  sector map  . . . . . . . . . . . . . . . . . . . . . . . . 5
-       3.3.1.  bitmap  . . . . . . . . . . . . . . . . . . . . . . . . 6
-     3.4.  inode . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
-       3.4.1.  type  . . . . . . . . . . . . . . . . . . . . . . . . . 6
-       3.4.2.  content_size  . . . . . . . . . . . . . . . . . . . . . 6
-       3.4.3.  sector_index  . . . . . . . . . . . . . . . . . . . . . 6
-       3.4.4.  link_count  . . . . . . . . . . . . . . . . . . . . . . 6
-     3.5.  sector  . . . . . . . . . . . . . . . . . . . . . . . . . . 7
-       3.5.1.  next_sector_index . . . . . . . . . . . . . . . . . . . 7
-       3.5.2.  sector_data . . . . . . . . . . . . . . . . . . . . . . 7
-         3.5.2.1.  link  . . . . . . . . . . . . . . . . . . . . . . . 7
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 8
+     3.1.  Lower Layer . . . . . . . . . . . . . . . . . . . . . . . . 3
+       3.1.1.  header  . . . . . . . . . . . . . . . . . . . . . . . . 3
+         3.1.1.1.  version . . . . . . . . . . . . . . . . . . . . . . 3
+         3.1.1.2.  num_sectors . . . . . . . . . . . . . . . . . . . . 3
+         3.1.1.3.  sector_map_start  . . . . . . . . . . . . . . . . . 4
+         3.1.1.4.  sector_start  . . . . . . . . . . . . . . . . . . . 4
+         3.1.1.5.  sector_size . . . . . . . . . . . . . . . . . . . . 4
+         3.1.1.6.  sectors_used  . . . . . . . . . . . . . . . . . . . 4
+       3.1.2.  sector map  . . . . . . . . . . . . . . . . . . . . . . 4
+         3.1.2.1.  bitmap  . . . . . . . . . . . . . . . . . . . . . . 4
+       3.1.3.  sector  . . . . . . . . . . . . . . . . . . . . . . . . 4
+         3.1.3.1.  next_sector_index . . . . . . . . . . . . . . . . . 5
+         3.1.3.2.  sector_data . . . . . . . . . . . . . . . . . . . . 5
+     3.2.  Higher Layer  . . . . . . . . . . . . . . . . . . . . . . . 5
+       3.2.1.  inode . . . . . . . . . . . . . . . . . . . . . . . . . 5
+         3.2.1.1.  type  . . . . . . . . . . . . . . . . . . . . . . . 5
+         3.2.1.2.  content_size  . . . . . . . . . . . . . . . . . . . 5
+         3.2.1.3.  link_count  . . . . . . . . . . . . . . . . . . . . 6
+       3.2.2.  link  . . . . . . . . . . . . . . . . . . . . . . . . . 6
+         3.2.2.1.  strip_start_sector  . . . . . . . . . . . . . . . . 6
+         3.2.2.2.  file_name . . . . . . . . . . . . . . . . . . . . . 6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 6
+
+
+
+
+
 
 
 
@@ -69,32 +69,21 @@ Jeffery                                                         [Page 1]
 
 2.  Design Summary
 
-   HAT is a fairly simple filesystem made up of only a few basic
-   structures: the header, an inode map and sector map, inodes, sectors
-   and links.
+   HAT has a two layered design.  The lower layer consists only of
+   sectors.  The lower layer is abstracted from the higher layer using
+   "strips".  The higher layer consists of inodes, links and raw file
+   data.
 
-   The header is used to store basic information about the state of the
-   filesystem and where to find the other sections of it.
+   The lower layer deals with the management of sectors and provides
+   access to virtual strips of disk space.
 
-   inodes are used to store metadata about files and directories.  Each
-   file and directory has an inode which points to the first sector of
-   that file or directory on disk as well as storing the length of the
-   data stored. inodes themselves have no filename associated with them
-   or relationship to one another.  The directory hierarchy is
-   constructed using links and directories.
-
-   sectors are used for two different things: storing file data and
-   storing links.  If there is not enough space in a sector to store all
-   of the data the sector will also point to the next sector, forming a
-   linked list.
-
-   links are used to link file names to inodes, which can then be sub
-   directories, forming a tree.
-
-   inode 0 and sector 0 are always used to store the root directory.
-
-   inode_map and sector_map are bitmaps that are used to quickly locate
-   free inodes and sectors on disk.
+   The higher layer stores inodes, links and file data in these strips.
+   Each strip (constructed in the lower layer using one or more sectors)
+   contains an inode followed by either links or file data.  Each inode
+   represents either a file or a directory.  If the inode represents a
+   file the strip contains the inode followed immediately by all the
+   file data.  If the inode represents a directory the strip contains
+   the inode followed by a list of links.
 
 
 3.  Data Structures
@@ -108,21 +97,29 @@ Jeffery                                                         [Page 1]
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 Jeffery                                                         [Page 2]
 
                                    HAT                        April 2012
 
 
+3.1.  Lower Layer
+
                               +------------+
                               |   Section  |
                               +------------+
                               |   header   |
-                              |  inode map |
                               | sector map |
-                              |   inode 0  |
-                              |   inode 1  |
-                              |   inode 2  |
-                              |     ...    |
                               |  sector 0  |
                               |  sector 1  |
                               |  sector 2  |
@@ -131,7 +128,7 @@ Jeffery                                                         [Page 2]
 
                        Table 1: Filesystem Structure
 
-3.1.  header
+3.1.1.  header
 
    This structure contains the header information for HAT.
 
@@ -141,25 +138,28 @@ Jeffery                                                         [Page 2]
                         | Size |       Name       |
                         +------+------------------+
                         |   1  |      version     |
-                        |   1  |       flags      |
-                        |   1  |    num_inodes    |
                         |   1  |    num_sectors   |
-                        |   2  |    inode_start   |
+                        |   2  | sector_map_start |
                         |   2  |   sector_start   |
                         |   1  |    sector_size   |
-                        |   2  |  inode_map_start |
-                        |   2  | sector_map_start |
-                        |   1  |    inodes_used   |
                         |   1  |   sectors_used   |
-                        |   1  |      padding     |
                         +------+------------------+
 
                          Table 2: Header Structure
 
-3.1.1.  version
+3.1.1.1.  version
 
    The version field is a magic number that identifies both that the
    filesystem in use is HAT and the version of HAT.
+
+   The value of this field must be 0x4001.  This magic number identifies
+   the filesystem as version one of HAT.
+
+3.1.1.2.  num_sectors
+
+   This field contains the total number of sectors in the filesystem.
+
+
 
 
 
@@ -169,97 +169,25 @@ Jeffery                                                         [Page 3]
                                    HAT                        April 2012
 
 
-   The value of this field must be 0x4001.  This magic number identifies
-   the filesystem as version one of HAT.
+3.1.1.3.  sector_map_start
 
-3.1.2.  flags
+   This field contains the address of the start of the sector map.
 
-   Bit 0 is the least significant bit, Bit 15 is the most significant
-   bit.
-
-                   +---------+-------------------------+
-                   |   Bit   |           Name          |
-                   +---------+-------------------------+
-                   |    0    |        is_mounted       |
-                   | 1 to 15 | Reserved for future use |
-                   +---------+-------------------------+
-
-                           Table 3: Header Flags
-
-3.1.2.1.  is_mounted
-
-   If this filesystem is currently mounted then this field must be set
-   to 1, otherwise it must be set to 0.
-
-3.1.3.  num_inodes
-
-   This field contains the total number of inodes in the filesystem.
-
-3.1.4.  num_sectors
-
-   This field contains the total number of sectors in the filesystem.
-
-3.1.5.  inode_start
-
-   This field contains the address of the first inode on disk.
-
-3.1.6.  sector_start
+3.1.1.4.  sector_start
 
    This field contains the address of the first sector on disk.
 
-3.1.7.  sector_size
+3.1.1.5.  sector_size
 
    This field contains the size of each sector in the filesystem.
 
    This must be a power of 2, such as 128, 256 or 512.
 
-3.1.8.  inode_map_start
-
-   This field contains the address of the start of the inode map.
-
-
-
-
-Jeffery                                                         [Page 4]
-
-                                   HAT                        April 2012
-
-
-3.1.9.  sector_map_start
-
-   This field contains the address of the start of the sector map.
-
-3.1.10.  inodes_used
-
-   This field contains the number of inodes that are currently in use.
-
-3.1.11.  sectors_used
+3.1.1.6.  sectors_used
 
    This field contains the number of sectors that are currently in use.
 
-3.2.  inode map
-
-   This section is a bitmap representing which inodes are in use.  It
-   can be used to quickly locate free inodes for new files.
-
-                     +---------------------+--------+
-                     |         Size        |  Name  |
-                     +---------------------+--------+
-                     | ceil(num_inodes/16) | bitmap |
-                     +---------------------+--------+
-
-                       Table 4: inode map Structure
-
-3.2.1.  bitmap
-
-   This field is a bitmap that represents all the inodes in the
-   filesystem.  Each bit of the bitmap represents whether an inode is in
-   use.  When an inode is in use the corresponding bit is set to 1.
-   When an inode is free, the corresponding bit is set to 0.
-
-   Any spare bits at the end of the bitmap must be set to 1.
-
-3.3.  sector map
+3.1.2.  sector map
 
    This section is a bitmap representing which sectors are in use.  It
    can be used to quickly locate free sectors for new files.
@@ -270,18 +198,9 @@ Jeffery                                                         [Page 4]
                      | ceil(num_sectors/16) | bitmap |
                      +----------------------+--------+
 
-                       Table 5: sector map structure
+                       Table 3: sector map structure
 
-
-
-
-
-Jeffery                                                         [Page 5]
-
-                                   HAT                        April 2012
-
-
-3.3.1.  bitmap
+3.1.2.1.  bitmap
 
    This field is a bitmap that represents all the sectors in the
    filesystem.  Each bit of the bitmap represents whether an sector is
@@ -290,119 +209,106 @@ Jeffery                                                         [Page 5]
 
    Any spare bits at the end of the bitmap must be set to 1.
 
-3.4.  inode
+3.1.3.  sector
 
-   The inode structure is used to store metadata about files.  It is
-   used to find the contents of the file on disk and the relationship of
-   that file to the directory structure.
+   The sector structure is used to store blocks of raw data.  Each
+   sector may point to another sector.  The chain of sectors that forms
+   is then provided to the higher layer in the form of strips that mask
+   the non-contiguous nature of the sectors.
 
-   The inode structure is 32 words.
+
+
+
+
+Jeffery                                                         [Page 4]
+
+                                   HAT                        April 2012
+
+
+                  +-----------------+-------------------+
+                  |       Size      |        Name       |
+                  +-----------------+-------------------+
+                  |        1        | next_sector_index |
+                  | sector_size - 1 |    sector_data    |
+                  +-----------------+-------------------+
+
+                         Table 4: sector Structure
+
+3.1.3.1.  next_sector_index
+
+   This field contains the index of the sector that follows this one.
+   When there is no such sector this field's value is set to 0x0000.
+
+3.1.3.2.  sector_data
+
+   This field simply contains raw data.
+
+   The size of this field is determined by the sector_size field in the
+   header of the filesystem.
+
+3.2.  Higher Layer
+
+3.2.1.  inode
+
+   The inode structure is used to store metadata about files.
 
                           +------+--------------+
                           | Size |     Name     |
                           +------+--------------+
                           |   1  |     type     |
                           |   2  | content_size |
-                          |   1  | sector_index |
                           |   1  |  link_count  |
-                          |   3  |    padding   |
                           +------+--------------+
 
-                         Table 6: inode Structure
+                         Table 5: inode Structure
 
-3.4.1.  type
+3.2.1.1.  type
 
    This field indicates what type of inode it is.  If this field is set
    to 0 then the inode is not in use and represents nothing.  If this
    field is set to 1 then the inode represents a directory.  If this
    field is set to 2 then the inode represents a file.
 
-3.4.2.  content_size
+3.2.1.2.  content_size
 
-   This field contains the amount of data stored by the inode in words.
-
-3.4.3.  sector_index
-
-   This field contains the index of the first data sector.
-
-3.4.4.  link_count
-
-   This field contains the number of links there are that point to this
-   inode.
+   This field contains the amount of data stored with this inode in
+   words.
 
 
 
-Jeffery                                                         [Page 6]
+Jeffery                                                         [Page 5]
 
                                    HAT                        April 2012
 
 
-3.5.  sector
+3.2.1.3.  link_count
 
-   The sector structure is used to store raw data for the inodes.  When
-   an inode represents a file, sectors are used to store the file data.
-   When an inode represents a directory, sectors are used to store the
-   links in that directory.
+   This field contains the number of links there are that point to the
+   strip containing this inode.
 
-                  +-----------------+-------------------+
-                  |       Size      |        Name       |
-                  +-----------------+-------------------+
-                  |        1        | next_sector_index |
-                  | sector_size - 2 |    sector_data    |
-                  +-----------------+-------------------+
+3.2.2.  link
 
-                         Table 7: sector Structure
+                       +------+--------------------+
+                       | Size |        Name        |
+                       +------+--------------------+
+                       |   1  | strip_start_sector |
+                       |  15  |      file_name     |
+                       +------+--------------------+
 
-3.5.1.  next_sector_index
+                          Table 6: link structure
 
-   This field contains the index of the sector that follows this one.
-   When there is no such sector this field's value is undefined as the
-   number of sectors known is determined by the content_size field of
-   the inode structure.
+3.2.2.1.  strip_start_sector
 
-3.5.2.  sector_data
+   This field contains the index of the start sector of the strip the
+   inode being linked to is stored in.
 
-   This field is used differently depending on whether the inode that
-   uses this sector is representing a file or a directory.
+3.2.2.2.  file_name
 
-   If the inode is a file then this field contains the raw file data.
-
-   If the inode is a directory then this field contains an array of
-   links pointing to more inodes.
-
-   The size of this field is determined by the sector_size field in the
-   header of the filesystem.
-
-3.5.2.1.  link
-
-                          +------+-------------+
-                          | Size |     Name    |
-                          +------+-------------+
-                          |   1  | inode_index |
-                          |  15  |  file_name  |
-                          +------+-------------+
-
-                          Table 8: link structure
-
-
-
-
-
-Jeffery                                                         [Page 7]
-
-                                   HAT                        April 2012
-
-
-3.5.2.1.1.  inode_index
-
-   This field contains the index of the inode that is referenced.
-
-3.5.2.1.2.  file_name
-
-   This field contains the file name associated with the inode.  The
-   filename consists of only alphanumeric characters, periods(.) and
-   underscores(_).  Any unused characters at the end of the filename
-   must be set to 0x00.
+   This field contains the file name to be associated with the inode
+   that is being linked.  Only alphanumeric characters, periods(.) and
+   underscores(_) are allowed in the filename.  The maximum length of
+   the filename is 15 characters, any unused characters at the end of
+   the filename must be set to 0x0000.
 
 
 Author's Address
@@ -426,23 +332,5 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Jeffery                                                         [Page 8]
+Jeffery                                                         [Page 6]
 
