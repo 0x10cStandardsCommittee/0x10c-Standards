@@ -1,0 +1,158 @@
+DCPU-16 UART KK2000 (Draft v. 0.9)
+Copyright 2012, Robert "King Korihor" Horning
+
+Licensing for reuse under the terms of the Creative Commons Attribution 3.0 United States license
+http://creativecommons.org/licenses/by/3.0/us/
+
+For commentary and discussion about this standard, please visit:
+
+http://www.0x10cforum.com/forum/m/4932880/viewthread/2718770-dcpu16-uart
+
+I'm proposing the UART architecture for DCPU-16 processors as a means to enable "standardized" serial data communications between different peripherals on the ship, and I'm even go so far as to suggest that almost everything ought to be communicating through the UART.  The foundational architecture design for the UART that I'm using here is the 8250 UART that was originally designed for the 8080 CPU and has been used or simulated on most subsequent computers in one form or another.  Since this is a game and we might as well work with an abstraction, I am going to presume that this is one "chip" rather than a whole group of chips like it is "in real life".
+
+If you are trying to understand why to use a UART, think of this as a primitive version of the USB systems on most modern computers and devices.  The UART is what most devices had before USB came around and replaced it.  The term "UART" stands for "Universal Asynchronous Receiver-Transmitter".  The UART is a very robust serial data module that has certainly stood the test of time and often works even when almost everything else in a computer fails, and even allows you to connect to equipment that otherwise has no terminal or other kinds of I/O interfaces.
+
+The two words for accessing "registers" is mainly a way to communicate to the UART and control its functionality.  I'm proposing the following general way of working with the UART memory area in the DCPU-16:
+
++-----+------------------+
+|  0  |  Register Select |
++-----+------------------+
+|  1  |  Register Value  |
++-----+------------------+
+
+The Register Select word is literally to identify which register in the UART will be directly accessible by the DCPU-16 for any operation.  If you want to access another one of the registers, simply change this value.  Using this schema, in theory we could address 65,536 different registers... and that is simply overkill.  The number of actual registers is going to be quite small (the 8250 only uses eight registers), but this keeps the memory footprint quite small in terms of taking up more space in the address space.  I'm trying to be as efficient as possible here without making programming this device any more complicated than it needs to be.
+
+Register Value is simply the information being passed into the UART which impacts its operation based upon the previous value selected.
+
+The registers for controlling this device are as follows:
+
++---+-----+----------------------------+
+| 0 | THB | Transmitter Holding Buffer |
++---+-----+----------------------------+
+| 1 | RHB | Receiver Holdeing Buffer   |
++---+-----+----------------------------+
+| 2 | DL  | Divisor Latch              |
++---+-----+----------------------------+
+| 3 | FCR | FIFO Control Register      |
++---+-----+----------------------------+
+| 4 | LCR | Line Control Register      |
++---+-----+----------------------------+
+| 5 | MCR | Modem Control Register     |
++---+-----+----------------------------+
+| 6 | LSR | Line Status Register       |
++---+-----+----------------------------+
+
+
+Transmitter Holding Buffer - This is the data you wish to transmit to another device.  Any data placed in the Register Value memory location would be automatically transmitted and put into internal buffers in the UART (basically doing some "hand waving" here to say it goes out on the network).  Any attempts to read this register simply returns "0".
+
+Receiver Holding Buffer - This is the input data.  Any data written to this register is simply ignored.
+
+Divisor Latch - This determines the "baud rate" or transmission speed of the UART on the communications channel.  You can calculate what this value can be with the following formula:
+
+       115200 / (baud rate) = DL
+
+Yes, this gets a little obfuscated, and I'm open to simply make this value the baud rate you want to transmit, but this is how the 8250 works and it gives all of the common baud rates you would care to use including some odd transmission rates that are just weird.  
+
+I debated on if this register even needed to be in this specification, but it does add realism that sometimes distant location simply need more time to transmit information.  From a game play standpoint, the distance between the transmitter and receiver will impact the maximum baud rate permitted (from within the game mechanics) for messages sent to one another.  That is something easily calculated and enforced.... where an attempt to transmit at a faster baud rate would result in garbled data that would be random noise.
+
+Writing to this register sets the baud rate, and reading from it will allow you to inspect what the baud rate currently is set at.
+
+FIFO Control Register - Controls the status of both the input and output data streams.  Various settings (bit flags) controls the operation of the FIFO (first in, first out data queue).
+
+Bit flags are as follows:
+
++-----+----------------------------+
+| 7-F | Reserved                   |
++-----+----------------------------+
+| 3-6 | FIFO Buffer Size           |
++-----+----------------------------+
+|  2  | Clear Input FIFO           |
++-----+----------------------------+
+|  1  | Clear Output FIFO          |
++-----+----------------------------+
+|  0  | Enable FIFOs               |
++-----+----------------------------+
+
+Line Control Register - Sets up the various states for how individual characters are transmitted, including if parity bits may or may not be included, stop bits, and "word length" for how many bits will be transmitted for a "character". 
+
++-----+------------------------------------------------+
+| 9-F |  Reserved                                      |
++-----+------------------------------------------------+
+|  8  |  Set Break Enable                              |
++-----+------------------------------------------------+
+|     | 0 | No Parity   |                              |
+|     | 1 | Odd Parity  |                              |
+| 5-7 | 2 | Even Parity | Parity Status                |
+|     | 5 | Mark        |                              |
+|     | 7 | Space       |                              |
++-----+------------------------------------------------+
+|  4  |  Stop Bits (0 == 1 stop bit, 1 == 2 stop bits) |
++-----+------------------------------------------------+
+| 0-3 |  Word Length (in bits transmitted)             |
++-----+------------------------------------------------+
+
+The word length is an odd one.  The early devices that used serial transmission protocols only used 5 bits per "character", and even today 7-bit transmission is presumed with SMTP and some other internet protocols.  I've expanded this for use with the DCPU-16 so you can send a whole 16 bit word at once (something normal RS-232 protocols don't actually permit).  There isn't a reason against sending a whole 16 bit word, it just usually isn't done because the standard data size is 8 bits.  Since we are redefining it, why not 16 bits?
+
+The "Set Break Enable" is one of several data lines that can be turned on or off as an extra control line to the other piece of equipment you are working with.  Explaining that signal is beyond the scope of this specification and is implementation specific (you can look it up with a search engine if you care to learn more).
+
+Modem Control Register - Bit flags that allow you to control various output conditions and to perform "flow control" when using "hardware flow control".  This is something which could be added to a previous register, but on the 8250 is separate.  Also, it would give an option for having "blinking lights" of some sort that could be derived from the signals of this register.  For typical RS-232 connections IRL this controls various signals coming out of a DB-25 cable (the big fat one often used for "parallel ports" on a PC, but was originally designed for serial data links).  For 0x10^c, this may be simply too much detail and robustness than is necessary.
+
+On the other hand, these bits might be useful for something like light switches controlled by the computer or some very simple pieces of equipment that don't need to necessarily interpret whole characters at once.  It is realistic so far as this is something that is in the original 8250 specification and perhaps might have an application for a mod developer or some future piece of equipment that nobody has thought up yet.
+
+The bit flags are as follows:
+
++-----+----------------------------+
+| 5-F | Reserved                   |
++-----+----------------------------+
+|  4  | Loopback Mode              |
++-----+----------------------------+
+|  3  | Auxillary Output 2         |
++-----+----------------------------+
+|  2  | Auxillary Output 1         |
++-----+----------------------------+
+|  1  | Request to Send            |
++-----+----------------------------+
+|  0  | Data Terminal Ready        |
++-----+----------------------------+
+
+Line Status Register - Various bit flags which indicate the status of the UART.  Typical uses include bits to indicate if there is room in the UART FIFO to transmit additional data or if there is data in the UART which has been transmitted from another computer which needs to be processed by the DCPU.  It also includes error conditions which might be detected by the UART, such as parity errors, broken connections, or other sort of error conditions.
+
+Bit flags include:
+
++---+------------------------------------+ 
+| F | Carrier Detect                     |
++---+------------------------------------+ 
+| E | Ring Indicator                     |
++---+------------------------------------+ 
+| D | Data Set Ready                     |
++---+------------------------------------+ 
+| C | Clear To Send                      |
++---+------------------------------------+ 
+| B | Delta Data Carrier Detect          |
++---+------------------------------------+ 
+| A | Trailing Edge Ring Indicator       |
++---+------------------------------------+ 
+| 9 | Delta Data Set Ready               |
++---+------------------------------------+ 
+| 8 | Delta Clear To Send                |
++---+------------------------------------+ 
+| 7 | Error in Received FIFO             |
++---+------------------------------------+
+| 6 | Empty Data Holding Registers       |
++---+------------------------------------+
+| 5 | Empty Transmitter Holding Register |
++---+------------------------------------+
+| 4 | Break Interrupt                    |
++---+------------------------------------+
+| 3 | Framing Error                      |
++---+------------------------------------+
+| 2 | Parity Error                       |
++---+------------------------------------+
+| 1 | Overrun Error                      |
++---+------------------------------------+
+| 0 | Data Ready                         |
++---+------------------------------------+
+
+Just like the Modem Control Register, these might be simply some miscellaneous generic inputs that could be simulated like an airlock which is open or closed or perhaps a pressure plate signal.  It would be implementation specific, but all of these signals did have a meaning in terms of equipment being used.  The error signals certainly could be used for indicating some sort of damaged network connection or other sorts of simulated behavior.
+
+Other "registers" should be considered "reserved" and have "undefined" behavior. 
