@@ -1,0 +1,420 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en"><head><title>A Physical layer application for DCPU-16</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="description" content="A Physical layer application for DCPU-16">
+<meta name="generator" content="xml2rfc v1.36 (http://xml.resource.org/)">
+<style type='text/css'><!--
+        body {
+                font-family: verdana, charcoal, helvetica, arial, sans-serif;
+                font-size: small; color: #000; background-color: #FFF;
+                margin: 2em;
+        }
+        h1, h2, h3, h4, h5, h6 {
+                font-family: helvetica, monaco, "MS Sans Serif", arial, sans-serif;
+                font-weight: bold; font-style: normal;
+        }
+        h1 { color: #900; background-color: transparent; text-align: right; }
+        h3 { color: #333; background-color: transparent; }
+
+        td.RFCbug {
+                font-size: x-small; text-decoration: none;
+                width: 30px; height: 30px; padding-top: 2px;
+                text-align: justify; vertical-align: middle;
+                background-color: #000;
+        }
+        td.RFCbug span.RFC {
+                font-family: monaco, charcoal, geneva, "MS Sans Serif", helvetica, verdana, sans-serif;
+                font-weight: bold; color: #666;
+        }
+        td.RFCbug span.hotText {
+                font-family: charcoal, monaco, geneva, "MS Sans Serif", helvetica, verdana, sans-serif;
+                font-weight: normal; text-align: center; color: #FFF;
+        }
+
+        table.TOCbug { width: 30px; height: 15px; }
+        td.TOCbug {
+                text-align: center; width: 30px; height: 15px;
+                color: #FFF; background-color: #900;
+        }
+        td.TOCbug a {
+                font-family: monaco, charcoal, geneva, "MS Sans Serif", helvetica, sans-serif;
+                font-weight: bold; font-size: x-small; text-decoration: none;
+                color: #FFF; background-color: transparent;
+        }
+
+        td.header {
+                font-family: arial, helvetica, sans-serif; font-size: x-small;
+                vertical-align: top; width: 33%;
+                color: #FFF; background-color: #666;
+        }
+        td.author { font-weight: bold; font-size: x-small; margin-left: 4em; }
+        td.author-text { font-size: x-small; }
+
+        /* info code from SantaKlauss at http://www.madaboutstyle.com/tooltip2.html */
+        a.info {
+                /* This is the key. */
+                position: relative;
+                z-index: 24;
+                text-decoration: none;
+        }
+        a.info:hover {
+                z-index: 25;
+                color: #FFF; background-color: #900;
+        }
+        a.info span { display: none; }
+        a.info:hover span.info {
+                /* The span will display just on :hover state. */
+                display: block;
+                position: absolute;
+                font-size: smaller;
+                top: 2em; left: -5em; width: 15em;
+                padding: 2px; border: 1px solid #333;
+                color: #900; background-color: #EEE;
+                text-align: left;
+        }
+
+        a { font-weight: bold; }
+        a:link    { color: #900; background-color: transparent; }
+        a:visited { color: #633; background-color: transparent; }
+        a:active  { color: #633; background-color: transparent; }
+
+        p { margin-left: 2em; margin-right: 2em; }
+        p.copyright { font-size: x-small; }
+        p.toc { font-size: small; font-weight: bold; margin-left: 3em; }
+        table.toc { margin: 0 0 0 3em; padding: 0; border: 0; vertical-align: text-top; }
+        td.toc { font-size: small; font-weight: bold; vertical-align: text-top; }
+
+        ol.text { margin-left: 2em; margin-right: 2em; }
+        ul.text { margin-left: 2em; margin-right: 2em; }
+        li      { margin-left: 3em; }
+
+        /* RFC-2629 <spanx>s and <artwork>s. */
+        em     { font-style: italic; }
+        strong { font-weight: bold; }
+        dfn    { font-weight: bold; font-style: normal; }
+        cite   { font-weight: normal; font-style: normal; }
+        tt     { color: #036; }
+        tt, pre, pre dfn, pre em, pre cite, pre span {
+                font-family: "Courier New", Courier, monospace; font-size: small;
+        }
+        pre {
+                text-align: left; padding: 4px;
+                color: #000; background-color: #CCC;
+        }
+        pre dfn  { color: #900; }
+        pre em   { color: #66F; background-color: #FFC; font-weight: normal; }
+        pre .key { color: #33C; font-weight: bold; }
+        pre .id  { color: #900; }
+        pre .str { color: #000; background-color: #CFF; }
+        pre .val { color: #066; }
+        pre .rep { color: #909; }
+        pre .oth { color: #000; background-color: #FCF; }
+        pre .err { background-color: #FCC; }
+
+        /* RFC-2629 <texttable>s. */
+        table.all, table.full, table.headers, table.none {
+                font-size: small; text-align: center; border-width: 2px;
+                vertical-align: top; border-collapse: collapse;
+        }
+        table.all, table.full { border-style: solid; border-color: black; }
+        table.headers, table.none { border-style: none; }
+        th {
+                font-weight: bold; border-color: black;
+                border-width: 2px 2px 3px 2px;
+        }
+        table.all th, table.full th { border-style: solid; }
+        table.headers th { border-style: none none solid none; }
+        table.none th { border-style: none; }
+        table.all td {
+                border-style: solid; border-color: #333;
+                border-width: 1px 2px;
+        }
+        table.full td, table.headers td, table.none td { border-style: none; }
+
+        hr { height: 1px; }
+        hr.insert {
+                width: 80%; border-style: none; border-width: 0;
+                color: #CCC; background-color: #CCC;
+        }
+--></style>
+</head>
+<body>
+<table summary="layout" width="66%" border="0" cellpadding="0" cellspacing="0"><tr><td><table summary="layout" width="100%" border="0" cellpadding="2" cellspacing="1">
+<tr><td class="header">Network Working Group</td><td class="header">J. Mansfield</td></tr>
+<tr><td class="header">Internet-Draft</td><td class="header">0x10C-Std</td></tr>
+<tr><td class="header">Expires: October 14, 2012</td><td class="header">April 12, 2012</td></tr>
+</table></td></tr></table>
+<h1><br />A Physical layer application for DCPU-16<br />Draft_OSI_Physical_Layer</h1>
+
+<h3>Abstract</h3>
+
+<p>This document provides a theoretical implementation of the physical layer of the OSI model on the DCPU-16 platform.
+</p>
+<h3>Status of this Memo</h3>
+<p>
+This document is an Internet-Draft and is
+in full conformance with all provisions of Section&nbsp;10 of RFC&nbsp;2026.</p>
+<p>
+Internet-Drafts are working documents of the Internet Engineering
+Task Force (IETF).  Note that other groups may also distribute
+working documents as Internet-Drafts.  The list of current
+Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
+<p>
+Internet-Drafts are draft documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by other documents at any time.
+It is inappropriate to use Internet-Drafts as reference material or to cite
+them other than as &ldquo;work in progress.&rdquo;</p>
+<p>
+This Internet-Draft will expire on October 14, 2012.</p>
+
+<h3>Copyright Notice</h3>
+<p>
+Copyright &copy; The Internet Society (2012). All Rights Reserved.</p>
+
+<a name="anchor1"></a><br /><hr />
+<a name="rfc.section.1"></a><h3>1.&nbsp;
+Preamble</h3>
+
+<p>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119.
+</p>
+<p>This implementation has been written in such a way that more than one CPU can communicate on the same physical bus. it does not cover routing and addressing of data, as this is not part of the physical/link level.
+</p>
+<a name="anchor2"></a><br /><hr />
+<a name="rfc.section.1.1"></a><h3>1.1.&nbsp;
+Definitions</h3>
+
+<blockquote class="text">
+<p>ATU: arbitrary time unit. A period of time or delay that MAY vary due to circumstances outside the control of the player. E.G. CPU response time, link latency, etc.
+</p>
+<p>sender: the CPU initiating the data transfer, from which the transfer originates, that contains the data to be transferred before the transfer is started.
+</p>
+<p>recipient: the CPU accepting data from the sender, which does not have any of the data used in the transfer at the start of the transfer
+</p>
+</blockquote>
+<a name="anchor3"></a><br /><hr />
+<a name="rfc.section.2"></a><h3>2.&nbsp;
+Hardware Limitations</h3>
+
+<a name="anchor4"></a><br /><hr />
+<a name="rfc.section.2.1"></a><h3>2.1.&nbsp;
+Full details unknown</h3>
+
+<p>It SHOULD be noted that as the 0x10c game is still in development, the full specifications of the DCPU-16 processor are subject to change at any time in the future.
+</p>
+<a name="anchor5"></a><br /><hr />
+<a name="rfc.section.2.2"></a><h3>2.2.&nbsp;
+Currently Known Specifications</h3>
+
+<p>The current specifications at the time of the last update of this document (Wednesday 11th April 2012) are:
+</p>
+<blockquote class="text">
+<p>16 bit unsigned words
+</p>
+<p>0x10000 words of ram
+</p>
+<p>8 registers (A, B, C, X, Y, Z, I, J)
+</p>
+<p>program counter (PC)
+</p>
+<p>stack pointer (SP)
+</p>
+<p>overflow (O)
+</p>
+<p>Instructions are 1-3 words long and are fully defined by the first word.
+</p>
+<p>In a basic instruction, the lower four bits of the first word of the instruction are the opcode, and the remaining twelve bits are split into two six bit values, called a and b. a is always handled by the processor before b, and is the lower six bits. In bits (with the least significant being last), a basic instruction has the format: bbbbbbaaaaaaoooo
+</p>
+<p>If any instruction tries to assign a literal value, the assignment fails silently. Other than that, the instruction behaves as normal.
+</p>
+<p>All values that read a word (0x10-0x17, 0x1e, and 0x1f) take 1 cycle to look up. The rest take 0 cycles.
+</p>
+<p>By using 0x18, 0x19, 0x1a as POP, PEEK and PUSH, there's a reverse stack starting at memory location 0xffff. Example: "SET PUSH, 10", "SET X, POP"
+</p>
+<p>Non-basic opcodes always have their lower four bits unset, have one value and a six bit opcode. In binary, they have the format: aaaaaaoooooo0000 The value (a) is in the same six bit format as defined earlier.
+</p>
+<p>JSR takes 2 cycles, plus the cost of a.
+</p>
+</blockquote>
+<p>For clarity, the opcodes and FAQ have not been included in this summary.
+</p>
+<a name="anchor6"></a><br /><hr />
+<a name="rfc.section.2.3"></a><h3>2.3.&nbsp;
+Assumed Information</h3>
+
+<p>There have been no official press releases from Mojang on the following information, however this document was written with the following assumptions:
+</p>
+<blockquote class="text">
+<p>The DCPU-16 processor has no support for interrupts
+</p>
+<p>The DCPU-16 processor has support for basic electrical input/output operations
+</p>
+<p>The 0x10c game realistically simulates electrical physics
+</p>
+</blockquote>
+<a name="anchor7"></a><br /><hr />
+<a name="rfc.section.3"></a><h3>3.&nbsp;
+Implementation</h3>
+
+<p>The lack of interrupts can mainly be solved by a vigorous clocking of all the data.
+</p>
+<p>This would be achieved by the use of three physical signalling lines between the CPUs wishing to communicate. These lines would be titled PTS, PTS-ACK and DATA.
+</p>
+<a name="anchor8"></a><br /><hr />
+<a name="rfc.section.3.1"></a><h3>3.1.&nbsp;
+Data</h3>
+
+<p>The data line would be used for the actual data being transferred between two CPUs.
+</p>
+<p>Each bit of data would be present on the Data line for 4 ATUs, without a need to clear the line between bits.
+</p>
+<p>The data line SHOULD be kept low at all times when a data transfer is not taking place.
+</p>
+<p>If a sending CPU needs to abort a data transfer, it MUST remove it's PTS before the data.
+</p>
+<a name="anchor9"></a><br /><hr />
+<a name="rfc.section.3.2"></a><h3>3.2.&nbsp;
+PTS</h3>
+
+<p>The PTS (Permission To Send) line is used by the sending CPU to request the recipient CPU's attention.
+</p>
+<p>The PTS line is pulled high by the sending CPU for two ATUs in each data transfer bit, to indicate that the next bit of data has been placed onto the data line.
+</p>
+<a name="anchor10"></a><br /><hr />
+<a name="rfc.section.3.2.1"></a><h3>3.2.1.&nbsp;
+transfer-start requests</h3>
+
+<p>The PTS line SHOULD be pulled high by the sending CPU when no transfer is taking place, to indicate that the CPU wishes to start a transfer.
+</p>
+<p>The transfer-start PTS is RECOMMENDED, and is used to ensure that two sending CPUs do not start a transfer at the same time.
+</p>
+<p>A sending CPU MUST NOT ack a PTS transfer-start request when is is sending, or wishes to start sending.
+</p>
+<p>A sending CPU that does not receive an ack for it's transfer-start PTS MUST NOT begin transferring data. It MUST withdraw the PTS after a reasonable amount of time, and try again later
+</p>
+<p>A sending CPU SHOULD NOT attempt to start a transfer while an existing transfer is taking place, however the transfer-start PTS exists as a failsafe for this not being observed.
+</p>
+<p>If the sending CPU detects the PTS line has been brought high by another CPU during it's data transfer, the sending CPU SHOULD abort it's data transfer immediately.
+</p>
+<a name="anchor11"></a><br /><hr />
+<a name="rfc.section.3.3"></a><h3>3.3.&nbsp;
+PTS-ACK</h3>
+
+<p>The PTS-ACK line is used by the recipient CPU(s) to indicate they have PTS from the sending CPU, and have acted accordingly.
+</p>
+<p>If the PTS indicates that the sending CPU wants to initiate a transfer, the PTS-ACK would indicate that the recipient CPU is ready to start the transfer.
+</p>
+<p>If the PTS indicates that the next bit of data has been stored on the CPU, and that it can safely be removed from the data line.
+</p>
+<p>The PTS-ACK line is inverse to it's meaning, to enable multiple CPUs to communicate on the same physical bus. This ensures that all CPUs on the bus have ack'd the PTS before the sending CPU will recognise the PTS-ACK signal.
+</p>
+<p>Because of this, a quick link latency will result in the PTS-ACK line mirroring the PTS line, with approximately 1 CPU cycle delay.
+</p>
+<p>A sending CPU MAY choose to withdraw it's transmission attempt if a recipient CPU does not ack the PTS within a reasonable amount of time. If doing this, the sending CPU MUST remove the PTS before the data
+</p>
+<p>If a recipient CPU needs to abort a data transfer, it MAY be done by not responding to a PTS. This SHOULD activate the sending CPU's timeout, and cause it to abort the transfer.
+</p><br /><hr class="insert" />
+<a name="figure_example"></a>
+
+<p>
+<p>An example transfer of the binary data "10110101010101" would go as follows:
+</p>
+<div style='display: table; width: 0; margin-left: 3em; margin-right: auto'><pre>
+Dir	Line	Data
+O	Data:	_____****____********____****____*********____****____****____****____
+O	PTS:	__**__**__**__**__**__**__**__**__*******__**__**__**__**__**__**_____
+I	PTS-ACK:***_**_*_*__**__**__**__**__**__*******__**__**__**__**__**__**__*****
+ATU Frame:	0000000001111111111222222222233333333334444444444555555555566666666677
+		1234567890123456789012345678901234567890123456780123456789012345678901
+</pre></div>
+<p>
+					
+<p>Notes:
+</p>
+					
+<blockquote class="text">
+<p>Direction is relative to the sender.
+</p>
+<p>Each character represents one ATU frame, which is one ATU in length.
+</p>
+<p>A "*" is equivalent to binary 1.
+</p>
+<p>An "_" is equivalent to binary 0.
+</p>
+<p>The demonstration shows an example of a CPU taking a long time to respond between frames 35 and 39
+</p>
+</blockquote>
+				
+<table border="0" cellpadding="0" cellspacing="2" align="center"><tr><td align="center"><font face="monaco, MS Sans Serif" size="1"><b>&nbsp;Figure&nbsp;1&nbsp;</b></font><br /></td></tr></table><hr class="insert" />
+
+<a name="anchor12"></a><br /><hr />
+<a name="rfc.section.4"></a><h3>4.&nbsp;
+Security Considerations</h3>
+
+<p>This memo raises no security issues; however, according to RFC2223, your document should contain a section near the end that discusses the security considerations of the protocol or procedures that are the main topic of your document.
+</p>
+<a name="rfc.authors"></a><br /><hr />
+<h3>Author's Address</h3>
+<table width="99%" border="0" cellpadding="0" cellspacing="0">
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Jacob Mansfield</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">the 0x10c Standards Committee</td></tr>
+<tr><td class="author" align="right">Email:&nbsp;</td>
+<td class="author-text"><a href="mailto:cyberjacob@gmail.com">cyberjacob@gmail.com</a></td></tr>
+</table>
+<a name="rfc.copyright"></a><br /><hr />
+<h3>Full Copyright Statement</h3>
+<p class='copyright'>
+Copyright &copy; The Internet Society (2012). All Rights Reserved.</p>
+<p class='copyright'>
+This document and translations of it may be copied and furnished to
+others, and derivative works that comment on or otherwise explain it
+or assist in its implementation may be prepared, copied, published and
+distributed, in whole or in part, without restriction of any kind,
+provided that the above copyright notice and this paragraph are
+included on all such copies and derivative works. However, this
+document itself may not be modified in any way, such as by removing
+the copyright notice or references to the Internet Society or other
+Internet organizations, except as needed for the purpose of
+developing Internet standards in which case the procedures for
+copyrights defined in the Internet Standards process must be
+followed, or as required to translate it into languages other than
+English.</p>
+<p class='copyright'>
+The limited permissions granted above are perpetual and will not be
+revoked by the Internet Society or its successors or assigns.</p>
+<p class='copyright'>
+This document and the information contained herein is provided on an
+&ldquo;AS IS&rdquo; basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.</p>
+<h3>Intellectual Property</h3>
+<p class='copyright'>
+The IETF takes no position regarding the validity or scope of
+any intellectual property or other rights that might be claimed
+to  pertain to the implementation or use of the technology
+described in this document or the extent to which any license
+under such rights might or might not be available; neither does
+it represent that it has made any effort to identify any such
+rights. Information on the IETF's procedures with respect to
+rights in standards-track and standards-related documentation
+can be found in BCP&nbsp;11. Copies of claims of rights made
+available for publication and any assurances of licenses to
+be made available, or the result of an attempt made
+to obtain a general license or permission for the use of such
+proprietary rights by implementors or users of this
+specification can be obtained from the IETF Secretariat.</p>
+<p class='copyright'>
+The IETF invites any interested party to bring to its
+attention any copyrights, patents or patent applications, or
+other proprietary rights which may cover technology that may be
+required to practice this standard. Please address the
+information to the IETF Executive Director.</p>
+<h3>Acknowledgment</h3>
+<p class='copyright'>
+Funding for the RFC Editor function is currently provided by
+the Internet Society.</p>
+</body></html>
+
