@@ -1,4 +1,4 @@
-RFC X1001 (Draft-Asm)                                     J. Rhodes, Ed.
+RFC X____ (Draft-Asm)                                     J. Rhodes, Ed.
                                                        Redpoint Software
                                                               April 2012
 
@@ -17,7 +17,7 @@ Table of Contents
      1.1.  Requirements Language . . . . . . . . . . . . . . . . . . . 2
    2.  Role of Assemblers  . . . . . . . . . . . . . . . . . . . . . . 2
    3.  Relocation Table Format . . . . . . . . . . . . . . . . . . . . 2
-   4.  Relocation Table Position . . . . . . . . . . . . . . . . . . . 3
+   4.  Relocation Table Positioning  . . . . . . . . . . . . . . . . . 3
    5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 3
    6.  Normative References  . . . . . . . . . . . . . . . . . . . . . 3
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 3
@@ -110,7 +110,7 @@ Rhodes                                                          [Page 2]
                         Assembly Relocation Table             April 2012
 
 
-4.  Relocation Table Position
+4.  Relocation Table Positioning
 
    The assembly relocation table must be positioned inside the generated
    code, but have no effect on the program execution.
