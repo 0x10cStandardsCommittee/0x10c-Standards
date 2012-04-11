@@ -24,12 +24,14 @@
     <area>Misc</area>
     <workgroup>0x10c Standards Committee</workgroup>
     <abstract>
-      <t>This draft provides the specification for the HAT(Harry's Allocation Table) filesystem. It is intended to provide a clear reference for anyone wishing to implement this filesystem.</t>
+      <t>This draft provides the specification for the HAT(Harry's Allocation
+      Table) filesystem. It is intended to provide a clear reference for
+      anyone wishing to implement this filesystem.</t>
     </abstract>
   </front>
 
   <middle>
-    <section title="Introduction">
+    <section anchor="Introduction" title="Introduction">
       <t>Currently there is no standard filesystem designed for use in a
       system built around the DCPU-16 architecture. This RFC provides a
       filesystem designed specifically for use on DCPU-16 systems.</t>
@@ -37,246 +39,185 @@
       providing all the features required of a filesystem.</t>
     </section>
 
+    <section anchor="Summary" title="Design Summary">
+      <t>HAT has a two layered design. The lower layer consists only of sectors.
+      The lower layer is abstracted from the higher layer using "strips". The
+      higher layer consists of inodes, links and raw file data.</t>
+      <t>The lower layer deals with the management of sectors and provides
+      access to virtual strips of disk space.</t>
+      <t>The higher layer stores inodes, links and file data in these strips.
+      Each strip (constructed in the lower layer using one or more sectors)
+      contains an inode followed by either links or file data.</t>
+      <t>Each inode represents either a file or a directory. If the inode
+      represents a file the strip contains the inode followed immediately
+      by all the file data. If the inode represents a directory the strip
+      contains the inode followed by a list of links.</t>
+      <t>Each link binds a file name to a file/directory. Each directory
+      may contain several links to more directories or files, resulting
+      in a tree growing from the root directory.</t>
+    </section>
+
     <section anchor="Structures" title="Data Structures" >
-      <t>This section defines the data structures that comprise the HAT filesystem.</t>
-      <t>All sizes are given in words, which are considered to be 16 bits long.</t>
-      
-      <texttable anchor="StructureTable" title="Filesystem Structure">
-        <ttcol align="center">Section</ttcol>
-        <c>header</c>
-        <c>inode map</c>
-        <c>sector map</c>
-        <c>inode 0</c>
-        <c>inode 1</c>
-        <c>inode 2</c>
-        <c>...</c>
-        <c>sector 0</c>
-        <c>sector 1</c>
-        <c>sector 2</c>
-        <c>...</c>
-      </texttable>
+      <t>This section defines the data structures that comprise the HAT
+      filesystem.</t>
+      <t>All sizes are given in words, which are considered to be 16 bits
+      long.</t>
 
-      <section anchor="Header" title="header">
-        <t>This structure contains the header information for HAT.</t>
-        <t>The total size of the header is 16 words.</t>
-
-        <texttable anchor="HeaderTable" title="Header Structure">
-          <ttcol align="center">Size</ttcol>
-          <ttcol align="center">Name</ttcol>
-          <c>1</c><c>version</c>
-          <c>1</c><c>flags</c>
-          <c>1</c><c>num_inodes</c>
-          <c>1</c><c>num_sectors</c>
-          <c>2</c><c>inode_start</c>
-          <c>2</c><c>sector_start</c>
-          <c>1</c><c>sector_size</c>
-          <c>2</c><c>inode_map_start</c>
-          <c>2</c><c>sector_map_start</c>
-          <c>1</c><c>inodes_used</c>
-          <c>1</c><c>sectors_used</c>
-          <c>1</c><c>padding</c>
+      <section anchor="LowerLayerStructures" title="Lower Layer">
+        <texttable anchor="StructureTable" title="Filesystem Structure">
+          <ttcol align="center">Section</ttcol>
+          <c>header</c>
+          <c>sector map</c>
+          <c>sector 0</c>
+          <c>sector 1</c>
+          <c>sector 2</c>
+          <c>...</c>
         </texttable>
-
-        <section anchor="HeaderVersion" title="version">
-          <t>The version field is a magic number that identifies both that the
-          filesystem in use is HAT and the version of HAT.</t>
-          <t>The value of this field must be 0x4001. This magic number identifies
-          the filesystem as version one of HAT.</t>
+  
+        <section anchor="Header" title="header">
+          <t>This structure contains the header information for HAT.</t>
+          <t>The total size of the header is 16 words.</t>
+  
+          <texttable anchor="HeaderTable" title="Header Structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>version</c>
+            <c>1</c><c>num_sectors</c>
+            <c>2</c><c>sector_map_start</c>
+            <c>2</c><c>sector_start</c>
+            <c>1</c><c>sector_size</c>
+            <c>1</c><c>sectors_used</c>
+          </texttable>
+  
+          <section anchor="HeaderVersion" title="version">
+            <t>The version field is a magic number that identifies both that the
+            filesystem in use is HAT and the version of HAT.</t>
+            <t>The value of this field must be 0x4001. This magic number
+            identifies the filesystem as version one of HAT.</t>
+          </section>
+    
+          <section anchor="HeaderNumSectors" title="num_sectors">
+            <t>This field contains the total number of sectors in the filesystem.
+            </t>
+          </section>
+  
+          <section anchor="HeaderSectorMapStart" title="sector_map_start">
+            <t>This field contains the address of the start of the sector map.</t>
+          </section>
+  
+          <section anchor="HeaderSectorStart" title="sector_start">
+            <t>This field contains the address of the first sector on disk.</t>
+          </section>
+  
+          <section anchor="HeaderSectorSize" title="sector_size">
+            <t>This field contains the size of each sector in the filesystem.</t>
+            <t>This must be a power of 2, such as 128, 256 or 512.</t>
+          </section>
+  
+          <section anchor="HeaderSectorsUsed" title="sectors_used">
+            <t>This field contains the number of sectors that are currently in
+            use.</t>
+          </section>
+  
         </section>
   
-        <section anchor="HeaderFlags" title="flags">
-          <t>Bit 0 is the least significant bit, Bit 15 is the most significant bit.</t>
-          <texttable anchor="HeaderFlagsTable" title="Header Flags">
-            <ttcol align="center">Bit</ttcol>
+        <section anchor="SectorMap" title="sector map">
+          <t>This section is a bitmap representing which sectors are in use.
+          It can be used to quickly locate free sectors for new files.</t>
+  
+          <texttable anchor="SectorMapTable" title="sector map structure"> 
+            <ttcol align="center">Size</ttcol>
             <ttcol align="center">Name</ttcol>
-            <c>0</c><c>is_mounted</c>
-            <c>1 to 15</c><c>Reserved for future use</c>
+            <c>ceil(num_sectors/16)</c><c>bitmap</c>
           </texttable>
-
-          <section anchor="HeaderFlagIsMounted" title="is_mounted">
-            <t>If this filesystem is currently mounted then this field must be
-            set to 1, otherwise it must be set to 0.</t>
+  
+          <section anchor="SectorMapBitmap" title="bitmap">
+            <t>This field is a bitmap that represents all the sectors in the
+            filesystem. Each bit of the bitmap represents whether an sector
+            is in use. When an sector is in use the corresponding bit is set
+            to 1. When an sector is free, the corresponding bit is set to 0.</t>
+            <t>Any spare bits at the end of the bitmap must be set to 1.</t>
           </section>
         </section>
 
-        <section anchor="HeaderNumInodes" title="num_inodes">
-          <t>This field contains the total number of inodes in the filesystem.</t>
-        </section>
-
-        <section anchor="HeaderNumSectors" title="num_sectors">
-          <t>This field contains the total number of sectors in the filesystem.</t>
-        </section>
-
-        <section anchor="HeaderInodeStart" title="inode_start">
-          <t>This field contains the address of the first inode on disk.</t>
-        </section>
-
-        <section anchor="HeaderSectorStart" title="sector_start">
-          <t>This field contains the address of the first sector on disk.</t>
-        </section>
-
-        <section anchor="HeaderSectorSize" title="sector_size">
-          <t>This field contains the size of each sector in the filesystem.</t>
-          <t>This must be a power of 2, such as 128, 256 or 512.</t>
-        </section>
-
-        <section anchor="HeaderInodeMapStart" title="inode_map_start">
-          <t>This field contains the address of the start of the inode map.</t>
-        </section>
-
-        <section anchor="HeaderBlockMapStart" title="sector_map_start">
-          <t>This field contains the address of the start of the sector map.</t>
-        </section>
-
-        <section anchor="HeaderInodesUsed" title="inodes_used">
-          <t>This field contains the number of inodes that are currently in
-          use.</t>
-        </section>
-
-        <section anchor="HeaderSectorsUsed" title="sectors_used">
-          <t>This field contains the number of sectors that are currently in
-          use.</t>
-        </section>
-
-      </section>
-
-      <section anchor="InodeMap" title="inode map">
-        <t>This section is a bitmap representing which inodes are in use.
-        It can be used to quickly locate free inodes for new files.</t>
-
-        <texttable anchor="InodeMapTable" title="inode map Structure"> 
-          <ttcol align="center">Size</ttcol>
-          <ttcol align="center">Name</ttcol>
-          <c>ceil(num_inodes/16)</c><c>bitmap</c>
-        </texttable>
-
-        <section anchor="InodeMapBitmap" title="bitmap">
-          <t>This field is a bitmap that represents all the inodes in the
-          filesystem. Each bit of the bitmap represents whether an inode
-          is in use. When an inode is in use the corresponding bit is set
-          to 1. When an inode is free, the corresponding bit is set to 0.</t>
-          <t>Any spare bits at the end of the bitmap must be set to 1.</t>
-        </section>
-      </section>
-
-      <section anchor="BlockMap" title="sector map">
-        <t>This section is a bitmap representing which sectors are in use.
-        It can be used to quickly locate free sectors for new files.</t>
-
-        <texttable anchor="BlockMapTable" title="sector map structure"> 
-          <ttcol align="center">Size</ttcol>
-          <ttcol align="center">Name</ttcol>
-          <c>ceil(num_sectors/16)</c><c>bitmap</c>
-        </texttable>
-
-        <section anchor="SectorMapBitmap" title="bitmap">
-          <t>This field is a bitmap that represents all the sectors in the
-          filesystem. Each bit of the bitmap represents whether an sector
-          is in use. When an sector is in use the corresponding bit is set
-          to 1. When an sector is free, the corresponding bit is set to 0.</t>
-          <t>Any spare bits at the end of the bitmap must be set to 1.</t>
-        </section>
-      </section>
-
-      <section anchor="Inode" title="inode">
-        <t>The inode structure is used to store metadata about files.
-        It is used to find the contents of the file on disk and the
-        relationship of that file to the directory structure.</t>
-        <t>The inode structure is 32 words.</t>
+        <section anchor="Sector" title="sector">
+          <t>The sector structure is used to store blocks of raw data. Each
+          sector may point to another sector. The chain of sectors
+          that forms is then provided to the higher layer in the form
+          of a strip that masks the non-contiguous nature of the sectors.</t>
   
-        <texttable anchor="InodeTable" title="inode Structure">
-          <ttcol align="center">Size</ttcol>
-          <ttcol align="center">Name</ttcol>
-          <c>1</c><c>type</c>
-          <c>1</c><c>parent_inode</c>
-          <c>2</c><c>content_size</c>
-          <c>1</c><c>sector_index</c>
-          <c>1</c><c>link_count</c>
-          <c>2</c><c>padding</c>
-        </texttable>
-
-        <section anchor="InodeType" title="type">
-          <t>This field indicates what type of inode it is. If this field is
-          set to 0 then the inode is not in use and represents nothing. If this
-          field is set to 1 then the inode represents a directory. If this
-          field is set to 2 then the inode represents a file.</t>
-        </section>
-
-        <section anchor="InodeParentinode" title="parent_inode">
-          <t>This field contains the index of the inode's parent. Every inode
-          has a parent except for the root inode whose parent is undefined and
-          ignored.</t>
-        </section>
-
-        <section anchor="InodeContentSize" title="content_size">
-          <t>This field behaves differently depending on whether the inode
-          represents a file or a directory. If the inode represents a file
-          then this field is set to the size of the file's contents in words.
-          If the inode represents a directory then this field is set to the
-          number of children the inode has.</t>
-        </section>
-
-        <section anchor="InodeSectorIndex" title="sector_index">
-          <t>This field contains the index of the first data sector.</t>
-        </section>
-
-        <section anchor="InodeLinkAccount" title="link_count">
-          <t>This field contains the number of hard_links there are that
-          point to this inode.</t>
+          <texttable anchor="SectorTable" title="sector Structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>next_sector_index</c>
+            <c>sector_size - 1</c><c>sector_data</c>
+          </texttable>
+  
+          <section anchor="SectorNextSectorINdex" title="next_sector_index">
+            <t>This field contains the index of the sector that follows this one.
+            When there is no such sector this field's value is set to 0x0000.
+            </t>
+          </section>
+  
+          <section anchor="SectorSectorData" title="sector_data">
+            <t>This field simply contains raw data.</t>
+            <t>The size of this field is determined by the sector_size field in
+            the header of the filesystem.</t>
+          </section>
         </section>
 
       </section>
 
-      <section anchor="Sector" title="sector">
-        <t>The sector structure is used to store raw data for the inodes.
-        When an inode represents a file, sectors are used to store the file
-        data. When an inode represents a directory, sectors are used to
-        store the children of the inode.</t>
+      <section anchor="HigherLayerStructures" title="Higher Layer">
+        
+        <section anchor="Inode" title="inode">
+          <t>The inode structure is used to store metadata about files.</t>
+    
+          <texttable anchor="InodeTable" title="inode Structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>type</c>
+            <c>2</c><c>content_size</c>
+            <c>1</c><c>link_count</c>
+          </texttable>
 
-        <texttable anchor="SectorTable" title="sector Structure">
-          <ttcol align="center">Size</ttcol>
-          <ttcol align="center">Name</ttcol>
-          <c>1</c><c>next_sector_index</c>
-          <c>sector_size - 2</c><c>sector_data</c>
-        </texttable>
-
-        <section anchor="SectorNextSectorINdex" title="next_sector_index">
-          <t>This field contains the index of the sector that follows this one.
-          When there is no such sector this field's value is undefined as the
-          number of sectors known is determined by the content_size field of
-          the inode structure.</t>
+          <section anchor="InodeType" title="type">
+            <t>This field indicates what type of inode it is. If this field is
+            set to 0 then the inode is not in use and represents nothing. If
+            this field is set to 1 then the inode represents a directory. If
+            this field is set to 2 then the inode represents a file.</t>
+          </section>
+  
+          <section anchor="InodeContentSize" title="content_size">
+            <t>This field contains the amount of data stored with this
+            inode in words.</t>
+          </section>
+  
+          <section anchor="InodeLinkAccount" title="link_count">
+            <t>This field contains the number of links there are that
+            point to the strip containing this inode.</t>
+          </section>
         </section>
 
-        <section anchor="SectorSectorData" title="sector_data">
-          <t>This field is used differently depending on whether the inode that
-          uses this sector is representing a file or a directory.</t>
-          <t>If the inode is a file then this field contains the raw file data.
-          </t>
-          <t>If the inode is a directory then this field contains an array of
-          the hard_link structures, each one representing a hard link to a
-          child inode.</t>
-          <t>The size of this field is determined by the sector_size field in
-          the header of the filesystem.</t>
+        <section anchor="Link" title="link">
+          <texttable anchor="LinkTable" title="link structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>strip_start_sector</c>
+            <c>15</c><c>file_name</c>
+          </texttable>
 
-          <section anchor="HardLink" title="hard_link">
-            <texttable anchor="HardLinkTable" title="hard_link structure">
-              <ttcol align="center">Size</ttcol>
-              <ttcol align="center">Name</ttcol>
-              <c>1</c><c>inode_index</c>
-              <c>15</c><c>file_name</c>
-            </texttable>
+          <section anchor="LinkStripStartSector" title="strip_start_sector">
+            <t>This field contains the index of the start sector of the strip
+            the inode being linked to is stored in.</t>
+          </section>
 
-            <section anchor="HardLinkInodeIndex" title="inode_index">
-              <t>This field contains the index of the inode that is referenced.
-              </t>
-            </section>
-
-            <section anchor="HardLinkFileName" title="file_name">
-              <t>This field contains the file name associated with the inode.
-              The filename consists of only alphanumeric characters, periods(.)
-              and underscores(_). Any unused characters at the end of the
-              filename must be set to 0x00.</t>
-            </section>
+          <section anchor="LinkFileName" title="file_name">
+            <t>This field contains the file name to be associated with the
+            inode that is being linked. Only alphanumeric characters,
+            periods(.) and underscores(_) are allowed in the filename. The
+            maximum length of the filename is 15 characters, any unused
+            characters at the end of the filename must be set to 0x0000.</t>
           </section>
         </section>
 
