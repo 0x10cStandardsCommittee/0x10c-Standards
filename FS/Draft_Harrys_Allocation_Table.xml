@@ -47,11 +47,14 @@
       access to virtual strips of disk space.</t>
       <t>The higher layer stores inodes, links and file data in these strips.
       Each strip (constructed in the lower layer using one or more sectors)
-      contains an inode followed by either links or file data.
-      Each inode represents either a file or a directory. If the inode
+      contains an inode followed by either links or file data.</t>
+      <t>Each inode represents either a file or a directory. If the inode
       represents a file the strip contains the inode followed immediately
       by all the file data. If the inode represents a directory the strip
       contains the inode followed by a list of links.</t>
+      <t>Each link binds a file name to a file/directory. Each directory
+      may contain several links to more directories or files, resulting
+      in a tree growing from the root directory.</t>
     </section>
 
     <section anchor="Structures" title="Data Structures" >
@@ -141,7 +144,7 @@
           <t>The sector structure is used to store blocks of raw data. Each
           sector may point to another sector. The chain of sectors
           that forms is then provided to the higher layer in the form
-          of strips that mask the non-contiguous nature of the sectors.</t>
+          of a strip that masks the non-contiguous nature of the sectors.</t>
   
           <texttable anchor="SectorTable" title="sector Structure">
             <ttcol align="center">Size</ttcol>
