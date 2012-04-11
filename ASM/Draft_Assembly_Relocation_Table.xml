@@ -61,14 +61,28 @@
       <t>The format of the relocation table is as follows:</t>
       <texttable anchor="relocation-table" title="Relocation Table">
         <ttcol align="center">Contents of single Word</ttcol>
-        <c>Magic number ("RT" literally as packed 7-bit ASCII, 0x5254)</c>
-        <c>Version number (0x0001)</c>
-        <c>Size of table
-        This value must be equal to the size of the complete table, including the magic number, the version number and this value in words.</c>
+        <c>Magic number</c>
+        <c>Version number</c>
+        <c>Size of table</c>
         <c>Entry 1</c>
         <c>...</c>
         <c>Entry N</c>
       </texttable>
+      <t>
+        <list style="hanging">
+          <t hangText="Magic number">The magic number consists of the string "RT"
+            (stands for "Relocation Table") as a packed 7-bit ASCII literal, thus
+            resulting in the value 0x5254.</t>
+          <t hangText="Version number">The current version number is 0x0001.</t>
+          <t hangText="Size of table">This field must be set to the total size of
+            the table, in words. This includes the magic number, the version
+            number and this field, too.</t>
+          <t hangText="Entries">Each entry is a absolute address pointing to a
+            single word in the file the relocation table is contained in, which
+            should be relocated relatively to the position the code is loaded to.
+          </t>
+        </list>
+      </t>
     </section>
 
     <section anchor="relocation-table-position" title="Relocation Table Positioning">
