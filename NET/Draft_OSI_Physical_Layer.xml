@@ -5,7 +5,7 @@
 		<title>A Physical layer application for DCPU-16</title>
 		<author initials="J." surname="Mansfield" fullname="Jacob Mansfield">
 			<organization abbrev="0x10C-Std">
-				the 0x10c Standards Committee
+				0x10c Standards Committee
 			</organization>
 			<address>
 				<email>cyberjacob@gmail.com</email>
@@ -13,6 +13,7 @@
 		</author>
 		<date month="April" year="2012" />
 		<area>Networking</area>
+		<workgroup>0x10c Standards Committee</workgroup>
 		<abstract>
 		<t>This document provides a theoretical implementation of the physical layer of the OSI model on the DCPU-16 platform.</t>
 		</abstract>
