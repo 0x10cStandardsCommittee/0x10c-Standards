@@ -144,8 +144,8 @@
 
         <section anchor="Sector" title="sector">
           <t>The sector structure is used to store blocks of raw data. Each
-          sector may point to another sector. The chain of sectors
-          that forms is then provided to the higher layer in the form
+          sector may point to another sector. The strip of data that is
+          formed is then provided to the higher layer in the form
           of a strip that masks the non-contiguous nature of the sectors.</t>
   
           <texttable anchor="SectorTable" title="sector structure">
