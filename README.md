@@ -27,10 +27,11 @@ In this directory goes everything that does not fit in the other directories def
 
 If you have a proposal, idea or comment regarding upcoming or new standards, you can make an issue about it.
 
-From these issues, a Draft will be created using Pull Requests, with the format Draft\_\<Subject\>.txt.
+From these issues, a Draft named Draft\_\<Subject\>.xm will be created using Pull Requests, with the format XML format as defined in RFC 2629.
 
-When the community agrees on the draft being a standard, and the game is expected to not collide with the standard in a later stage, the draft will be renamed Standard_\<Subject\>.md.
+When the community agrees on the draft being a standard, and the game is expected to not collide with the standard in a later stage, the draft will be renamed Standard_\<Subject\>.xml .
 
+New versions of a standard must be submitted as a new draft, if this draft becomes a standard it must contain a reference to the superseded standard which is subsequently updated with a reference to the new version.
 
 ## Voting ##
 
