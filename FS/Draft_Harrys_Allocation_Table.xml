@@ -67,6 +67,7 @@
           <ttcol align="center">Section</ttcol>
           <c>header</c>
           <c>sector map</c>
+          <c>sector joins</c>
           <c>sector 0</c>
           <c>sector 1</c>
           <c>sector 2</c>
@@ -83,6 +84,7 @@
             <c>1</c><c>version</c>
             <c>1</c><c>num_sectors</c>
             <c>2</c><c>sector_map_start</c>
+            <c>2</c><c>sector_joins_start</c>
             <c>2</c><c>sector_start</c>
             <c>1</c><c>sector_size</c>
             <c>1</c><c>sectors_used</c>
@@ -96,12 +98,18 @@
           </section>
     
           <section anchor="HeaderNumSectors" title="num_sectors">
-            <t>This field contains the total number of sectors in the filesystem.
-            </t>
+            <t>This field contains the total number of sectors in the
+            filesystem.</t>
           </section>
   
           <section anchor="HeaderSectorMapStart" title="sector_map_start">
-            <t>This field contains the address of the start of the sector map.</t>
+            <t>This field contains the address of the start of the sector map.
+            </t>
+          </section>
+
+          <section anchor="HeaderSectorLinksStart" title="sector_joins_start">
+            <t>This field contains the address of the start of the array of
+            sector joins.</t>
           </section>
   
           <section anchor="HeaderSectorStart" title="sector_start">
@@ -112,7 +120,8 @@
           </section>
   
           <section anchor="HeaderSectorSize" title="sector_size">
-            <t>This field contains the size of each sector in the filesystem.</t>
+            <t>This field contains the size of each sector in the filesystem.
+            </t>
             <t>This must be a power of 2, such as 128, 256 or 512.</t>
           </section>
   
@@ -142,30 +151,35 @@
           </section>
         </section>
 
-        <section anchor="Sector" title="sector">
-          <t>The sector structure is used to store blocks of raw data. Each
-          sector may point to another sector. The strip of data that is
-          formed is then provided to the higher layer in the form
-          of a strip that masks the non-contiguous nature of the sectors.</t>
-  
-          <texttable anchor="SectorTable" title="sector structure">
+        <section anchor="SectorJoins" title="sector joins">
+          <t>This section is an array of words, each word is used to join
+          one sector to another.</t>
+
+          <texttable anchor="SectorLinksTable" title="sector links structure">
             <ttcol align="center">Size</ttcol>
             <ttcol align="center">Name</ttcol>
-            <c>1</c><c>next_sector_index</c>
-            <c>sector_size - 1</c><c>sector_data</c>
+            <c>1</c><c>sector0_next</c>
+            <c>1</c><c>sector1_next</c>
+            <c>1</c><c>sector2_next</c>
+            <c>1</c><c>sector3_next</c>
+            <c>1</c><c>...</c>
           </texttable>
-  
-          <section anchor="SectorNextSectorINdex" title="next_sector_index">
-            <t>This field contains the index of the sector that follows this one.
-            When there is no such sector this field's value is set to 0x0000.
-            </t>
-          </section>
-  
-          <section anchor="SectorSectorData" title="sector_data">
-            <t>This field simply contains raw data.</t>
-            <t>The size of this field is determined by the sector_size field in
-            the header of the filesystem.</t>
-          </section>
+          <t>Each entry joins the end of one sector to the start of another,
+          if there is no next sector the entry is set to 0.</t>
+          <t>For example, if there is a strip starting in sector 0, then
+          continuing in sector 2, then sector 1, then finishing in sector 3,
+          then the value of sector0_next will be 2, sector1_next will be 3,
+          sector2_next will be 1, sector3_next will be 0.</t>
+          <t>The total length of this section in words is the total number
+          of sectors in the filesystem.</t>
+        </section>
+
+        <section anchor="Sector" title="sector">
+          <t>The sector structure is used to store blocks of raw data. 
+          Sectors themselves are just raw blocks of data with no formatting
+          or wrapping.</t>
+         <t>Each sector has the size equal to the sector_size, as defined by
+          the header of the filesystem.</t>
         </section>
 
       </section>
