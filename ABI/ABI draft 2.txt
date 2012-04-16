@@ -1,0 +1,165 @@
+RFC X1000 (Standard-ABI)                                   A. Bleck, Ed.
+                                                              April 2012
+
+
+                               ABI draft
+
+Abstract
+
+   This draft specifies an application binary interface for
+   interoperability between subroutines written by different authors or
+   compiled by different compilers.
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
+     1.1.  Requirements Language . . . . . . . . . . . . . . . . . . . 2
+   2.  Rules common to both calling conventions  . . . . . . . . . . . 2
+   3.  Stackcall . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+   4.  Registercall  . . . . . . . . . . . . . . . . . . . . . . . . . 2
+   5.  Scope . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bleck                                                           [Page 1]
+
+                                ABI draft                     April 2012
+
+
+1.  Introduction
+
+   Currently there is no standard defined for the behavior of functions
+   that, if conformed to, will allow functions from multiple sources to
+   be compatible.  This RFC specifies two 'calling conventions',
+   hereafter called stackcall and registercall.  Any compiler
+   implementing these calling conventions would be able to call code
+   generated from a different compiler that also implements these
+   conventions safely.
+
+1.1.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119.  The key
+   word "CALLER" is the function or code that is making the call, the
+   key word "CALLEE" is the function being called
+
+
+2.  Rules common to both calling conventions
+
+   The CALLER is REQUIRED to assume that the contents of registers A, B
+   and C are not preserved.  The CALLEE is REQUIRED to preserve the
+   contents of registers X, Y, Z, I and J. The CALLER is REQUIRED to
+   assume that the contents of the special purpose register O is not
+   preserved, and contains no valuable information.  The CALLEE MUST
+   return it's result, if any, in register A. The CALLEE MUST remove
+   anything and everything it adds to the stack.  The CALLER is
+   responsible for cleaning any function arguments passed on the stack
+   from the stack.
+
+
+3.  Stackcall
+
+   The CALLER MUST push all arguments to the stack in right to left
+   order, followed by the return pointer, such that the first argument
+   is located on the stack at SP+1, the second is at SP+2, etc.  (The
+   CALLER is RECOMMENDED to use the JSR instruction to perform the jump)
+
+
+4.  Registercall
+
+   The CALLER MUST place the first three function arguments in registers
+   A, B and C, in that order.  Further arguments, if any, MUST be pushed
+   to the stack in right to left order.  The return pointer MUST be
+   pushed last, such that argument four is located on the stack at SP+1,
+   argument five is located at SP+2, etc.  (The CALLER is RECOMMENDED to
+   use the JSR instruction to perform the jump)
+
+
+
+Bleck                                                           [Page 2]
+
+                                ABI draft                     April 2012
+
+
+5.  Scope
+
+   This specification applies only to the interface functions present to
+   each other.  Internal implementation details are intentially
+   excluded.
+
+
+Author's Address
+
+   Blecki (editor)
+
+   Email: jm@omnisu.com
+   URI:   http://jemgine.omnisu.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bleck                                                           [Page 3]
+
