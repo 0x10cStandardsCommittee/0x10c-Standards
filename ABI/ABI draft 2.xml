@@ -47,10 +47,9 @@
 	  <section title="Requirements Language">
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
         "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-        document are to be interpreted as described in RFC 2119.
-		
-		The key word "CALLER" is the function or code that is making
-		the call, the key word "CALLEE" is the function being called</t>
+        document are to be interpreted as described in RFC 2119.</t>
+		<t>The key word "CALLER" is the function or code that is making
+		the call, the key word "CALLEE" is the function being called.</t>
       </section>
     </section>
 	
