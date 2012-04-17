@@ -39,7 +39,10 @@
       libc, simplifying creation of portable software.</t>
 
       <section title="Remarks">
-        <t>All here defined function signatures are in the ANSI C language.</t>
+        <t>All here defined function signatures are in the ANSI C language.
+          Implementations of this standard are free to implement any
+          functionality with intrinsic functions as long as the symbols
+          enter the global namespace when including the file ecrt.h.</t>
       </section>
 
       <section title="Requirements Language">
