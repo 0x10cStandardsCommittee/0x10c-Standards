@@ -24,17 +24,29 @@
     <area>Lib</area>
     <workgroup>0x10c Standards Committee</workgroup>
     <abstract>
-      <t>This draft provides the specification for FRTP, which aims to
-        provide easy access to hypertext-like resources.</t>
+      <t>This draft specifies a special variant of ANSI C90 libc, which is adopted
+        to suit the needs of the DCPU-16.</t>
     </abstract>
   </front>
 
   <middle>
     <section title="Introduction">
-      <t>TBD</t>
+      <t>In limited environments like the one of the DCPU-16 a fully-featured libc
+      is not possible to realise. While many different variants of a libc would
+      introduce in-portability and thus would make writing software unnecessary
+      difficult.</t>
+      <t>This standard aims to define a small and portable subset of a normal
+      libc, simplifying creation of portable software.</t>
 
       <section title="Remarks">
         <t>All here defined function signatures are in the ANSI C language.</t>
+      </section>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
       </section>
     </section>
 
@@ -47,6 +59,10 @@
           <t>memset</t>
         </list></t>
 
+        <t>In contrast to the standard libc, libec functions like memcpy or
+        memmove return nothing. This pattern is repeated across this standard,
+        as it is unnecessary.</t>
+
         <section title="void* malloc(size_t size)">
           <t>Allocates block of memory with given size. If not enough free memory
           is available, the return value must be zero.</t>
@@ -56,14 +72,17 @@
           <t>Frees the given memory block.</t>
         </section>
 
-        <section title="void free(void* ptr)">
-          <t>Frees the given memory block.</t>
-        </section>
-
         <section title="void memcpy(void* dst, void* src, size_t size)">
           <t>Copies the non-overlapping memory region src and dst into another.
-          The length of src is determined by the parameter size and src is</t>
-          copied into dst.
+          The length of src is determined by the parameter size and src is
+          copied into dst.</t>
+        </section>
+
+        <section title="void memmove(void* dst, void* src, size_t size)">
+          <t>Copies the  memory region src and dst into another. In contrast to
+          memcpy src and dst can overlap.</t>
+          <t>The length of src is determined by the parameter size and src is
+          copied into dst.</t>
         </section>
 
         <section title="void memset(void* dst, int value, size_t size)">
@@ -79,6 +98,9 @@
           <t>strlen</t>
           <t>strtok</t>
         </list></t>
+
+        <t>char* refers to a string, by the time of this writing the emerging
+        string standard seems to be pascal strings. TBD</t>
 
         <section title="char* strcat(char* src1, char* src2)">
           <t>Returns src2 concatenated to src2.</t>
@@ -101,6 +123,52 @@
         <section title="char* strtok(char* src, char* delimiter)">
           <t>TBD</t>
         </section>
+
+        <section title="char* sprintf(char* format, ...)">
+          <t>This variadic function takes a format string (see below) and an arbitrary
+          number of arguments. It then formats the given arguments according to the
+          format string and returns the result or 0 on failure.</t>
+
+          <section title="Format Strings">
+            <t>A format string consists of multiple format tags, which are substituted
+            by sprintf with the arguments.</t>
+
+            <figure>
+              <artwork><![CDATA[%[.precision][length]specifier]]></artwork>
+            </figure>
+
+            <texttable title="Format Specifiers">
+              <ttcol align="center">Specifier</ttcol>
+              <ttcol align="center">Output</ttcol>
+              <c>c</c><c>A single character (word)</c>
+              <c>d</c><c>Signed decimal integer</c>
+              <c>f</c><c>Decimal floating point</c>
+              <c>o</c><c>Signed octal</c>
+              <c>s</c><c>String</c>
+              <c>u</c><c>Unsigned decimal integer</c>
+              <c>x</c><c>Unsigned hexadecimal integer</c>
+              <c>X</c><c>Unsigned hexadecimal integer (capitals)</c>
+              <c>%</c><c>%% will write a literal % to the string</c>
+            </texttable>
+
+            <t>The .precision only applies to number specifiers (d, f, o, 
+            u, x, X). Specifies the minimum number of digits to be written. If
+            the resulting value would be shorter, the result is padded with
+            leading zeroes. The value MUST NOT be truncated, even if it is longer
+            as the given precision.</t>
+
+            <t>The length can have the following values:
+              <list style="hanging">
+                <t hangText="h">The argument is interpreted as a one-word integer
+                (applies only to d, o, u, x, X).</t>
+                <t hangText="l">The argument is interpreted as a two-word integer
+                (applies only to d, o, u, x, X).</t>
+                <t hangText="L">The argument is interpreted as a two-word float, default
+                ist one-word (applies only to f).</t>
+              </list>
+            </t>
+          </section>
+        </section>
       </section>
 
       <section title="File IO">
@@ -116,7 +184,7 @@
         </list></t>
 
         <t>The signature and function of these functions conforms exactly to the
-          ANSI C90 definition, except for:</t>
+        ANSI C90 definition, except for:</t>
 
         <section title="int fseek(FILE* stream, int offset, int origin)">
           <t>Value of origin:
@@ -131,7 +199,7 @@
 
         <section title="int getc()">
           <t>getc has no parameter and returns the next character from keyboard input,
-            so it behaves like getchar() in C90.</t>
+          so it behaves like getchar() in C90.</t>
         </section>
 
         <section title="void putc(char character)">
@@ -144,25 +212,28 @@
       </section>
 
       <section title="Network IO">
-        TBD
+        <t>TBD</t>
       </section>
     </section>
 
     <section title="Additional functions">
       <section title="Screen management">
-        TBD
+        <t>TBD</t>
       </section>
     </section>
 
     <section title="Security Considerations">
       <t><list style="symbols">
         <t>A malicious program can corrupt all files on the hard disk,
-          but it could also use direct IO for that anyway</t>
+        but it could also use direct IO for that anyway.</t>
       </list></t>
     </section>
   </middle>
 
   <back>
+    <references title="Normative References">
+      <?rfc include="reference.RFC.2119.xml"?>
+    </references>
   </back>
 
 </rfc>
