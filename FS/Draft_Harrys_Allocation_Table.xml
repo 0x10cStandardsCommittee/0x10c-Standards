@@ -193,7 +193,7 @@
             <ttcol align="center">Name</ttcol>
             <c>1</c><c>type</c>
             <c>2</c><c>content_size</c>
-            <c>1</c><c>link_count</c>
+            <c>1</c><c>num_links</c>
           </texttable>
 
           <section anchor="InodeType" title="type">
@@ -217,7 +217,7 @@
             inode in words.</t>
           </section>
   
-          <section anchor="InodeLinkAccount" title="link_count">
+          <section anchor="InodeNumLinks" title="num_links">
             <t>This field contains the number of links there are that
             point to the strip containing this inode.</t>
           </section>
