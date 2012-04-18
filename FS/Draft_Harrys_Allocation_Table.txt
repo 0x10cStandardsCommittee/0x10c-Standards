@@ -2,7 +2,7 @@
 
 
 RFC (Draft-Fs)                                           H. Jeffery, Ed.
-                                                          April 14, 2012
+                                                          April 18, 2012
 
 
                         Harry's Allocation Table
@@ -133,8 +133,6 @@ Jeffery                                                         [Page 2]
 
    This structure contains the header information for HAT.
 
-   The total size of the header is 16 words.
-
                        +------+--------------------+
                        | Size |        Name        |
                        +------+--------------------+
@@ -160,6 +158,8 @@ Jeffery                                                         [Page 2]
 3.1.1.2.  num_sectors
 
    This field contains the total number of sectors in the filesystem.
+
+
 
 
 
