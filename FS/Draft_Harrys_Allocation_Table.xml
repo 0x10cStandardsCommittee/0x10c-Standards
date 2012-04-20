@@ -76,7 +76,6 @@
   
         <section anchor="Header" title="header">
           <t>This structure contains the header information for HAT.</t>
-          <t>The total size of the header is 16 words.</t>
   
           <texttable anchor="HeaderTable" title="Header Structure">
             <ttcol align="center">Size</ttcol>
@@ -85,7 +84,7 @@
             <c>1</c><c>num_sectors</c>
             <c>2</c><c>sector_map_start</c>
             <c>2</c><c>sector_joins_start</c>
-            <c>2</c><c>sector_start</c>
+            <c>2</c><c>sectors_start</c>
             <c>1</c><c>sector_size</c>
             <c>1</c><c>sectors_used</c>
           </texttable>
@@ -112,7 +111,7 @@
             sector joins.</t>
           </section>
   
-          <section anchor="HeaderSectorStart" title="sector_start">
+          <section anchor="HeaderSectorsStart" title="sectors_start">
             <t>This field contains the address of the first sector on disk.</t>
             <t>This is required because the first sector may not be positioned
             immediately after the header. The first sector may be positioned
@@ -193,8 +192,8 @@
             <ttcol align="center">Size</ttcol>
             <ttcol align="center">Name</ttcol>
             <c>1</c><c>type</c>
+            <c>1</c><c>num_links</c>
             <c>2</c><c>content_size</c>
-            <c>1</c><c>link_count</c>
           </texttable>
 
           <section anchor="InodeType" title="type">
@@ -213,15 +212,16 @@
             this field is set to 2 then the inode represents a file.</t>
           </section>
   
+          <section anchor="InodeNumLinks" title="num_links">
+            <t>This field contains the number of links there are that
+            point to the strip containing this inode.</t>
+          </section>
+
           <section anchor="InodeContentSize" title="content_size">
             <t>This field contains the amount of data stored with this
             inode in words.</t>
           </section>
   
-          <section anchor="InodeLinkAccount" title="link_count">
-            <t>This field contains the number of links there are that
-            point to the strip containing this inode.</t>
-          </section>
         </section>
 
         <section anchor="Link" title="link">
