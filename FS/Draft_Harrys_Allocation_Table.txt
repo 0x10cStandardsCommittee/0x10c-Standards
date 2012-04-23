@@ -2,7 +2,7 @@
 
 
 RFC (Draft-Fs)                                           H. Jeffery, Ed.
-                                                          April 19, 2012
+                                                          April 22, 2012
 
 
                         Harry's Allocation Table
@@ -216,7 +216,7 @@ Jeffery                                                         [Page 3]
    use.  When a sector is in use the corresponding bit is set to 1.
    When a sector is free, the corresponding bit is set to 0.
 
-   Any spare bits at the end of the bitmap must be set to 1.
+   The MSB is considered to be the first bit and the LSB is considered
 
 
 
@@ -224,6 +224,10 @@ Jeffery                                                         [Page 4]
 
                                    HAT                        April 2012
 
+
+   to be the last bit.
+
+   Any spare bits at the end of the bitmap must be set to 1.
 
 3.1.3.  sector joins
 
@@ -267,10 +271,6 @@ Jeffery                                                         [Page 4]
 3.2.1.  inode
 
    The inode structure is used to store metadata about files.
-
-
-
-
 
 
 
