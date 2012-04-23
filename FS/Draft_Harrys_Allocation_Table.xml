@@ -146,6 +146,8 @@
             filesystem. Each bit of the bitmap represents whether a sector
             is in use. When a sector is in use the corresponding bit is set
             to 1. When a sector is free, the corresponding bit is set to 0.</t>
+            <t>The MSB is considered to be the first bit and the LSB is
+            considered to be the last bit.</t>
             <t>Any spare bits at the end of the bitmap must be set to 1.</t>
           </section>
         </section>
