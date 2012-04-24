@@ -76,15 +76,15 @@ Table of Contents
        4.3.4.  Origin relocation  . . . . . . . . . . . . . . . . . .  5
        4.3.5.  Macros: macro block and macro insertion  . . . . . . .  6
        4.3.6.  Repeat block . . . . . . . . . . . . . . . . . . . . .  6
-       4.3.7.  Conditionals . . . . . . . . . . . . . . . . . . . . .  6
+       4.3.7.  Conditionals . . . . . . . . . . . . . . . . . . . . .  7
        4.3.8.  Error reporting  . . . . . . . . . . . . . . . . . . .  7
        4.3.9.  Alignment  . . . . . . . . . . . . . . . . . . . . . .  7
-       4.3.10. Echo general output  . . . . . . . . . . . . . . . . .  7
+       4.3.10. Echo general output  . . . . . . . . . . . . . . . . .  8
    5.  Tokenizer Markup . . . . . . . . . . . . . . . . . . . . . . .  8
      5.1.  Labels . . . . . . . . . . . . . . . . . . . . . . . . . .  8
      5.2.  Inline character literals  . . . . . . . . . . . . . . . .  8
    6.  Inline arithmetic  . . . . . . . . . . . . . . . . . . . . . .  8
-   7.  Conformance  . . . . . . . . . . . . . . . . . . . . . . . . .  8
+   7.  Conformance  . . . . . . . . . . . . . . . . . . . . . . . . .  9
      7.1.  Recognition of conformance . . . . . . . . . . . . . . . .  9
    8.  Design Rationale . . . . . . . . . . . . . . . . . . . . . . .  9
      8.1.  Labels . . . . . . . . . . . . . . . . . . . . . . . . . .  9
@@ -190,8 +190,8 @@ Kuijpers & Beermann                                             [Page 3]
 4.3.  Directives
 
    All directives in this section MUST be handled in order and in
-   recognition of their position.  For the purpose of this document,
-   a dot (.) is used to describe preprocessor directives.
+   recognition of their position.  For the purpose of this document, a
+   dot (.) is used to describe preprocessor directives.
 
 4.3.1.  Inclusion
 
@@ -202,7 +202,8 @@ Kuijpers & Beermann                                             [Page 3]
 
    The former directive MUST include the file into the current file.
    The path is relative to the current file.  The assembler SHOULD
-   report to the user if the given filename does not exist.
+   report to the user if the given filename does not exist and continue
+   assembly.
 
    The latter includes the file from an implementation defined location,
    which may not even exist but trigger certain behaviour, i.e.
@@ -219,7 +220,6 @@ Kuijpers & Beermann                                             [Page 3]
 
 
 
-
 Kuijpers & Beermann                                             [Page 4]
 
                            Assembly Syntactics                April 2012
@@ -232,10 +232,11 @@ Kuijpers & Beermann                                             [Page 4]
 
    .def name [value]
    .define name [value]
+   .equ name value
    .undef name
 
-   def/define MUST assign the constant value to name.  If the value is
-   omitted, the literal 1 (one) MUST be assumed.
+   def/define/equ MUST assign the constant value to name.  If the value
+   is omitted, the literal 1 (one) MUST be assumed.
 
    undef MUST remove the given symbol from the namespace.  If the given
    symbol does not exist compilation SHOULD continue and a warning MAY
@@ -254,7 +255,8 @@ Kuijpers & Beermann                                             [Page 4]
    location of the directive.
 
    db (data byte) MUST pack (i.e. two bytes per word, first byte is LSB)
-   the values at the location of the directive.
+   the values at the location of the directive.  Words are filled with
+   empty bytes when the data does not evenly fit into 16-bit words.
 
    ascii MUST store the string unpacked (i.e. character is LSB, one word
    per character) at the location of the directive.
@@ -271,8 +273,6 @@ Kuijpers & Beermann                                             [Page 4]
 
    .org address
 
-   The org preprocessor directive MUST take an address as the only
-   argument.  Assemblers SHOULD verify the address is 16-bit sized.
 
 
 
@@ -281,6 +281,8 @@ Kuijpers & Beermann                                             [Page 5]
                            Assembly Syntactics                April 2012
 
 
+   The org preprocessor directive MUST take an address as the only
+   argument.  Assemblers SHOULD verify the address is 16-bit sized.
    Assembler MUST add this address to the address of all labels,
    creating a relocation of the program.
 
@@ -314,6 +316,27 @@ Kuijpers & Beermann                                             [Page 5]
    directives inside the repeat-block MUST be handled when the
    repetition is complete, to make allow conditional repetitions.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kuijpers & Beermann                                             [Page 6]
+
+                           Assembly Syntactics                April 2012
+
+
 4.3.7.  Conditionals
 
    .if expression
@@ -328,14 +351,6 @@ Kuijpers & Beermann                                             [Page 5]
    .ifdef definition
    .ifndef definition
    isdef(definition)
-
-
-
-
-Kuijpers & Beermann                                             [Page 6]
-
-                           Assembly Syntactics                April 2012
-
 
    For the definition of valid expressions, see Section 6.
 
@@ -370,6 +385,14 @@ Kuijpers & Beermann                                             [Page 6]
 
    Aligns code or data on doubleword or other boundary.
 
+
+
+
+Kuijpers & Beermann                                             [Page 7]
+
+                           Assembly Syntactics                April 2012
+
+
    The assembler MUST add zeroed words (0x0000) to the generated
    machinecode until the alignment is correct.  The number of words
    inserted can be calculated using the formula: 'boundary -
@@ -383,14 +406,6 @@ Kuijpers & Beermann                                             [Page 6]
    issues, progress, etc.
 
    The assembler SHOULD report the message to the user.
-
-
-
-
-
-Kuijpers & Beermann                                             [Page 7]
-
-                           Assembly Syntactics                April 2012
 
 
 5.  Tokenizer Markup
@@ -426,6 +441,14 @@ Kuijpers & Beermann                                             [Page 7]
    AND) ^ (bit-wise XOR), | (bit-wise OR), ~ (bit-wise NOT), << and >>
    (bit-wise shifts).
 
+
+
+
+Kuijpers & Beermann                                             [Page 8]
+
+                           Assembly Syntactics                April 2012
+
+
    The following logical and bitwise operators MUST also be supported:
    == (equal), != (not equal, also <>), < (smaller than), > (greater
    than), <= (smaller or equal), >= (greater or equal), & (bit-wise AND)
@@ -437,17 +460,6 @@ Kuijpers & Beermann                                             [Page 7]
 
 
 7.  Conformance
-
-
-
-
-
-
-
-Kuijpers & Beermann                                             [Page 8]
-
-                           Assembly Syntactics                April 2012
-
 
 7.1.  Recognition of conformance
 
@@ -485,6 +497,14 @@ Kuijpers & Beermann                                             [Page 8]
 
    Both kinds of file inclusion support two different forms, one
    including the file relative to the current file, and the other
+
+
+
+Kuijpers & Beermann                                             [Page 9]
+
+                           Assembly Syntactics                April 2012
+
+
    including it from an implementation defined location.  The former is
    ideal for splitting a program in multiple parts, while the latter is
    intended for implementation-provided resources such as source level
@@ -495,14 +515,6 @@ Kuijpers & Beermann                                             [Page 8]
    is much more common among todays assemblers.  Thus we decided to
    support both, especiall as the implementation-side overhead is very
    low.
-
-
-
-
-
-Kuijpers & Beermann                                             [Page 9]
-
-                           Assembly Syntactics                April 2012
 
 
 9.  Security Considerations
@@ -533,18 +545,6 @@ Authors' Addresses
 
    Email: public@enkore.de
    URI:   http://www.enkore.de/
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

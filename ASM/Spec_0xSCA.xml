@@ -110,7 +110,7 @@
                         <t>The former directive MUST include the file into the
                         current file. The path is relative to the current file.
                         The assembler SHOULD report to the user if the given
-                        filename does not exist.</t>
+                        filename does not exist and continue assembly.</t>
                         <t>The latter includes the file from an implementation
                         defined location, which may not even exist but trigger
                         certain behaviour, i.e. inclusion of intrinsics.</t>
@@ -131,8 +131,9 @@
                     <figure><artwork><![CDATA[
 .def name [value]
 .define name [value]
+.equ name value
 .undef name]]></artwork></figure>
-                    <t>def/define MUST assign the constant value to name. If the value
+                    <t>def/define/equ MUST assign the constant value to name. If the value
                     is omitted, the literal 1 (one) MUST be assumed.</t>
                     <t>undef MUST remove the given symbol from the namespace.
                     If the given symbol does not exist compilation SHOULD
@@ -148,7 +149,8 @@
                     <t>dw (data word) MUST store the values literally and unpacked at
                     the location of the directive.</t>
                     <t>db (data byte) MUST pack (i.e. two bytes per word, first byte is LSB)
-                    the values at the location of the directive.</t>
+                    the values at the location of the directive. Words are filled with empty
+                    bytes when the data does not evenly fit into 16-bit words.</t>
                     <t>ascii MUST store the string unpacked (i.e. character is LSB,
                     one word per character) at the location of the directive.</t>
                     <t>asciip (a pascal string) MUST store the string unpacked (i.e.
