@@ -19,8 +19,14 @@ In here go all specifications and proposals for the layout and implementation of
 ### NET ###
 Anything about networking goes in the net folder.
 
+### HW ###
+Anything about hardware components and communicating directly with hardware components goes in here.
+
 ### MISC ###
 In this directory goes everything that does not fit in the other directories defined above.
+
+### TESTS ###
+Tests for software that can be used to ensure standards compliance.
 
 
 ## Procedures and Naming Standards ##
