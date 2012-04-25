@@ -1,4 +1,4 @@
-RFC X1001 (Draft-Asm)                                     J. Rhodes, Ed.
+RFC X____ (Draft-Asm)                                     J. Rhodes, Ed.
                                                        Redpoint Software
                                                               April 2012
 

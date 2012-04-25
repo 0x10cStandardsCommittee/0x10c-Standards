@@ -1,0 +1,33 @@
+;
+; Unit test by James Rhodes
+;
+; This unit test ensures emulator compliance with how high-nerd
+; should work.  Corrections and expansions are appreciated.
+;
+
+;
+; At the end of the test, the emulator state should be (empty
+; indicates the value is unspecified):
+;
+;   A:   0x0000              [A]:   
+;   B:   0x0000              [B]:   
+;   C:   0xFB50              [C]:   
+;   X:   0x0000              [X]:   
+;   Y:   0x0000              [Y]:   
+;   Z:   0x0000              [Z]:   
+;   I:   0x0000              [I]:   
+;   J:   0x0000              [J]:   
+;   PC:                      SP:    0x0000
+;   EX:  0x5556              IA:    0x0000
+;
+
+SET C, 500      ; C = 500
+ADD C, 499      ; C = 999
+SUB C, 99       ; C = 900
+MUL C, 2        ; C = 1800
+SET A, 0xFFFF   ; C = 1800, A = 0xFFFF
+SUB A, C        ; C = 1800, A = 0xF8F8
+SET C, A        ; C = -1800, A = 0xF8F8
+SET A, 0        ; C = -1800
+MLI C, 2        ; C = -3600
+DVI C, 3        ; C = -1200 (0xFB50)
