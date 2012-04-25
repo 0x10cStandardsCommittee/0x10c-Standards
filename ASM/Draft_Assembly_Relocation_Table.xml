@@ -8,8 +8,8 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<?rfc private="RFC X1001 (Draft-Asm)" ?>
-<rfc ipr="none" number="1001" category="info" docName="draft-assembly-relocation-table">
+<?rfc private="RFC X____ (Draft-Asm)" ?>
+<rfc ipr="none" number="____" category="info" docName="draft-assembly-relocation-table">
   <front>
     <title abbrev="Assembly Relocation Table">Assembly Relocation Table</title>
 

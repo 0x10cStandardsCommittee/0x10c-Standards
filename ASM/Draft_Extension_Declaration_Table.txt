@@ -1,0 +1,332 @@
+RFC X____ (Draft-Asm)                                     J. Rhodes, Ed.
+                                                       Redpoint Software
+                                                              April 2012
+
+
+                      Extension Declaration Table
+
+Abstract
+
+   This draft provides a formal structure for assemblers to notify
+   emulators what non-standard extensions a specific set of binary code
+   is relying on (such as input or hardware interfaces).
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
+     1.1.  Requirements Language . . . . . . . . . . . . . . . . . . . 2
+   2.  Extension Definition  . . . . . . . . . . . . . . . . . . . . . 2
+   3.  Role of Assemblers  . . . . . . . . . . . . . . . . . . . . . . 2
+   4.  Role of Emulators . . . . . . . . . . . . . . . . . . . . . . . 3
+   5.  Extension Table Format  . . . . . . . . . . . . . . . . . . . . 3
+   6.  Extension Table Positioning . . . . . . . . . . . . . . . . . . 4
+   7.  Extension Names . . . . . . . . . . . . . . . . . . . . . . . . 5
+     7.1.  experimental-output-screen-32x12-0x8000 . . . . . . . . . . 5
+     7.2.  experimental-output-screen-32x16-0x8000 . . . . . . . . . . 5
+     7.3.  experimental-input-keyboard-single-0x9000 . . . . . . . . . 5
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . . . 6
+   9.  Normative References  . . . . . . . . . . . . . . . . . . . . . 6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rhodes                                                          [Page 1]
+
+                       Extension Declaration Table            April 2012
+
+
+1.  Introduction
+
+   There are currently a wide variety of implementations for hardware
+   components such as screens and keyboard input.  Each implementation
+   of this hardware varies between emulator causing unintended
+   discrepancies when running assembly code in a different emulator.
+
+   This RFC strives to ensure that emulators provide only standard
+   functionality unless experimental features are explicitly requested
+   when assembling the code originally.
+
+1.1.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
+
+2.  Extension Definition
+
+   An extension is herein defined as a request for additional
+   functionality to be provided by the emulator or assembler which is
+   not yet an approved standard.
+
+   This includes functionality which is widely used in the community
+   (screens and keyboard input at the time of writing) that has not yet
+   been confirmed by Notch.
+
+
+3.  Role of Assemblers
+
+   For the purposes of this draft, the role of assemblers is to generate
+   code from a defined syntax to DCPU-16 bytecode.
+
+   In this case, assemblers MUST generate an extension table, unless the
+   total number of extensions requested is 0, in which case the
+   assembler MUST NOT generate an extension table.
+
+   Assemblers SHOULD support a directive format that allows users to
+   specify which extensions they wish to use, although the exact syntax
+   of the format is not specified.  If an assembler provides syntax to
+   the user to enable a given extension, they MUST use the extension
+   names specified in this document.  If an assembler does not provide a
+   syntax to enable specific extensions, it MUST NOT emit an extension
+   table under any circumstances.  From herein, the syntax through which
+   an assembler allows extensions to be enabled will be referred to as
+   the 'extension directive'.
+
+
+
+
+Rhodes                                                          [Page 2]
+
+                       Extension Declaration Table            April 2012
+
+
+   When functionality that was previously provided via an extension
+   becomes standardized, assemblers that have support for recognising
+   the specific extension SHOULD continue to recognise it in the
+   extension directive for a reasonable period, after which they MAY
+   drop recognising it (for example, at a next major release).
+
+   If an assembler did not previously recognise a specific extension
+   name, and the extension becomes standardized, then the assembler
+   SHOULD NOT recognise the extension name in the extension directive,
+   unless it is still widely used.
+
+
+4.  Role of Emulators
+
+   For the purposes of this draft, the role of emulators is to execute
+   DCPU-16 bytecode produced by an assembler according to standards laid
+   out officially by Notch and the committee.
+
+   If an emulator is executing bytecode which does not have an extension
+   table in the specified format, it MUST NOT provide any additional
+   features other than those defined in standards.
+
+   Emulators MUST NOT provide non-standard functionality unless it is
+   specifically requested by the code.  This includes current non-
+   standard extensions such as screens and keyboard input; emulators
+   MUST stop providing this functionality to code that does not request
+   it.  [The author of this draft is aware that this will prevent
+   existing compiled code from working in standardized emulators; this
+   is intended to ensure code standardization]
+
+   Emulators MAY drop support or add support for extensions at any time,
+   without any prerequisites on doing so.
+
+   Unlike assemblers, when functionality that was previously provided
+   via an extension becomes standardized, emulators MUST continue to
+   support the extension in the extension table.
+
+   In addition, when functionality that was previously provided via an
+   extension that the emulator did not support becomes standardized,
+   emulators MUST support the new standard and MUST recognise the
+   previously used extension name (although it will not affect emulator
+   functionality as the extension functionality is now standard).
+
+
+5.  Extension Table Format
+
+   For purposes of future versioning, this document specifies version 1
+   of the extension table format.
+
+
+
+Rhodes                                                          [Page 3]
+
+                       Extension Declaration Table            April 2012
+
+
+   The format of the extension table is as follows:
+
+            +----------------------------+-------------------+
+            |            Field           |        Size       |
+            +----------------------------+-------------------+
+            |    Magic number (0xF100)   |    Single word    |
+            |   Version number (0x0001)  |    Single word    |
+            | Number of entries in table |    Single word    |
+            |           Entry 1          | String length + 1 |
+            |             ...            |        ...        |
+            |           Entry N          | String length + 1 |
+            +----------------------------+-------------------+
+
+                         Table 1: Extension Table
+
+   Each string is a unique entry, and one either defined in the table
+   below, or may be a non-standard name (providing it is unique and
+   meaningful) that is defined by either an assembler or emulator.
+
+   Strings are formatted with each ASCII character taking up a single
+   word, plus a NULL terminator (which also takes up a single word).
+   Thus the size of a string is the number of characters, plus one for
+   the terminator (as shown in the table above).
+
+   Note that the "Number of entries" is strictly this; the table does
+   not expose it's total size in words.
+
+
+6.  Extension Table Positioning
+
+   The assembly extension table must be positioned inside the generated
+   code, but have no effect on the program execution.
+
+   When an assembler generates an extension table, the first instruction
+   MUST be a jump to the start of the actual program code.  This results
+   in the first two words being:
+
+                 +---------------------------------------+
+                 |        Contents of single Word        |
+                 +---------------------------------------+
+                 |     SET PC, <next word literally>     |
+                 | Location of first program instruction |
+                 +---------------------------------------+
+
+                      Table 2: Extension Setup Table
+
+   It is important to note that assemblers will have to offset all label
+   addresses by the total size (not number of entries) of the extension
+
+
+
+Rhodes                                                          [Page 4]
+
+                       Extension Declaration Table            April 2012
+
+
+   table, plus the two words at the start.
+
+
+7.  Extension Names
+
+   The following is a list of extension names currently applicable.
+   Assemblers and emulators SHOULD support these directives until such
+   time as the specific functionality is standardized.
+
+               +-------------------------------------------+
+               |                    Name                   |
+               +-------------------------------------------+
+               |  experimental-output-screen-32x12-0x8000  |
+               |  experimental-output-screen-32x16-0x8000  |
+               | experimental-input-keyboard-single-0x9000 |
+               +-------------------------------------------+
+
+                         Table 3: Extension Names
+
+   Individual assemblers and emulators may support names outside these
+   values.  If an emulator encounters an extension name that it can not
+   handle, it MUST NOT execute the byte code.
+
+   Likewise, if an assembler encounters an extension name that it does
+   not recognise, it MUST NOT assemble the byte code and MUST inform the
+   user that it does not support the extension name.
+
+7.1.  experimental-output-screen-32x12-0x8000
+
+   Indiciates that the code wishes for a memory-mapped screen to be
+   positioned at 0x8000 in RAM, with a size of 32x12.
+
+7.2.  experimental-output-screen-32x16-0x8000
+
+   Indiciates that the code wishes for a memory-mapped screen to be
+   positioned at 0x8000 in RAM, with a size of 32x16.
+
+7.3.  experimental-input-keyboard-single-0x9000
+
+   Indiciates that the code wishes for the ASCII code of the last key
+   pressed to be placed at 0x9000.  The emulator only exposes the
+   single, last key pressed and MUST NOT clear the position when the key
+   is released.  The emulator MUST continue to set the value of 0x9000
+   whileever a key is held down.
+
+
+
+
+
+
+
+Rhodes                                                          [Page 5]
+
+                       Extension Declaration Table            April 2012
+
+
+8.  Security Considerations
+
+   The extension table is read once at the start by an emulator and
+   hence even if the program overwrites it's own extension table, it has
+   no effect on on-going execution.
+
+   Emulators MUST NOT enable features if the extension table changes at
+   run-time.
+
+
+9.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+
+Author's Address
+
+   James Rhodes (editor)
+   Redpoint Software
+
+   Email: jrhodes@redpointsoftware.com.au
+   URI:   http://www.redpointsoftware.com.au/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rhodes                                                          [Page 6]
