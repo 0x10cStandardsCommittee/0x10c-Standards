@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc private="RFC (Draft-Fs)" ?>
+<rfc ipr="none" category="info" docName="draft-harrys-allocation-table">
+  <front>
+    <title abbrev="HAT">Harry's Allocation Table</title>
+
+    <author fullname="Harry Jeffery" initials="H.J." role="editor"
+            surname="Jeffery">
+      <address>
+        <email>harry@exec64.co.uk</email>
+        <uri>http://www.exec64.co.uk/</uri>
+      </address>
+    </author>
+    <date month="April" year="2012" />
+    <area>Misc</area>
+    <workgroup>0x10c Standards Committee</workgroup>
+    <abstract>
+      <t>This draft provides the specification for the HAT(Harry's Allocation
+      Table) filesystem. It is intended to provide a clear reference for
+      anyone wishing to implement this filesystem.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section anchor="Introduction" title="Introduction">
+      <t>This RFC provides a filesystem designed specifically for use on
+      DCPU-16 systems.</t>
+      <t>HAT is designed to be simple and easy to implement while still
+      providing all the features required of a filesystem.</t>
+    </section>
+
+    <section anchor="Summary" title="Design Summary">
+      <t>HAT has a two layered design. The lower layer consists only of sectors.
+      The lower layer is abstracted from the higher layer using "strips". The
+      higher layer consists of inodes, links and raw file data.</t>
+      <t>The lower layer deals with the management of sectors and provides
+      access to virtual strips of disk space.</t>
+      <t>The higher layer stores inodes, links and file data in these strips.
+      Each strip (constructed in the lower layer using one or more sectors)
+      contains an inode followed by either links or file data.</t>
+      <t>Each inode represents either a file or a directory. If the inode
+      represents a file the strip contains the inode followed immediately
+      by all the file data. If the inode represents a directory the strip
+      contains the inode followed by a list of links.</t>
+      <t>Each link binds a file name to a file/directory. Each directory
+      may contain several links to more directories or files, resulting
+      in a tree growing from the root directory.</t>
+    </section>
+
+    <section anchor="Structures" title="Data Structures" >
+      <t>This section defines the data structures that comprise the HAT
+      filesystem.</t>
+      <t>All sizes are given in words, which are considered to be 16 bits
+      long.</t>
+
+      <section anchor="LowerLayerStructures" title="Lower Layer">
+        <texttable anchor="StructureTable" title="Filesystem Structure">
+          <ttcol align="center">Section</ttcol>
+          <c>header</c>
+          <c>sector map</c>
+          <c>sector joins</c>
+          <c>sector 0</c>
+          <c>sector 1</c>
+          <c>sector 2</c>
+          <c>...</c>
+        </texttable>
+  
+        <section anchor="Header" title="header">
+          <t>This structure contains the header information for HAT.</t>
+  
+          <texttable anchor="HeaderTable" title="Header Structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>version</c>
+            <c>1</c><c>num_sectors</c>
+            <c>2</c><c>sector_map_start</c>
+            <c>2</c><c>sector_joins_start</c>
+            <c>2</c><c>sectors_start</c>
+            <c>1</c><c>sector_size</c>
+            <c>1</c><c>sectors_used</c>
+          </texttable>
+  
+          <section anchor="HeaderVersion" title="version">
+            <t>The version field is a magic number that identifies both that the
+            filesystem in use is HAT and the version of HAT.</t>
+            <t>The value of this field must be 0x4001. This magic number
+            identifies the filesystem as version one of HAT.</t>
+          </section>
+    
+          <section anchor="HeaderNumSectors" title="num_sectors">
+            <t>This field contains the total number of sectors in the
+            filesystem.</t>
+          </section>
+  
+          <section anchor="HeaderSectorMapStart" title="sector_map_start">
+            <t>This field contains the address of the start of the sector map.
+            </t>
+          </section>
+
+          <section anchor="HeaderSectorLinksStart" title="sector_joins_start">
+            <t>This field contains the address of the start of the array of
+            sector joins.</t>
+          </section>
+  
+          <section anchor="HeaderSectorsStart" title="sectors_start">
+            <t>This field contains the address of the first sector on disk.</t>
+            <t>This is required because the first sector may not be positioned
+            immediately after the header. The first sector may be positioned
+            to provide alignment with the underlying disk's blocks.</t>
+          </section>
+  
+          <section anchor="HeaderSectorSize" title="sector_size">
+            <t>This field contains the size of each sector in the filesystem.
+            </t>
+            <t>This must be a power of 2, such as 128, 256 or 512.</t>
+          </section>
+  
+          <section anchor="HeaderSectorsUsed" title="sectors_used">
+            <t>This field contains the number of sectors that are currently in
+            use.</t>
+          </section>
+  
+        </section>
+  
+        <section anchor="SectorMap" title="sector map">
+          <t>This section is a bitmap representing which sectors are in use.
+          It can be used to quickly locate free sectors for new files.</t>
+  
+          <texttable anchor="SectorMapTable" title="sector map structure"> 
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>ceil(num_sectors/16)</c><c>bitmap</c>
+          </texttable>
+  
+          <section anchor="SectorMapBitmap" title="bitmap">
+            <t>This field is a bitmap that represents all the sectors in the
+            filesystem. Each bit of the bitmap represents whether a sector
+            is in use. When a sector is in use the corresponding bit is set
+            to 1. When a sector is free, the corresponding bit is set to 0.</t>
+            <t>The MSB is considered to be the first bit and the LSB is
+            considered to be the last bit.</t>
+            <t>Any spare bits at the end of the bitmap must be set to 1.</t>
+          </section>
+        </section>
+
+        <section anchor="SectorJoins" title="sector joins">
+          <t>This section is an array of words, each word is used to join
+          one sector to another.</t>
+
+          <texttable anchor="SectorLinksTable" title="sector links structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>sector0_next</c>
+            <c>1</c><c>sector1_next</c>
+            <c>1</c><c>sector2_next</c>
+            <c>1</c><c>sector3_next</c>
+            <c>1</c><c>...</c>
+          </texttable>
+          <t>Each entry joins the end of one sector to the start of another,
+          if there is no next sector the entry is set to 0.</t>
+          <t>For example, if there is a strip starting in sector 0, then
+          continuing in sector 2, then sector 1, then finishing in sector 3,
+          then the value of sector0_next will be 2, sector1_next will be 3,
+          sector2_next will be 1, sector3_next will be 0.</t>
+          <t>The total length of this section in words is the total number
+          of sectors in the filesystem.</t>
+        </section>
+
+        <section anchor="Sector" title="sector">
+          <t>The sector structure is used to store blocks of raw data. 
+          Sectors themselves are just raw blocks of data with no formatting
+          or wrapping.</t>
+         <t>Each sector has the size equal to the sector_size, as defined by
+          the header of the filesystem.</t>
+        </section>
+
+      </section>
+
+      <section anchor="HigherLayerStructures" title="Higher Layer">
+        
+        <section anchor="Inode" title="inode">
+          <t>The inode structure is used to store metadata about files.</t>
+    
+          <texttable anchor="InodeTable" title="inode structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>type</c>
+            <c>1</c><c>num_links</c>
+            <c>2</c><c>content_size</c>
+          </texttable>
+
+          <section anchor="InodeType" title="type">
+
+            <texttable anchor="InodeTypeTable" title="type values">
+              <ttcol align="center">value</ttcol>
+              <ttcol align="center">meaning</ttcol>
+              <c>0</c><c>inode is unused</c>
+              <c>1</c><c>inode is a directory</c>
+              <c>2</c><c>inode is a file</c>
+            </texttable>
+
+            <t>This field indicates what type of inode it is. If this field is
+            set to 0 then the inode is not in use and represents nothing. If
+            this field is set to 1 then the inode represents a directory. If
+            this field is set to 2 then the inode represents a file.</t>
+          </section>
+  
+          <section anchor="InodeNumLinks" title="num_links">
+            <t>This field contains the number of links there are that
+            point to the strip containing this inode.</t>
+          </section>
+
+          <section anchor="InodeContentSize" title="content_size">
+            <t>This field contains the amount of data stored with this
+            inode in words.</t>
+          </section>
+  
+        </section>
+
+        <section anchor="Link" title="link">
+          <texttable anchor="LinkTable" title="link structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>strip_start_sector</c>
+            <c>15</c><c>file_name</c>
+          </texttable>
+
+          <section anchor="LinkStripStartSector" title="strip_start_sector">
+            <t>This field contains the index of the start sector of the strip
+            the inode being linked to is stored in.</t>
+          </section>
+
+          <section anchor="LinkFileName" title="file_name">
+            <t>This field contains the file name to be associated with the
+            inode that is being linked. Only alphanumeric characters,
+            periods(.) and underscores(_) are allowed in the filename. The
+            maximum length of the filename is 15 characters, any unused
+            characters at the end of the filename must be set to 0x0000.</t>
+          </section>
+        </section>
+
+      </section>
+
+    </section>
+
+    <section anchor="Usage" title="Usage">
+      <t>This section contains information and examples on the operation
+      and usage of the HAT filesystem. It is meant only as a rough guide
+      for someone who is wishing to implement HAT.</t>
+
+      <section anchor="UsageCreation" title="Constructing a HAT filesystem">
+        <t>The HAT filesystem is very simple to construct. The creation
+        of the filesystem can be split into a few simple steps.</t>
+        <t><list style="format %d.">
+          <t>Calculate size and number of sectors from disk space.</t>
+          <t>Write the header to disk, the sector map and initialise all
+          the sectors as unused.</t>
+          <t>Create the root directory's inode using a strip starting at
+          sector 0.</t>
+        </list></t>
+        <t>Once the structure of the filesystem has been initialised it is
+        ready for use.</t>
+
+        <t>For 16 sectors on a disk the amount of disk space required is
+        (sector_size * 16) + 1. So, to calculate the amount of sectors
+        you can fit on a disk simply minus the size of the header from the
+        disk and then divide it by (sector_size * 16) + 1. Round the resulting
+        number down to have the maximum number of sectors that can go onto the
+        disk.</t>
+
+        <t>It is highly recommended to set the sector size less than or equal
+        to the size of blocks on the disk that the filesystem is being
+        created on. It is also highly advised to align the first sector to
+        a block to maximise io performance.</t>
+
+      </section>
+
+      <section anchor="UsageFinding" title="Finding a file's inode">
+        <t>To open a file is very simple. HAT is simply passed an absolute
+        path to the file. The path is then broken up into a list of of
+        directories. The list is traversed, starting at the root inode until
+        the file's inode is found.</t>
+      </section>
+
+      <section anchor="UsageAllocatingSectors" title="Allocating sectors">
+        <t>Unused sectors can be found very quickly using the sector map.
+        By performing NOT(word AND 0xFFFF) against each word of the bitmap
+        a free sector can be found.</t>
+      </section>
+    </section>
+    
+    <section anchor="Security" title="Security Considerations">
+      <t>As there is no way to stop a program reading from or writing straight
+      to the disk HAT makes no attempt at providing any security. Any file
+      security should be done in userspace using encryption.</t>
+    </section>
+
+  </middle>
+
+  <back>
+  </back>
+
+</rfc>
+

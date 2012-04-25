@@ -1,0 +1,560 @@
+
+
+
+RFC X____                                               J. Kuijpers, Ed.
+                                                                  Jarvix
+                                                        M. Beermann, Ed.
+                                                          April 24, 2012
+
+
+                  0xSCA: Standards Committee Assembly
+
+Abstract
+
+   This document describes an assembly and preprocessor syntax suitable
+   for the DCPU-16 environment.  This syntax is called the 0xSCA, or
+   Standards Committee Assembly.
+
+   This is not a standard.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kuijpers & Beermann                                             [Page 1]
+
+                           Assembly Syntactics                April 2012
+
+
+Table of Contents
+
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
+     1.1.  Requirements Language  . . . . . . . . . . . . . . . . . .  3
+   2.  Document Markup  . . . . . . . . . . . . . . . . . . . . . . .  3
+     2.1.  Indentation and whitepace  . . . . . . . . . . . . . . . .  3
+   3.  Case sensitivity . . . . . . . . . . . . . . . . . . . . . . .  3
+   4.  Preprocessor Markup  . . . . . . . . . . . . . . . . . . . . .  3
+     4.1.  Comments . . . . . . . . . . . . . . . . . . . . . . . . .  3
+     4.2.  Prefix . . . . . . . . . . . . . . . . . . . . . . . . . .  4
+     4.3.  Directives . . . . . . . . . . . . . . . . . . . . . . . .  4
+       4.3.1.  Inclusion  . . . . . . . . . . . . . . . . . . . . . .  4
+         4.3.1.1.  Code . . . . . . . . . . . . . . . . . . . . . . .  4
+         4.3.1.2.  Binary . . . . . . . . . . . . . . . . . . . . . .  4
+       4.3.2.  Definitions  . . . . . . . . . . . . . . . . . . . . .  5
+       4.3.3.  Data insertion . . . . . . . . . . . . . . . . . . . .  5
+       4.3.4.  Origin relocation  . . . . . . . . . . . . . . . . . .  5
+       4.3.5.  Macros: macro block and macro insertion  . . . . . . .  6
+       4.3.6.  Repeat block . . . . . . . . . . . . . . . . . . . . .  6
+       4.3.7.  Conditionals . . . . . . . . . . . . . . . . . . . . .  7
+       4.3.8.  Error reporting  . . . . . . . . . . . . . . . . . . .  7
+       4.3.9.  Alignment  . . . . . . . . . . . . . . . . . . . . . .  7
+       4.3.10. Echo general output  . . . . . . . . . . . . . . . . .  8
+   5.  Tokenizer Markup . . . . . . . . . . . . . . . . . . . . . . .  8
+     5.1.  Labels . . . . . . . . . . . . . . . . . . . . . . . . . .  8
+     5.2.  Inline character literals  . . . . . . . . . . . . . . . .  8
+   6.  Inline arithmetic  . . . . . . . . . . . . . . . . . . . . . .  8
+   7.  Conformance  . . . . . . . . . . . . . . . . . . . . . . . . .  9
+     7.1.  Recognition of conformance . . . . . . . . . . . . . . . .  9
+   8.  Design Rationale . . . . . . . . . . . . . . . . . . . . . . .  9
+     8.1.  Labels . . . . . . . . . . . . . . . . . . . . . . . . . .  9
+     8.2.  Preprocessor . . . . . . . . . . . . . . . . . . . . . . .  9
+   9.  Security Considerations  . . . . . . . . . . . . . . . . . . . 10
+   10. Normative References . . . . . . . . . . . . . . . . . . . . . 10
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kuijpers & Beermann                                             [Page 2]
+
+                           Assembly Syntactics                April 2012
+
+
+1.  Introduction
+
+   This documents describes 0xSCA, Standards Committee Assembly.  It is
+   a definition of a syntax to be used for writing assembly for the
+   DCPU-16 processor.  Use of this syntax is voluntarily.  With 0xSCA,
+   there is a defined syntax, and could decrease code incompatibility
+   among compilers.
+
+   Again, to be clear: 0xSCA is a syntax definition, not a standard.
+   0xSCA is to DCPU-16, what AT&T or the NASM syntax is to IA-32.
+
+1.1.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
+
+2.  Document Markup
+
+2.1.  Indentation and whitepace
+
+   Whitespace MUST be allowed between all elements of a line, including
+   but not limited to opcodes, values, syntactic characters and
+   preprocessor directives.  Both a space (' ' U+0020) and a tab
+   (U+0009) are considered whitespace characters.
+
+   Indenting instructions is RECOMMENDED.  NOT indenting labels and
+   preprocessor directives RECOMMENDED.  The assembler MUST NOT mandate
+   indentation to assemble successfully.
+
+
+3.  Case sensitivity
+
+   Assemblers MUST accept everything without regard to case EXCEPT
+   string and character literals.
+
+
+4.  Preprocessor Markup
+
+4.1.  Comments
+
+   Comments are used to add information to the code, making it more
+   readable and understandable.  Comments can consist any character in
+   any combination.  This document specifies one-line comments only.
+
+   Any characters following and in the same line of a semicolon (;
+   U+003B) are comments and MUST be ignored, except when the semicolon
+
+
+
+Kuijpers & Beermann                                             [Page 3]
+
+                           Assembly Syntactics                April 2012
+
+
+   resides within the representation of a string.  In that case, the
+   semicolon MUST NOT be treated as a comment.
+
+4.2.  Prefix
+
+   Every preprocessor directive starts with an identifier.  This
+   identifier is used to distinguish preprocessor directives from other
+   code.
+
+   For historical reasons, directives can either start with a dot (.
+   U+002E) or a number sign (# U+0023).
+
+   Preprocessor directives MUST start with a dot (.  U+002E) or a number
+   sign (# U+0023).
+
+   Using a dot is RECOMMENDED to distinguish between C preprocessor
+   syntax.
+
+4.3.  Directives
+
+   All directives in this section MUST be handled in order and in
+   recognition of their position.  For the purpose of this document, a
+   dot (.) is used to describe preprocessor directives.
+
+4.3.1.  Inclusion
+
+4.3.1.1.  Code
+
+   .include "file"
+   .include <file>
+
+   The former directive MUST include the file into the current file.
+   The path is relative to the current file.  The assembler SHOULD
+   report to the user if the given filename does not exist and continue
+   assembly.
+
+   The latter includes the file from an implementation defined location,
+   which may not even exist but trigger certain behaviour, i.e.
+   inclusion of intrinsics.
+
+4.3.1.2.  Binary
+
+   .incbin "file"
+   .incbin <file>
+
+   incbin MUST include the specified binary as raw, unprocessed data,
+   the path to the file is relative from the current file.  All labels
+   behind this directive MUST be offset by the size of the file.
+
+
+
+Kuijpers & Beermann                                             [Page 4]
+
+                           Assembly Syntactics                April 2012
+
+
+   The latter form of incbin MUST include the file from an
+   implementation defined location.
+
+4.3.2.  Definitions
+
+   .def name [value]
+   .define name [value]
+   .equ name value
+   .undef name
+
+   def/define/equ MUST assign the constant value to name.  If the value
+   is omitted, the literal 1 (one) MUST be assumed.
+
+   undef MUST remove the given symbol from the namespace.  If the given
+   symbol does not exist compilation SHOULD continue and a warning MAY
+   be emitted.
+
+   Any occurances of the definition during its existence, MUST be
+   replaced with the given value to the definition.
+
+4.3.3.  Data insertion
+
+   .dw value [,value...]
+   .db value [,value...]
+   .ascii "string"
+
+   dw (data word) MUST store the values literally and unpacked at the
+   location of the directive.
+
+   db (data byte) MUST pack (i.e. two bytes per word, first byte is LSB)
+   the values at the location of the directive.  Words are filled with
+   empty bytes when the data does not evenly fit into 16-bit words.
+
+   ascii MUST store the string unpacked (i.e. character is LSB, one word
+   per character) at the location of the directive.
+
+   asciip (a pascal string) MUST store the string unpacked (i.e.
+   character is LSB, one word per character) at the location of the
+   directive, prepending the string with its length.
+
+   asciic (a C string) MUST store the string unpacked (i.e. character is
+   LSB, one word per character) at the location of the directive,
+   appending 0x0000 (\0).
+
+4.3.4.  Origin relocation
+
+   .org address
+
+
+
+
+Kuijpers & Beermann                                             [Page 5]
+
+                           Assembly Syntactics                April 2012
+
+
+   The org preprocessor directive MUST take an address as the only
+   argument.  Assemblers SHOULD verify the address is 16-bit sized.
+   Assembler MUST add this address to the address of all labels,
+   creating a relocation of the program.
+
+4.3.5.  Macros: macro block and macro insertion
+
+   .macro name([param [,param...]])
+       code
+   .end
+   name([param [,param...]])
+
+   The macro directive defines a macro, a parametrized block of code
+   that can be inserted any time later.  Parameters, if any, are written
+   in parentheses seperated by commas (,).
+
+   Using the name with parenthis MUST insert a formerly defined macro
+   and expands the parameters of the macro with the comma-seperated
+   parameters following the name of the macro to insert.
+
+   Parameter substitutions can only be constant values and memory
+   references.  Preprocessor directives inside the macro MUST be handled
+   upon insertion, not definition.
+
+4.3.6.  Repeat block
+
+   .rep times
+       code
+   .end
+
+   The code in the repeat-block MUST be repeated the number of times
+   specified. 'times' MUST be a positive integer.  Preprocessor
+   directives inside the repeat-block MUST be handled when the
+   repetition is complete, to make allow conditional repetitions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kuijpers & Beermann                                             [Page 6]
+
+                           Assembly Syntactics                April 2012
+
+
+4.3.7.  Conditionals
+
+   .if expression
+       codeTrue
+   .elif expression
+       codeElseTrue
+   .elseif expression
+           codeElseTrue
+   .else
+       codeElse
+   .end
+   .ifdef definition
+   .ifndef definition
+   isdef(definition)
+
+   For the definition of valid expressions, see Section 6.
+
+   The if clause is REQUIRED.  The else clause is OPTIONAL.  The elif/
+   elseif clause is OPTIONAL and can occur multiple times.
+
+   If expression consists of a single constant value, then expression =
+   1 MUST be assumed.  If expression evaluates to 1, the codeTrue-block
+   MUST be assembled.  When the evaluation fails, the next elif block
+   must be evaluated.  In any other case codeElse, if an else clause is
+   specified, MUST be assembled.
+
+   isdef(symbol) can be used in place of expression. isdef MUST evaluate
+   to 1 if the given symbol is currently defined, else it MUST evaluate
+   to 0.
+
+   ifdef is short for if isdef(). ifndef is short for if !isdef()
+
+   Nesting of if directives MUST be supported.
+
+4.3.8.  Error reporting
+
+   .error message
+
+   Triggers an assembler error with the message, stopping execution of
+   the assembler.  The message SHOULD be shown in combination with the
+   filename and line number.
+
+4.3.9.  Alignment
+
+   .align boundary
+
+   Aligns code or data on doubleword or other boundary.
+
+
+
+
+Kuijpers & Beermann                                             [Page 7]
+
+                           Assembly Syntactics                April 2012
+
+
+   The assembler MUST add zeroed words (0x0000) to the generated
+   machinecode until the alignment is correct.  The number of words
+   inserted can be calculated using the formula: 'boundary -
+   (currentPosition modulo boundary)'.
+
+4.3.10.  Echo general output
+
+   .echo message
+
+   The echo directive can be used to inform the user about (possible)
+   issues, progress, etc.
+
+   The assembler SHOULD report the message to the user.
+
+
+5.  Tokenizer Markup
+
+5.1.  Labels
+
+   Labels MUST be single-worded identifiers containing only alphabetical
+   characters (/[A-Za-z]/), numbers (/[0-9]/) and underscores (_
+   U+005F).  The label MUST represent the address of following
+   instruction or data.  A label MUST NOT start with a number or an
+   underscore.  A label SHOULD end with a colon (: U+003A), but starting
+   with a colon MAY be supported.
+
+   Local labels MUST start with an underscore (_ U+002E) and end with a
+   colon (: U+003A).  Local labels MUST be scoped between the
+   surrounding global labels.  Local labels in different scopes MUST be
+   able to have the same name.
+
+5.2.  Inline character literals
+
+   A character surrounded by apostrophes (' U+0029) MUST be interpreted
+   as its corresponding 7-bit ASCII value in a word (LSB).
+
+
+6.  Inline arithmetic
+
+   Source code can include inline arithmetics anywhere a constant value
+   is permitted.  Inline arithmetic may only consist of + (addition), -
+   (subtraction), * (multiplication), / (integer division), % (modulus)
+   and ! (negation), parentheses may be used to group expressions.
+
+   The following bitwise operators MUST also be supported: & (bit-wise
+   AND) ^ (bit-wise XOR), | (bit-wise OR), ~ (bit-wise NOT), << and >>
+   (bit-wise shifts).
+
+
+
+
+Kuijpers & Beermann                                             [Page 8]
+
+                           Assembly Syntactics                April 2012
+
+
+   The following logical and bitwise operators MUST also be supported:
+   == (equal), != (not equal, also <>), < (smaller than), > (greater
+   than), <= (smaller or equal), >= (greater or equal), & (bit-wise AND)
+   ^ (bit-wise XOR), | (bit-wise OR), && (logical AND), || (logical OR),
+   ^^ (logical XOR) which MUST be evaluated with respect to this order.
+
+   Inline arithmetic MUST be evaluated as soon as possible, the result
+   MUST be used as a literal value in place of the expression.
+
+
+7.  Conformance
+
+7.1.  Recognition of conformance
+
+   An assembler, formatter and any other assembly related program that
+   is fully compliant to 0xSCA MAY label itself "0xSCA compatible".
+   When using this label, the subject SHOULD include a note of the
+   version of the RFC it is written against.
+
+
+8.  Design Rationale
+
+8.1.  Labels
+
+   Although Notch used the syntax :label in his first examples, it is
+   not common in any popular assembler.  Thus we decided for label: as
+   the recommended form, still silently allowing the deprecated form.
+
+   To simplify writing reusable code we also introduced local labels,
+   which are only visible from within the global label they are defined
+   within.  Implementing this is easy to do and introduces little
+   overhead, as nesting is neither specified nor recommended.
+
+8.2.  Preprocessor
+
+   0xSCA allows many operators and even parentheses in expressions for
+   if-clauses, which complicates the implementation of these.  We do
+   recognize that, but the actual implementation difficulty is not too
+   high, as there are many examples how to achieve this and we think
+   that the additional power and reduced code complexity, resulting in
+   better maintainable code, is worth the effort.
+
+   The ability to define custom constants inline is easy to implement
+   and yields more easily maintainable code, while introducing a minimum
+   of additional syntax.
+
+   Both kinds of file inclusion support two different forms, one
+   including the file relative to the current file, and the other
+
+
+
+Kuijpers & Beermann                                             [Page 9]
+
+                           Assembly Syntactics                April 2012
+
+
+   including it from an implementation defined location.  The former is
+   ideal for splitting a program in multiple parts, while the latter is
+   intended for implementation-provided resources such as source level
+   libraries.
+
+   A preprocessor must accept every directive with a dot (.) or a number
+   sign (#) prefix.  While Notch seems to prefer the latter, the former
+   is much more common among todays assemblers.  Thus we decided to
+   support both, especiall as the implementation-side overhead is very
+   low.
+
+
+9.  Security Considerations
+
+   This memo has no applicable security considerations.
+
+
+10.  Normative References
+
+   [GHBP]     Marti, V., "Take Over The Galaxy with GitHub", April 2012,
+              <https://github.com/blog/
+              1098-take-over-the-galaxy-with-github>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+
+Authors' Addresses
+
+   Jos Kuijpers (editor)
+   Jarvix
+
+   Email: jos@kuijpersvof.nl (contact for any inquiries)
+   URI:   http://www.jarvix.org/
+
+
+   Marian Beermann (editor)
+
+   Email: public@enkore.de
+   URI:   http://www.enkore.de/
+
+
+
+
+
+
+
+
+
+
+
+Kuijpers & Beermann                                            [Page 10]
+

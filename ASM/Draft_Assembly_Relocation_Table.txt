@@ -19,8 +19,8 @@ Table of Contents
    3.  Relocation Table Format . . . . . . . . . . . . . . . . . . . . 2
    4.  Relocation Table Positioning  . . . . . . . . . . . . . . . . . 3
    5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 3
-   6.  Normative References  . . . . . . . . . . . . . . . . . . . . . 3
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   6.  Normative References  . . . . . . . . . . . . . . . . . . . . . 4
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 4
 
 
 
@@ -50,7 +50,7 @@ Table of Contents
 
 
 Rhodes                                                          [Page 1]
-
+
                         Assembly Relocation Table             April 2012
 
 
@@ -88,8 +88,8 @@ Rhodes                                                          [Page 1]
                         +-------------------------+
                         | Contents of single Word |
                         +-------------------------+
-                        |  Magic number (0x1234)  |
-                        | Version number (0x0001) |
+                        |       Magic number      |
+                        |      Version number     |
                         |      Size of table      |
                         |         Entry 1         |
                         |           ...           |
@@ -106,8 +106,23 @@ Rhodes                                                          [Page 1]
 
 
 Rhodes                                                          [Page 2]
-
+
                         Assembly Relocation Table             April 2012
+
+
+   Magic number  The magic number consists of the string "RT" (stands
+      for "Relocation Table") as a packed 7-bit ASCII literal, thus
+      resulting in the value 0x5254.
+
+   Version number  The current version number is 0x0001.
+
+   Size of table  This field must be set to the total size of the table,
+      in words.  This includes the magic number, the version number and
+      this field, too.
+
+   Entries  Each entry is a absolute address pointing to a single word
+      in the file the relocation table is contained in, which should be
+      relocated relatively to the position the code is loaded to.
 
 
 4.  Relocation Table Positioning
@@ -145,25 +160,16 @@ Rhodes                                                          [Page 2]
    original value.
 
 
+
+Rhodes                                                          [Page 3]
+
+                        Assembly Relocation Table             April 2012
+
+
 6.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
-
-
-
-
-
-
-
-
-
-
-
-
-Rhodes                                                          [Page 3]
-
-                        Assembly Relocation Table             April 2012
 
 
 Author's Address
@@ -211,10 +217,5 @@ Author's Address
 
 
 
-
-
-
-
-
-
 Rhodes                                                          [Page 4]
+

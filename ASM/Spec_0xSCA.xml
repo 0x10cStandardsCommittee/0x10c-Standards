@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc private="RFC X____" ?>
+<rfc ipr="none" category="bcp" docName="recommendation-for-assembly-syntactics">
+    <front>
+        <title abbrev="Assembly Syntactics">0xSCA: Standards Committee Assembly</title>
+
+        <author fullname="Jos Kuijpers" initials="J.C." role="editor"
+        surname="Kuijpers">
+            <organization>Jarvix</organization>
+
+            <address>
+                <email>jos@kuijpersvof.nl (contact for any inquiries)</email>
+                <uri>http://www.jarvix.org/</uri>
+            </address>
+        </author>
+        <author fullname="Marian Beermann" initials="M.B." role="editor"
+            surname="Beermann">
+            <address>
+                <email>public@enkore.de</email>
+                <uri>http://www.enkore.de/</uri>
+            </address>
+        </author>
+        <date month="April" year="2012" />
+        <area>ASM</area>
+        <workgroup>0x10c Standards Committee</workgroup>
+        <abstract>
+          <t>This document describes an assembly and preprocessor syntax
+          suitable for the DCPU-16 environment. This syntax is called the
+          0xSCA, or Standards Committee Assembly.</t>
+          <t>This is not a standard.</t>
+        </abstract>
+      </front>
+
+    <middle>
+        <section title="Introduction">
+          <t>This documents describes 0xSCA, Standards Committee Assembly. It
+		  is a definition of a syntax to be used for writing assembly for the
+		  DCPU-16 processor. Use of this syntax is voluntarily. With 0xSCA,
+		  there is a defined syntax, and could decrease code incompatibility
+		  among compilers.</t>
+		  <t>Again, to be clear: 0xSCA is a syntax definition, not a standard.
+		  0xSCA is to DCPU-16, what AT&amp;T or the NASM syntax is to IA-32.</t>
+
+          <section title="Requirements Language">
+            <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+            "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+            document are to be interpreted as described in <xref
+            target="RFC2119">RFC 2119</xref>.</t>
+          </section>
+        </section>
+
+        <section title="Document Markup">
+            <section title="Indentation and whitepace">
+                <t>Whitespace MUST be allowed between all
+                elements of a line, including but not limited to opcodes, values,
+                syntactic characters and preprocessor directives. Both a space
+                (' ' U+0020) and a tab (U+0009) are considered whitespace
+                characters.</t>
+                <t>Indenting instructions is RECOMMENDED. NOT indenting
+                labels and preprocessor directives RECOMMENDED. The assembler
+                MUST NOT mandate indentation to assemble successfully.</t>
+            </section>
+        </section>
+        
+		<section title="Case sensitivity">
+			<t>Assemblers MUST accept everything without regard to case EXCEPT
+			string and character literals.</t>
+		</section>
+        
+        <section title="Preprocessor Markup">
+            <section title="Comments">
+                <t>Comments are used to add information to the code, making it
+                more readable and understandable. Comments can consist any
+                character in any combination. This document specifies one-line
+                comments only.</t>
+                <t>Any characters following and in the same line of a semicolon
+                (; U+003B) are    comments and MUST be ignored, except when the
+                semicolon resides within  the representation of a string. In
+                that case, the semicolon MUST NOT be treated as a comment.</t>
+            </section>
+            <section title="Prefix">
+                <t>Every preprocessor directive starts with an identifier. This
+                identifier is used to distinguish preprocessor directives from
+                other code.</t>
+                <t>For historical reasons, directives can either start with a dot
+                (. U+002E) or a number sign (# U+0023).</t>
+                <t>Preprocessor directives MUST start with a dot (. U+002E) or a 
+                number sign (# U+0023).</t>
+				<t>Using a dot is RECOMMENDED to distinguish between C preprocessor
+                syntax.</t>
+            </section>
+            <section title="Directives">
+                <t>All directives in this section MUST be handled in order and
+                in recognition of their position. For the purpose of this document,
+                a dot (.) is used to describe preprocessor directives.</t>
+                <section title="Inclusion">
+                    <section title="Code">
+                        <figure><artwork><![CDATA[
+.include "file"
+.include <file>]]></artwork></figure>
+                        <t>The former directive MUST include the file into the
+                        current file. The path is relative to the current file.
+                        The assembler SHOULD report to the user if the given
+                        filename does not exist and continue assembly.</t>
+                        <t>The latter includes the file from an implementation
+                        defined location, which may not even exist but trigger
+                        certain behaviour, i.e. inclusion of intrinsics.</t>
+                    </section>
+                    <section title="Binary">
+                        <figure><artwork><![CDATA[
+.incbin "file"
+.incbin <file>]]></artwork></figure>
+                        <t>incbin MUST include the specified binary as raw,
+                        unprocessed data, the path to the file is relative 
+                        from the current file. All labels behind this directive
+                        MUST be offset by the size of the file.</t>
+                        <t>The latter form of incbin MUST include the file from
+                        an implementation defined location.</t>
+                    </section>
+                </section>
+                <section title="Definitions">
+                    <figure><artwork><![CDATA[
+.def name [value]
+.define name [value]
+.equ name value
+.undef name]]></artwork></figure>
+                    <t>def/define/equ MUST assign the constant value to name. If the value
+                    is omitted, the literal 1 (one) MUST be assumed.</t>
+                    <t>undef MUST remove the given symbol from the namespace.
+                    If the given symbol does not exist compilation SHOULD
+                    continue and a warning MAY be emitted.</t>
+					<t>Any occurances of the definition during its existence,
+					MUST be replaced with the given value to the definition.</t>
+                </section>
+                <section title="Data insertion">
+                    <figure><artwork><![CDATA[
+.dw value [,value...]
+.db value [,value...]
+.ascii "string"]]></artwork></figure>
+                    <t>dw (data word) MUST store the values literally and unpacked at
+                    the location of the directive.</t>
+                    <t>db (data byte) MUST pack (i.e. two bytes per word, first byte is LSB)
+                    the values at the location of the directive. Words are filled with empty
+                    bytes when the data does not evenly fit into 16-bit words.</t>
+                    <t>ascii MUST store the string unpacked (i.e. character is LSB,
+                    one word per character) at the location of the directive.</t>
+                    <t>asciip (a pascal string) MUST store the string unpacked (i.e.
+                    character is LSB, one word per character) at the location of the
+                    directive, prepending the string with its length.</t>
+                    <t>asciic (a C string) MUST store the string unpacked (i.e.
+                    character is LSB, one word per character) at the location of the
+                    directive, appending 0x0000 (\0).</t>
+                </section>
+                <section title="Origin relocation">
+                    <figure><artwork><![CDATA[
+.org address]]></artwork></figure>
+                    <t>The org preprocessor directive MUST take an address
+                    as the only argument. Assemblers SHOULD verify the
+                    address is 16-bit sized. Assembler MUST add this
+                    address to the address of all labels, creating a
+                    relocation of the program.</t>
+                </section>
+                <section title="Macros: macro block and macro insertion">
+                    <figure><artwork><![CDATA[
+.macro name([param [,param...]])
+    code
+.end
+name([param [,param...]])]]></artwork></figure>
+                    <t>The macro directive defines a macro, a parametrized block
+                    of code that can be inserted any time later. Parameters,
+                    if any, are written in parentheses seperated by commas (,).</t>
+                    <t>Using the name with parenthis MUST insert a formerly defined
+                    macro and expands the parameters of the macro with the
+                    comma-seperated parameters following the name of the macro to
+                    insert.</t>
+                    <t>Parameter substitutions can only be constant values and
+                    memory references. Preprocessor directives inside the macro
+                    MUST be handled upon insertion, not definition.</t>
+                </section>
+                <section title="Repeat block">
+                    <figure><artwork><![CDATA[
+.rep times
+    code
+.end]]></artwork></figure>
+                    <t>The code in the repeat-block MUST be repeated the number
+                    of times specified. 'times' MUST be a positive integer.
+                    Preprocessor directives inside the repeat-block MUST be
+                    handled when the repetition is complete, to make allow
+                    conditional repetitions.</t>
+                </section>
+                <section title="Conditionals">
+                    <figure><artwork><![CDATA[
+.if expression
+    codeTrue
+.elif expression
+    codeElseTrue
+.elseif expression
+	codeElseTrue
+.else
+    codeElse
+.end
+.ifdef definition
+.ifndef definition
+isdef(definition)]]></artwork></figure>
+                    <t>For the definition of valid expressions, see
+                    <xref target="ia" />.</t>
+                    <t>The if clause is REQUIRED. The else clause is OPTIONAL.
+					The elif/elseif clause is OPTIONAL and can occur multiple times.</t>
+                    <t>If expression consists of a single constant value,
+                    then expression = 1 MUST be assumed. If expression evaluates
+					to 1, the codeTrue-block MUST be assembled. When the
+					evaluation fails, the next elif block must be evaluated. In
+					any other case codeElse, if an else clause is specified,
+					MUST be assembled.</t>
+                    <t>isdef(symbol) can be used in place of expression.
+                    isdef MUST evaluate to 1 if the given symbol is currently
+                    defined, else it MUST evaluate to 0.</t>
+					<t>ifdef is short for if isdef(). ifndef is short for if !isdef()</t>
+                    <t>Nesting of if directives MUST be supported.</t>
+                </section>
+                <section title="Error reporting">
+                    <figure><artwork><![CDATA[
+.error message]]></artwork></figure>
+                    <t>Triggers an assembler error with the message, stopping
+                    execution of the assembler. The message SHOULD be shown in
+                    combination with the filename and line number.</t>
+                </section>
+                <section title="Alignment">
+                    <figure><artwork><![CDATA[
+.align boundary]]></artwork></figure>
+                    <t>Aligns code or data on doubleword or other boundary.</t>
+                    <t>The assembler MUST add zeroed words (0x0000) to the generated
+                    machinecode until the alignment is correct. The number of
+                    words inserted can be calculated using the formula:
+                    'boundary - (currentPosition modulo boundary)'.</t>
+                </section>
+                <section title="Echo general output">
+                    <figure><artwork><![CDATA[
+.echo message]]></artwork></figure>
+					<t>The echo directive can be used to inform the user about
+					(possible) issues, progress, etc.</t>
+                	<t>The assembler SHOULD report the message to the user.</t>
+                </section>
+            </section>
+        </section>
+    
+        <section title="Tokenizer Markup">
+            <section title="Labels">
+                <t>Labels MUST be single-worded identifiers containing only
+                alphabetical characters (/[A-Za-z]/), numbers (/[0-9]/) and
+                underscores (_ U+005F). The label MUST represent the address of
+                following instruction or data. A label MUST NOT start with a
+                number or an underscore. A label SHOULD end with a colon (: U+003A), but
+                starting with a colon MAY be supported.</t>
+                <t>Local labels MUST start with an underscore (_ U+002E) and end
+                with a colon (: U+003A). Local labels MUST be scoped between the
+                surrounding global labels. Local labels in different scopes
+                MUST be able to have the same name.</t>
+            </section>
+            <section title="Inline character literals">
+                <t>A character surrounded by apostrophes (' U+0029) MUST be
+                interpreted as its corresponding 7-bit ASCII value in a word
+                (LSB).</t>
+            </section>
+        </section>
+
+		<section title="Inline arithmetic" anchor="ia">
+			<t>Source code can include inline arithmetics anywhere a
+			constant value is permitted. Inline arithmetic may only
+			consist of + (addition), - (subtraction), * (multiplication), /
+			(integer division), % (modulus) and ! (negation), parentheses may be used
+			to group expressions.</t>
+			<t>The following bitwise operators MUST also be supported: &amp;
+			(bit-wise AND) ^ (bit-wise XOR), | (bit-wise OR), ~ (bit-wise NOT), &lt;&lt;
+			and &gt;&gt; (bit-wise shifts).
+			</t>
+			<t>The following logical and bitwise operators MUST also be
+			supported: == (equal), != (not equal, also &lt;&gt;),
+			&lt; (smaller than), &gt; (greater than), &lt;= (smaller or
+			equal), &gt;= (greater or equal), &amp; (bit-wise AND) ^
+			(bit-wise XOR), | (bit-wise OR), &amp;&amp; (logical AND), ||
+			(logical OR), ^^ (logical XOR) which MUST be evaluated with
+			respect to this order.</t>
+			<t>Inline arithmetic MUST be evaluated as soon as possible, 
+			the result MUST be used as a literal value in place of the expression.</t>
+		</section>
+
+        <section title="Conformance">
+            <section title="Recognition of conformance">
+                <t>An assembler, formatter and any other assembly related
+                program that is fully compliant to 0xSCA MAY label itself
+                "0xSCA compatible". When using this label, the subject SHOULD
+                include a note of the version of the RFC it is written against.
+                </t>
+            </section>
+        </section>
+
+	<section title="Design Rationale">
+		<section title="Labels">
+			<t>Although Notch used the syntax :label in his first
+			examples, it is not common in any popular assembler.
+			Thus we decided for label: as the recommended form,
+			still silently allowing the deprecated form.</t>
+			<t>To simplify writing reusable code we also introduced
+			local labels, which are only visible from within the
+			global label they are defined within. Implementing this
+			is easy to do and introduces little overhead, as nesting
+			is neither specified nor recommended.</t>
+		</section>
+
+		<section title="Preprocessor">
+			<t>0xSCA allows many operators and even parentheses in
+			expressions for if-clauses, which complicates the
+			implementation of these. We do recognize that, but
+			the actual implementation difficulty is not too high,
+			as there are many examples how to achieve this and
+			we think that the additional power and reduced
+			code complexity, resulting in better maintainable
+			code, is worth the effort.</t>
+			<t>The ability to define custom constants inline is
+			easy to implement and yields more easily maintainable
+			code, while introducing a minimum of additional syntax.</t>
+			<t>Both kinds of file inclusion support two different
+			forms, one including the file relative to the current file,
+			and the other including it from an implementation defined
+			location. The former is ideal for splitting a program
+			in multiple parts, while the latter is intended for
+			implementation-provided resources such as source level
+			libraries.</t>
+			<t>A preprocessor must accept every directive with
+			a dot (.) or a number sign (#) prefix. While Notch seems
+			to prefer the latter, the former is much more common
+			among todays assemblers. Thus we decided to support
+			both, especiall as the implementation-side overhead is
+			very low.</t>
+		</section>
+	</section>
+		
+        <section anchor="Security" title="Security Considerations">
+            <t>This memo has no applicable security considerations.</t>
+        </section>
+    </middle>
+
+    <back>
+        <references title="Normative References">
+            <?rfc include="reference.RFC.2119.xml"?>
+            <reference anchor="GHBP" target="https://github.com/blog/1098-take-over-the-galaxy-with-github">
+              <front>
+                <title>Take Over The Galaxy with GitHub</title>
+                <author fullname="Vincent Marti" initials="V" surname="Marti" />
+                <date month="April" year="2012" />
+              </front>
+            </reference>
+        </references>
+    </back>
+</rfc>

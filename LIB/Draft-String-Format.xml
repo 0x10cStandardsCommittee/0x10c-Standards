@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt"?>
+<?rfc strict="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes"?>
+<?rfc compact="yes"?>
+<?rfc subcompact="no"?>
+<?rfc private="RFC (Draft-Lib)"?>
+<rfc ipr="none" category="std" docName="draft-string-format">
+	<front>
+		<title abbrev="String Format">String Format</title>
+
+		<author initials="M.S." surname="Schuetze" fullname="Malte Schuetze">
+			<address>
+				<email>malte.schuetze@fgms.de</email>
+			</address>
+		</author>
+
+		<date month="April" year="2012"/>
+		<area>Lib</area>
+		<workgroup>0x10c Standards Committee</workgroup>
+		<keyword>String</keyword>
+		<keyword>String Format</keyword>
+		<keyword>Library Specifications</keyword>
+		<abstract>
+			<t>This document presents a general format for strings in 
+			libraries intended to be shared across programs and with 
+			other users.</t>
+		</abstract>
+	</front>
+
+	<middle>
+		<section anchor="intro" title="Introduction">
+			<t>Shared Libraries depend on certain formats being given. 
+			Strings, being a common argument type for cross-library 
+			calls, should therefore be standardized. Length-prefixed 
+			strings are to be used for security and efficiency reasons.</t>
+
+			<section anchor="intro-terms" title="Terminology">
+				<t>
+				<list style="hanging">
+				<t hangText="word">
+					<vspace />
+					16 bits.
+					This is the smallest unit addressable by the DCPU.
+				</t>
+				<t hangText="character">
+					<vspace />
+					A group of bits representing a glyph or control sequence. A
+					control sequence is a non-printing character that
+					influences the text.
+				</t>
+				<t hangText="string">
+					<vspace />
+					A sequence of characters.
+					The length of the sequence can vary at runtime.
+				</t>
+				<t hangText="P-string">
+					<vspace />
+					A string whose length in words is indicated by prefixing
+					a word containing that length to the character string.
+					The prefix word itself MUST NOT be included when
+					determining the length.
+				</t>
+				<t hangText="C-string">
+					<vspace />
+					A string whose length is indicated by suffixing a NUL
+					character to the character string. The first occurrence of
+					such NUL character terminates the string. The NUL character
+					is the character whose bits are all zero.
+				</t>
+				<t hangText="library">
+					<vspace />
+					A group of functions used by different programs.
+				</t>
+				<t hangText="program">
+					<vspace />
+					A sequence of machine instructions for the DCPU.
+				</t>
+				<t hangText="user">
+					<vspace />
+					Any person using or creating a program.
+				</t>
+				</list>
+				</t>
+			</section>
+			<section anchor="intro-lang" title="Notational Conventions">
+				<t>The key words "MUST", "MUST NOT", "REQUIRED", 
+				"SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", 
+				"RECOMMENDED", "MAY", and "OPTIONAL" in this document 
+				are to be interpreted as described in <xref 
+				target="RFC2119">RFC 2119</xref>.</t>
+			</section>
+		</section>
+		<section anchor="structure" title="Format">
+			<t>A P-string is composed of a 16-bit length prefix and a 
+			sequence of n words where n is the value of the prefix.
+			</t>
+			<t>The prefix word MUST be present and MUST represent the exact
+			number of following words.</t>
+			<t>Note that the empty P-string consists entirely of a length word
+			containing 0x0000.</t>
+			<figure>
+				<artwork><![CDATA[
+  P-STRING  =  LENGTH BODY
+  LENGTH    =  n
+  BODY      =  nWORD
+  WORD      =  %x0000-ffff
+                    ; any 16-bit value
+]]></artwork>
+			</figure>
+		</section>
+		<section anchor="rationale" title="Rationale">
+			<t>This section is not normative.</t>
+			<t>The rationale for using P-strings is a simple matter of
+			weighing benefits against disadvantages.</t>
+		<section anchor="rationale-benefits" title="Benefits">
+			<t>
+			<list style='symbols'>
+				<t>Accessing the length of the string is O(1) fast.</t>
+				<t>Buffer overflows are prevented by being able to 
+				allocate enough space ahead of time.
+					<list style='symbols'>
+						<t>This also increases the security of programs 
+						by preventing arbitrary shell code from being
+						executed.</t>
+					</list>
+				</t>
+				<t>The null-character can be used in strings, while 
+				using it in a C-string would terminate the string.</t>
+				<t>The same format can be used for other data structures
+				such as length-prefixed arrays. This means that
+				functions such as concat must only be implemented once.</t>
+			</list>
+			</t>
+		</section>
+		<section anchor="rationale-disadvantages" title="Disadvantages">
+			<t>
+			<list style='symbols'>
+				<t>Indexing begins at 1 instead of 0.</t>
+				<t>Fixed-length strings still require a prefixed length word.
+				The same would be true of fixed-length C-strings. Both formats
+				can be abbreviated by omitting the known prefix/terminator
+				at the cost of ceasing to be a P- or C-string per the
+				definitions given here.</t>
+			</list>
+			</t>
+		</section>
+		</section>
+		<section anchor="notes" title="Other Notes">
+			<t>
+			<list style='symbols'>
+				<t>Since the smallest addressable size in the DCPU is a
+				word (16 bits), this effectively allows a maximum string
+				length of 65536 characters without any loss in
+				efficiency.</t>
+				<t>Cutting off the beginning of a string is more 
+				expensive for P-strings, but cutting off the end is 
+				more expensive for C-strings. (Other solutions are 
+				possible, but introduce memory leaks.) Therefore, the 
+				two arguments negate each other.</t>
+				<t>The names P-string and C-string come from Pascal and
+				C, which use the respective format.</t>
+				<t>The current implementation of characters in the DCPU
+				effectively leaves the high 8 bits empty. It is therefore
+				possible to store two characters in one word. Such packed
+				strings are outside the scope of this RFC.</t>
+			</list>
+			</t>
+		</section>
+		<section anchor="security" title="Security Considerations">
+			<t>Using P-strings reduces the risk of arbitrary shell 
+			code being executed by overflowing the input buffer. 
+			However, hidden instructions in the string may be executed 
+			later when the sections are not cleared and the stack or 
+			instruction pointer is moved there. Measures should be 
+			taken by the user to ensure this does not happen.</t>
+		</section>
+	</middle>
+
+	<back>
+		<references title="References">
+			<?rfc include="reference.RFC.2119.xml"?>
+		</references>
+	</back>
+</rfc>

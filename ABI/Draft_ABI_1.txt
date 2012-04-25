@@ -6,9 +6,6 @@ On April 5 2012, #0x10c-dev agreed to the following standard ABI:
 
 - Return in A
 
-- J is used for base stack pointer (preserving the value of SP before allocating
-  data for locals)
-
 - Function local variables are kept on the stack
 
 - Caller cleans stack
@@ -16,10 +13,22 @@ On April 5 2012, #0x10c-dev agreed to the following standard ABI:
 - First three arguments to A, B, C, remaining arguments pushed right-to-left onto
   the stack
 
-- Varargs: follow normal rules, except the entire "..." must go on the stack 
-  even if it's one of the first three arguments
+- Varargs: follow normal rules; the vararg callee should push C,B,A in its
+prolog to have a nice walkable array, and then clear off these three registers
+from the stack in its epilog. 
+
 
 - No stupid tricks with the overflow flag
+
+Note: A compiler is free to optimize away pointless preservations of registers.
+
+The storage location of preserved copies of registers must be re-entrant safe.
+(For all practical purposes, on the stack.)
+
+Non-required suggestions for convention:
+
+- J is used for base stack pointer (preserving the value of SP before allocating
+  data for locals)
 
 --------------------------------------------------------------------------------
 
@@ -59,3 +68,55 @@ SET PC, POP # return
 
 Last updated for DCPU16v11
 example by masterm
+
+---------------------------------------------------------------------
+
+The calling convention I am currently using in DCPUC. I'm not necessarily
+  proposing a complete alternative, just a working implementation to compare with. ~~Blecki
+
+DCPUC Calling Convention
+
+First three arguments are passed in registers A, B and C.
+Remaining arguments are pushed onto the stack left-to-right (Such that the last argument has the lowest address)
+Push the return address last (Using the JSR instruction is preferred)
+Return value is placed in A.
+
+Callee is free to clobber all registers.
+Caller must preserve the registers it cares about (Which includes A, B and C, which may be it's own parameters).
+The Caller removes any arguments on the stack itself.
+
+A sample program and the generated assembly, illustrating a function call.
+
+function foo(a,b,c,d) {
+return foo(1,2,3,4);
+}
+
+foo(1,2,3,4);
+
+SET A, 0x0001 ;Literal
+SET B, 0x0002 ;Literal
+SET C, 0x0003 ;Literal
+SET PUSH, 0x0004 ;Literal
+JSR LABEL1_foo ;Calling function
+ADD SP, 0x0001 ;Remove parameters
+BRK ;Non-standard
+:LABEL1_foo
+SET PUSH, A ;Saving register
+SET A, 0x0001 ;Literal
+SET PUSH, B ;Saving register
+SET B, 0x0002 ;Literal
+SET PUSH, C ;Saving register
+SET C, 0x0003 ;Literal
+SET PUSH, X ;Saving register
+SET PUSH, 0x0004 ;Literal
+JSR LABEL1_foo ;Calling function
+ADD SP, 0x0001 ;Remove parameters
+SET J, A ;Save return value from being overwritten by stored register
+SET X, POP ;Restoring register
+SET C, POP ;Restoring register
+SET B, POP ;Restoring register
+SET A, POP ;Restoring register
+SET X, J
+SET A, X
+SET PC, POP ;Return
+SET PC, POP ;Return
