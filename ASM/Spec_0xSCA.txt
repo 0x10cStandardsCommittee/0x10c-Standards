@@ -248,38 +248,98 @@ Kuijpers & Beermann                                             [Page 4]
 4.3.3.  Data insertion
 
    .dw value [,value...]
-   .db value [,value...]
-   .ascii "string"
+   .dp value [,value...]
+   .fill count[,value]
+   .ascii [flags][<value>]"string"
 
    dw (data word) MUST store the values literally and unpacked at the
    location of the directive.
 
-   db (data byte) MUST pack (i.e. two bytes per word, first byte is LSB)
-   the values at the location of the directive.  Words are filled with
-   empty bytes when the data does not evenly fit into 16-bit words.
+   dp (data pack) MUST pack pairs of values into a single word. The
+   first value is placed into the high octet, and the second is placed
+   into the low octet of the word. Should there be an odd number of
+   values after a dp declaration, the remaining octet MUST be filled
+   with the value 0.
 
-   ascii MUST store the string unpacked (i.e. character is LSB, one word
-   per character) at the location of the directive.
+   fill (fill words) Must insert a count of words, initialized to the
+   specified value.  If the value is not provided, the assembler MUST
+   assusme 0.
 
-   asciip (a pascal string) MUST store the string unpacked (i.e.
-   character is LSB, one word per character) at the location of the
-   directive, prepending the string with its length.
-
-   asciic (a C string) MUST store the string unpacked (i.e. character is
-   LSB, one word per character) at the location of the directive,
-   appending 0x0000 (\0).
-
-4.3.4.  Origin relocation
-
-   .org address
-
-
-
-
+   ascii (ascii string) MUST pack the ascii values of the string as 
+   described below.
+   
+   String declarations MAY have a set of control flags sepecified before
+   a string contained in double quotes, and a value as allowed by flags.
+   
+   This will insert the ASCII values for the characters in the string,
+   in a maner controlled by the flags. The optional value parameter in 
+   between less than (< U+003C) and greater than (> U+003E) is used with
+   unpacked modes to specifiy the upper octet of each word written.
+   
 Kuijpers & Beermann                                             [Page 5]
 
                            Assembly Syntactics                April 2012
+   
+   
+   The control flags are:
 
+    k: The ascii values are "packed." Each character is mapped to an
+	   octet of data. These are written in order. Certain other flags
+	   may place octets that precede the first character's octet.
+
+    s: The ascii values are "packed" and "swapped." Like k, each
+	   character uses one octet, however the order of the octets is
+	   reversed within each word. Flags k and s are incompatible with
+	   eachother. Certain other flags may place octets before the first
+	   character octet.
+	   
+	z: Zero terminate the string, inheriting character width. A null
+	   character will be appended to the string. If the string is one of
+	   the packed formats only one octet will be added, where unpacked
+	   strings will have a full word of zero. For the purpose of
+	   determining string length, this zero counts as one character.
+	   
+	Z: Word Zero terminate the string. This will zero terminate the
+	   string, forcing a zero word onto the end of the string. If the
+	   string is packed and of an odd length, a zero octet will be 
+	   placed at the end of the content, before the zero word. For the 
+	   purpose of determining string length, this zero will add quantity
+	   of zero octets added divided by the octet width of each character.
+	   
+	   For example, an unpacked string will always have 1 added to the
+	   string length by the Z flag. A packed string of odd length will
+	   have 3 added to the string length, where an even length packed
+	   string will have 2 added to the length;
+	   
+	   Flags Z and z are incompatible.
+	   
+	p: Octet Pascal Length. This will prepend the length of the string
+	   as an octet to the string content. This is only compatible with 
+	   a packed mode, either k or s. (For swapped mode, this will end
+	   up being the lower (second) octet of the first word.)
+	   
+	P: Word Pascal Length. This will prepend the length of the string
+	   as a full word to the string content. This is compatible with 
+	   either packed or unpacked modes.
+
+
+
+
+
+
+
+
+
+
+
+Kuijpers & Beermann                                             [Page 6]	   
+
+                           Assembly Syntactics                April 2012
+	   
+	   
+4.3.4.  Origin relocation
+
+   .org address
 
    The org preprocessor directive MUST take an address as the only
    argument.  Assemblers SHOULD verify the address is 16-bit sized.
@@ -328,11 +388,7 @@ Kuijpers & Beermann                                             [Page 5]
 
 
 
-
-
-
-
-Kuijpers & Beermann                                             [Page 6]
+Kuijpers & Beermann                                             [Page 7]
 
                            Assembly Syntactics                April 2012
 
@@ -388,7 +444,7 @@ Kuijpers & Beermann                                             [Page 6]
 
 
 
-Kuijpers & Beermann                                             [Page 7]
+Kuijpers & Beermann                                             [Page 8]
 
                            Assembly Syntactics                April 2012
 
@@ -413,11 +469,11 @@ Kuijpers & Beermann                                             [Page 7]
 5.1.  Labels
 
    Labels MUST be single-worded identifiers containing only alphabetical
-   characters (/[A-Za-z]/), numbers (/[0-9]/) and underscores (_
-   U+005F).  The label MUST represent the address of following
-   instruction or data.  A label MUST NOT start with a number or an
-   underscore.  A label SHOULD end with a colon (: U+003A), but starting
-   with a colon MAY be supported.
+   characters (/[A-Za-z]/), numbers (/[0-9]/), underscores (_ U+005F),
+   and periods (. U+002E).  The label MUST represent the address of 
+   following instruction or data.  A label MUST NOT start with a number 
+   or an underscore.  A label SHOULD end with a colon (: U+003A), but 
+   starting with a colon MAY be supported.
 
    Local labels MUST start with an underscore (_ U+002E) and end with a
    colon (: U+003A).  Local labels MUST be scoped between the
@@ -444,7 +500,7 @@ Kuijpers & Beermann                                             [Page 7]
 
 
 
-Kuijpers & Beermann                                             [Page 8]
+Kuijpers & Beermann                                             [Page 9]
 
                            Assembly Syntactics                April 2012
 
@@ -500,7 +556,7 @@ Kuijpers & Beermann                                             [Page 8]
 
 
 
-Kuijpers & Beermann                                             [Page 9]
+Kuijpers & Beermann                                            [Page 10]
 
                            Assembly Syntactics                April 2012
 
@@ -556,5 +612,5 @@ Authors' Addresses
 
 
 
-Kuijpers & Beermann                                            [Page 10]
+Kuijpers & Beermann                                            [Page 11]
 
