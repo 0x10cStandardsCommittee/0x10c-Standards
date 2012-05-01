@@ -224,7 +224,6 @@ Kuijpers & Beermann                                             [Page 4]
 
                            Assembly Syntactics                April 2012
 
-
    The latter form of incbin MUST include the file from an
    implementation defined location.
 
@@ -273,9 +272,10 @@ Kuijpers & Beermann                                             [Page 4]
    
    This will insert the ASCII values for the characters in the string,
    in a maner controlled by the flags. The optional value parameter in 
-   between less than (< U+003C) and greater than (> U+003E) is used with
-   unpacked modes to specifiy the upper octet of each word written.
-   
+   between less than (< U+003C) and greater than (> U+003E) will be
+   bitwise ORed with each character in the string.  The upper octet for
+   unpacked strings will default to all 0's before the bitwise OR.
+  
 Kuijpers & Beermann                                             [Page 5]
 
                            Assembly Syntactics                April 2012
