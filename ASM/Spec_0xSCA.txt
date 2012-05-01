@@ -473,7 +473,8 @@ Kuijpers & Beermann                                             [Page 8]
    and periods (. U+002E).  The label MUST represent the address of 
    following instruction or data.  A label MUST NOT start with a number 
    or an underscore.  A label SHOULD end with a colon (: U+003A), but 
-   starting with a colon MAY be supported.
+   starting with a colon MAY be supported. An assemblery MAY require
+   labels to not end in a period.
 
    Local labels MUST start with an underscore (_ U+002E) and end with a
    colon (: U+003A).  Local labels MUST be scoped between the
@@ -496,7 +497,6 @@ Kuijpers & Beermann                                             [Page 8]
    The following bitwise operators MUST also be supported: & (bit-wise
    AND) ^ (bit-wise XOR), | (bit-wise OR), ~ (bit-wise NOT), << and >>
    (bit-wise shifts).
-
 
 
 
