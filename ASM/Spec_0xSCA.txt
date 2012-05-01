@@ -261,7 +261,7 @@ Kuijpers & Beermann                                             [Page 4]
    values after a dp declaration, the remaining octet MUST be filled
    with the value 0.
 
-   fill (fill words) Must insert a count of words, initialized to the
+   fill (fill words) MUST insert a count of words, initialized to the
    specified value.  If the value is not provided, the assembler MUST
    assusme 0.
 
@@ -299,7 +299,7 @@ Kuijpers & Beermann                                             [Page 5]
 	   strings will have a full word of zero. For the purpose of
 	   determining string length, this zero counts as one character.
 	   
-	Z: Word Zero terminate the string. This will zero terminate the
+	x: Word Zero terminate the string. This will zero terminate the
 	   string, forcing a zero word onto the end of the string. If the
 	   string is packed and of an odd length, a zero octet will be 
 	   placed at the end of the content, before the zero word. For the 
@@ -311,20 +311,20 @@ Kuijpers & Beermann                                             [Page 5]
 	   have 3 added to the string length, where an even length packed
 	   string will have 2 added to the length;
 	   
-	   Flags Z and z are incompatible.
+	   Flags w and x are incompatible.
 	   
-	p: Octet Pascal Length. This will prepend the length of the string
+	a: Octet Pascal Length. This will prepend the length of the string
 	   as an octet to the string content. This is only compatible with 
 	   a packed mode, either k or s. (For swapped mode, this will end
 	   up being the lower (second) octet of the first word.)
 	   
-	P: Word Pascal Length. This will prepend the length of the string
+	p: Word Pascal Length. This will prepend the length of the string
 	   as a full word to the string content. This is compatible with 
-	   either packed or unpacked modes.
+	   either packed or unpacked modes. Flags a and p are incompatible.
 
-
-
-
+	   
+   Assemblers SHOULD warn the user when string literals excede the
+   length expressable in the pascal length field if the flag is set.
 
 
 
