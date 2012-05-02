@@ -4,7 +4,7 @@
 RFC X____                                               J. Kuijpers, Ed.
                                                                   Jarvix
                                                         M. Beermann, Ed.
-                                                          April 24, 2012
+                                                              April 2012
 
 
                   0xSCA: Standards Committee Assembly
@@ -62,7 +62,7 @@ Table of Contents
    1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
      1.1.  Requirements Language  . . . . . . . . . . . . . . . . . .  3
    2.  Document Markup  . . . . . . . . . . . . . . . . . . . . . . .  3
-     2.1.  Indentation and whitepace  . . . . . . . . . . . . . . . .  3
+     2.1.  Indentation and whitespace . . . . . . . . . . . . . . . .  3
    3.  Case sensitivity . . . . . . . . . . . . . . . . . . . . . . .  3
    4.  Preprocessor Markup  . . . . . . . . . . . . . . . . . . . . .  3
      4.1.  Comments . . . . . . . . . . . . . . . . . . . . . . . . .  3
@@ -73,26 +73,26 @@ Table of Contents
          4.3.1.2.  Binary . . . . . . . . . . . . . . . . . . . . . .  4
        4.3.2.  Definitions  . . . . . . . . . . . . . . . . . . . . .  5
        4.3.3.  Data insertion . . . . . . . . . . . . . . . . . . . .  5
-       4.3.4.  Origin relocation  . . . . . . . . . . . . . . . . . .  5
-       4.3.5.  Macros: macro block and macro insertion  . . . . . . .  6
-       4.3.6.  Repeat block . . . . . . . . . . . . . . . . . . . . .  6
+         4.3.3.1.  Ascii Literal Flags  . . . . . . . . . . . . . . .  6
+       4.3.4.  Origin relocation  . . . . . . . . . . . . . . . . . .  6
+       4.3.5.  Macros: macro block and macro insertion  . . . . . . .  7
+       4.3.6.  Repeat block . . . . . . . . . . . . . . . . . . . . .  7
        4.3.7.  Conditionals . . . . . . . . . . . . . . . . . . . . .  7
-       4.3.8.  Error reporting  . . . . . . . . . . . . . . . . . . .  7
-       4.3.9.  Alignment  . . . . . . . . . . . . . . . . . . . . . .  7
+       4.3.8.  Error reporting  . . . . . . . . . . . . . . . . . . .  8
+       4.3.9.  Alignment  . . . . . . . . . . . . . . . . . . . . . .  8
        4.3.10. Echo general output  . . . . . . . . . . . . . . . . .  8
-   5.  Tokenizer Markup . . . . . . . . . . . . . . . . . . . . . . .  8
-     5.1.  Labels . . . . . . . . . . . . . . . . . . . . . . . . . .  8
-     5.2.  Inline character literals  . . . . . . . . . . . . . . . .  8
-   6.  Inline arithmetic  . . . . . . . . . . . . . . . . . . . . . .  8
+   5.  Tokenizer Markup . . . . . . . . . . . . . . . . . . . . . . .  9
+     5.1.  Labels . . . . . . . . . . . . . . . . . . . . . . . . . .  9
+     5.2.  Inline character literals  . . . . . . . . . . . . . . . .  9
+   6.  Inline arithmetic  . . . . . . . . . . . . . . . . . . . . . .  9
    7.  Conformance  . . . . . . . . . . . . . . . . . . . . . . . . .  9
-     7.1.  Recognition of conformance . . . . . . . . . . . . . . . .  9
-   8.  Design Rationale . . . . . . . . . . . . . . . . . . . . . . .  9
-     8.1.  Labels . . . . . . . . . . . . . . . . . . . . . . . . . .  9
-     8.2.  Preprocessor . . . . . . . . . . . . . . . . . . . . . . .  9
-   9.  Security Considerations  . . . . . . . . . . . . . . . . . . . 10
-   10. Normative References . . . . . . . . . . . . . . . . . . . . . 10
-   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 10
-
+     7.1.  Recognition of conformance . . . . . . . . . . . . . . . . 10
+   8.  Design Rationale . . . . . . . . . . . . . . . . . . . . . . . 10
+     8.1.  Labels . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+     8.2.  Preprocessor . . . . . . . . . . . . . . . . . . . . . . . 10
+   9.  Security Considerations  . . . . . . . . . . . . . . . . . . . 11
+   10. Normative References . . . . . . . . . . . . . . . . . . . . . 11
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 11
 
 
 
@@ -133,7 +133,7 @@ Kuijpers & Beermann                                             [Page 2]
 
 2.  Document Markup
 
-2.1.  Indentation and whitepace
+2.1.  Indentation and whitespace
 
    Whitespace MUST be allowed between all elements of a line, including
    but not limited to opcodes, values, syntactic characters and
@@ -224,6 +224,7 @@ Kuijpers & Beermann                                             [Page 4]
 
                            Assembly Syntactics                April 2012
 
+
    The latter form of incbin MUST include the file from an
    implementation defined location.
 
@@ -241,7 +242,7 @@ Kuijpers & Beermann                                             [Page 4]
    symbol does not exist compilation SHOULD continue and a warning MAY
    be emitted.
 
-   Any occurances of the definition during its existence, MUST be
+   Any occurrences of the definition during its existence, MUST be
    replaced with the given value to the definition.
 
 4.3.3.  Data insertion
@@ -254,89 +255,73 @@ Kuijpers & Beermann                                             [Page 4]
    dw (data word) MUST store the values literally and unpacked at the
    location of the directive.
 
-   dp (data pack) MUST pack pairs of values into a single word. The
+   dp (data pack) MUST pack pairs of values into a single word.  The
    first value is placed into the high octet, and the second is placed
-   into the low octet of the word. Should there be an odd number of
+   into the low octet of the word.  Should there be an odd number of
    values after a dp declaration, the remaining octet MUST be filled
    with the value 0.
 
    fill (fill words) MUST insert a count of words, initialized to the
    specified value.  If the value is not provided, the assembler MUST
-   assusme 0.
+   assume 0.
 
-   ascii (ascii string) MUST pack the ascii values of the string as 
-   described below.
-   
-   String declarations MAY have a set of control flags sepecified before
-   a string contained in double quotes, and a value as allowed by flags.
-   
-   This will insert the ASCII values for the characters in the string,
-   in a maner controlled by the flags. The optional value parameter in 
-   between less than (< U+003C) and greater than (> U+003E) will be
-   bitwise ORed with each character in the string.  The upper octet for
-   unpacked strings will default to all 0's before the bitwise OR.
-  
+   ascii (ascii string) MUST pack the ascii values of the string as
+   described by the flags that precede it.  An explanation of the flags
+   is provided in the section on ascii flags.Section 4.3.3.1
+
+   The optional value parameter in between less than (< U+003C) and
+   greater than (> U+003E) will be bitwise ORed with each character in
+   the string.  The upper octet for unpacked strings will default to all
+   0's before the bitwise OR.
+
+
+
 Kuijpers & Beermann                                             [Page 5]
 
                            Assembly Syntactics                April 2012
-   
-   
-   The control flags are:
-
-    k: The ascii values are "packed." Each character is mapped to an
-	   octet of data. These are written in order. Certain other flags
-	   may place octets that precede the first character's octet.
-
-    s: The ascii values are "packed" and "swapped." Like k, each
-	   character uses one octet, however the order of the octets is
-	   reversed within each word. Flags k and s are incompatible with
-	   eachother. Certain other flags may place octets before the first
-	   character octet.
-	   
-	z: Zero terminate the string, inheriting character width. A null
-	   character will be appended to the string. If the string is one of
-	   the packed formats only one octet will be added, where unpacked
-	   strings will have a full word of zero. For the purpose of
-	   determining string length, this zero counts as one character.
-	   
-	x: Word Zero terminate the string. This will zero terminate the
-	   string, forcing a zero word onto the end of the string. If the
-	   string is packed and of an odd length, a zero octet will be 
-	   placed at the end of the content, before the zero word. For the 
-	   purpose of determining string length, this zero will add quantity
-	   of zero octets added divided by the octet width of each character.
-	   
-	   For example, an unpacked string will always have 1 added to the
-	   string length by the Z flag. A packed string of odd length will
-	   have 3 added to the string length, where an even length packed
-	   string will have 2 added to the length;
-	   
-	   Flags w and x are incompatible.
-	   
-	a: Octet Pascal Length. This will prepend the length of the string
-	   as an octet to the string content. This is only compatible with 
-	   a packed mode, either k or s. (For swapped mode, this will end
-	   up being the lower (second) octet of the first word.)
-	   
-	p: Word Pascal Length. This will prepend the length of the string
-	   as a full word to the string content. This is compatible with 
-	   either packed or unpacked modes. Flags a and p are incompatible.
-
-	   
-   Assemblers SHOULD warn the user when string literals excede the
-   length expressable in the pascal length field if the flag is set.
 
 
+4.3.3.1.  Ascii Literal Flags
 
+   k: The ascii values are "packed."  Each character is mapped to an
+   octet of data.  These are written in order.  Certain other flags may
+   place octets that precede the first character's octet.
 
+   s: The ascii values are "packed" and "swapped."  Like k, each
+   character uses one octet, however the order of the octets is reversed
+   within each word.  Flags k and s are incompatible with each other.
+   Certain other flags may place octets before the first character
+   octet.
 
+   z: Zero terminate the string, inheriting character width.  A null
+   character will be appended to the string.  If the string is one of
+   the packed formats only one octet will be added, where unpacked
+   strings will have a full word of zero.  For the purpose of
+   determining string length, this zero counts as one character.
 
+   x: Word Zero terminate the string.  This will zero terminate the
+   string, forcing a zero word onto the end of the string.  If the
+   string is packed and of an odd length, a zero octet will be placed at
+   the end of the content, before the zero word.  For the purpose of
+   determining string length, this zero will add quantity of zero octets
+   added divided by the octet width of each character.
 
-Kuijpers & Beermann                                             [Page 6]	   
-
-                           Assembly Syntactics                April 2012
-	   
-	   
+   For example, an unpacked string will always have 1 added to the
+   string length by the Z flag.  A packed string of odd length will have
+   3 added to the string length, where an even length packed string will
+   have 2 added to the length;
+
+   Flags w and x are incompatible.
+
+   a: Octet Pascal Length.  This will prepend the length of the string
+   as an octet to the string content.  This is only compatible with a
+   packed mode, either k or s.  (For swapped mode, this will end up
+   being the lower (second) octet of the first word.)
+
+   p: Word Pascal Length.  This will prepend the length of the string as
+   a full word to the string content.  This is compatible with either
+   packed or unpacked modes.  Flags a and p are incompatible.
+
 4.3.4.  Origin relocation
 
    .org address
@@ -344,6 +329,14 @@ Kuijpers & Beermann                                             [Page 6]
    The org preprocessor directive MUST take an address as the only
    argument.  Assemblers SHOULD verify the address is 16-bit sized.
    Assembler MUST add this address to the address of all labels,
+
+
+
+Kuijpers & Beermann                                             [Page 6]
+
+                           Assembly Syntactics                April 2012
+
+
    creating a relocation of the program.
 
 4.3.5.  Macros: macro block and macro insertion
@@ -353,12 +346,12 @@ Kuijpers & Beermann                                             [Page 6]
    .end
    name([param [,param...]])
 
-   The macro directive defines a macro, a parametrized block of code
+   The macro directive defines a macro, a parameterized block of code
    that can be inserted any time later.  Parameters, if any, are written
-   in parentheses seperated by commas (,).
+   in parentheses separated by commas (,).
 
-   Using the name with parenthis MUST insert a formerly defined macro
-   and expands the parameters of the macro with the comma-seperated
+   Using the name with parentheses MUST insert a formerly defined macro
+   and expands the parameters of the macro with the comma-separated
    parameters following the name of the macro to insert.
 
    Parameter substitutions can only be constant values and memory
@@ -376,23 +369,6 @@ Kuijpers & Beermann                                             [Page 6]
    directives inside the repeat-block MUST be handled when the
    repetition is complete, to make allow conditional repetitions.
 
-
-
-
-
-
-
-
-
-
-
-
-
-Kuijpers & Beermann                                             [Page 7]
-
-                           Assembly Syntactics                April 2012
-
-
 4.3.7.  Conditionals
 
    .if expression
@@ -400,7 +376,7 @@ Kuijpers & Beermann                                             [Page 7]
    .elif expression
        codeElseTrue
    .elseif expression
-           codeElseTrue
+       codeElseTrue
    .else
        codeElse
    .end
@@ -409,6 +385,13 @@ Kuijpers & Beermann                                             [Page 7]
    isdef(definition)
 
    For the definition of valid expressions, see Section 6.
+
+
+
+Kuijpers & Beermann                                             [Page 7]
+
+                           Assembly Syntactics                April 2012
+
 
    The if clause is REQUIRED.  The else clause is OPTIONAL.  The elif/
    elseif clause is OPTIONAL and can occur multiple times.
@@ -441,14 +424,6 @@ Kuijpers & Beermann                                             [Page 7]
 
    Aligns code or data on doubleword or other boundary.
 
-
-
-
-Kuijpers & Beermann                                             [Page 8]
-
-                           Assembly Syntactics                April 2012
-
-
    The assembler MUST add zeroed words (0x0000) to the generated
    machinecode until the alignment is correct.  The number of words
    inserted can be calculated using the formula: 'boundary -
@@ -464,17 +439,27 @@ Kuijpers & Beermann                                             [Page 8]
    The assembler SHOULD report the message to the user.
 
 
+
+
+
+
+
+Kuijpers & Beermann                                             [Page 8]
+
+                           Assembly Syntactics                April 2012
+
+
 5.  Tokenizer Markup
 
 5.1.  Labels
 
    Labels MUST be single-worded identifiers containing only alphabetical
    characters (/[A-Za-z]/), numbers (/[0-9]/), underscores (_ U+005F),
-   and periods (. U+002E).  The label MUST represent the address of 
-   following instruction or data.  A label MUST NOT start with a number 
-   or an underscore.  A label SHOULD end with a colon (: U+003A), but 
-   starting with a colon MAY be supported. An assemblery MAY require
-   labels to not end in a period.
+   and periods(.  U+002E).  The label MUST represent the address of
+   following instruction or data.  A label MUST NOT start with a number,
+   an underscore or a period.  A label SHOULD end with a colon (:
+   U+003A), but starting with a colon MAY be supported.  A label MUST
+   NOT end with a period.
 
    Local labels MUST start with an underscore (_ U+002E) and end with a
    colon (: U+003A).  Local labels MUST be scoped between the
@@ -498,13 +483,6 @@ Kuijpers & Beermann                                             [Page 8]
    AND) ^ (bit-wise XOR), | (bit-wise OR), ~ (bit-wise NOT), << and >>
    (bit-wise shifts).
 
-
-
-Kuijpers & Beermann                                             [Page 9]
-
-                           Assembly Syntactics                April 2012
-
-
    The following logical and bitwise operators MUST also be supported:
    == (equal), != (not equal, also <>), < (smaller than), > (greater
    than), <= (smaller or equal), >= (greater or equal), & (bit-wise AND)
@@ -516,6 +494,16 @@ Kuijpers & Beermann                                             [Page 9]
 
 
 7.  Conformance
+
+
+
+
+
+
+Kuijpers & Beermann                                             [Page 9]
+
+                           Assembly Syntactics                April 2012
+
 
 7.1.  Recognition of conformance
 
@@ -553,14 +541,6 @@ Kuijpers & Beermann                                             [Page 9]
 
    Both kinds of file inclusion support two different forms, one
    including the file relative to the current file, and the other
-
-
-
-Kuijpers & Beermann                                            [Page 10]
-
-                           Assembly Syntactics                April 2012
-
-
    including it from an implementation defined location.  The former is
    ideal for splitting a program in multiple parts, while the latter is
    intended for implementation-provided resources such as source level
@@ -569,8 +549,16 @@ Kuijpers & Beermann                                            [Page 10]
    A preprocessor must accept every directive with a dot (.) or a number
    sign (#) prefix.  While Notch seems to prefer the latter, the former
    is much more common among todays assemblers.  Thus we decided to
-   support both, especiall as the implementation-side overhead is very
+   support both, especially as the implementation-side overhead is very
    low.
+
+
+
+
+
+Kuijpers & Beermann                                            [Page 10]
+
+                           Assembly Syntactics                April 2012
 
 
 9.  Security Considerations
@@ -601,6 +589,18 @@ Authors' Addresses
 
    Email: public@enkore.de
    URI:   http://www.enkore.de/
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

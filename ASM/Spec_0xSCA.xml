@@ -43,12 +43,12 @@
     <middle>
         <section title="Introduction">
           <t>This documents describes 0xSCA, Standards Committee Assembly. It
-		  is a definition of a syntax to be used for writing assembly for the
-		  DCPU-16 processor. Use of this syntax is voluntarily. With 0xSCA,
-		  there is a defined syntax, and could decrease code incompatibility
-		  among compilers.</t>
-		  <t>Again, to be clear: 0xSCA is a syntax definition, not a standard.
-		  0xSCA is to DCPU-16, what AT&amp;T or the NASM syntax is to IA-32.</t>
+          is a definition of a syntax to be used for writing assembly for the
+          DCPU-16 processor. Use of this syntax is voluntarily. With 0xSCA,
+          there is a defined syntax, and could decrease code incompatibility
+          among compilers.</t>
+          <t>Again, to be clear: 0xSCA is a syntax definition, not a standard.
+          0xSCA is to DCPU-16, what AT&amp;T or the NASM syntax is to IA-32.</t>
 
           <section title="Requirements Language">
             <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -59,7 +59,7 @@
         </section>
 
         <section title="Document Markup">
-            <section title="Indentation and whitepace">
+            <section title="Indentation and whitespace">
                 <t>Whitespace MUST be allowed between all
                 elements of a line, including but not limited to opcodes, values,
                 syntactic characters and preprocessor directives. Both a space
@@ -71,10 +71,10 @@
             </section>
         </section>
         
-		<section title="Case sensitivity">
-			<t>Assemblers MUST accept everything without regard to case EXCEPT
-			string and character literals.</t>
-		</section>
+        <section title="Case sensitivity">
+            <t>Assemblers MUST accept everything without regard to case EXCEPT
+            string and character literals.</t>
+        </section>
         
         <section title="Preprocessor Markup">
             <section title="Comments">
@@ -95,7 +95,7 @@
                 (. U+002E) or a number sign (# U+0023).</t>
                 <t>Preprocessor directives MUST start with a dot (. U+002E) or a 
                 number sign (# U+0023).</t>
-				<t>Using a dot is RECOMMENDED to distinguish between C preprocessor
+                <t>Using a dot is RECOMMENDED to distinguish between C preprocessor
                 syntax.</t>
             </section>
             <section title="Directives">
@@ -138,27 +138,66 @@
                     <t>undef MUST remove the given symbol from the namespace.
                     If the given symbol does not exist compilation SHOULD
                     continue and a warning MAY be emitted.</t>
-					<t>Any occurances of the definition during its existence,
-					MUST be replaced with the given value to the definition.</t>
+                    <t>Any occurrences of the definition during its existence,
+                    MUST be replaced with the given value to the definition.</t>
                 </section>
                 <section title="Data insertion">
                     <figure><artwork><![CDATA[
 .dw value [,value...]
-.db value [,value...]
-.ascii "string"]]></artwork></figure>
-                    <t>dw (data word) MUST store the values literally and unpacked at
-                    the location of the directive.</t>
-                    <t>db (data byte) MUST pack (i.e. two bytes per word, first byte is LSB)
-                    the values at the location of the directive. Words are filled with empty
-                    bytes when the data does not evenly fit into 16-bit words.</t>
-                    <t>ascii MUST store the string unpacked (i.e. character is LSB,
-                    one word per character) at the location of the directive.</t>
-                    <t>asciip (a pascal string) MUST store the string unpacked (i.e.
-                    character is LSB, one word per character) at the location of the
-                    directive, prepending the string with its length.</t>
-                    <t>asciic (a C string) MUST store the string unpacked (i.e.
-                    character is LSB, one word per character) at the location of the
-                    directive, appending 0x0000 (\0).</t>
+.dp value [,value...]
+.fill count[,value]
+.ascii [flags][<value>]"string"]]></artwork></figure>
+                    <t>dw (data word) MUST store the values literally and unpacked at the
+                    location of the directive.</t>
+                    <t>dp (data pack) MUST pack pairs of values into a single word. The
+                    first value is placed into the high octet, and the second is placed
+                    into the low octet of the word. Should there be an odd number of
+                    values after a dp declaration, the remaining octet MUST be filled
+                    with the value 0.</t>
+                    <t>fill (fill words) MUST insert a count of words, initialized to the
+                    specified value.  If the value is not provided, the assembler MUST
+                    assume 0.</t>
+                    <t>ascii (ascii string) MUST pack the ascii values of the string as 
+                    described by the flags that precede it. An explanation of the flags 
+                    is provided in the section on ascii flags.<xref target="ascii_flags"/></t>
+                    <t>The optional value parameter in between less than (&lt; U+003C) 
+                    and greater than (&gt; U+003E) will be bitwise ORed with each character 
+                    in the string.  The upper octet for unpacked strings will default to 
+                    all 0's before the bitwise OR.</t>
+                    <section title="Ascii Literal Flags" anchor="ascii_flags">
+                        <t>k: The ascii values are "packed." Each character is mapped to an
+                        octet of data. These are written in order. Certain other flags
+                        may place octets that precede the first character's octet.</t>
+                        <t>s: The ascii values are "packed" and "swapped." Like k, each
+                        character uses one octet, however the order of the octets is
+                        reversed within each word. Flags k and s are incompatible with
+                        each other. Certain other flags may place octets before the first
+                        character octet.</t>
+                        <t>z: Zero terminate the string, inheriting character width. A null
+                        character will be appended to the string. If the string is one of
+                        the packed formats only one octet will be added, where unpacked
+                        strings will have a full word of zero. For the purpose of
+                        determining string length, this zero counts as one character.</t>
+                        <t>x: Word Zero terminate the string. This will zero terminate the
+                        string, forcing a zero word onto the end of the string. If the
+                        string is packed and of an odd length, a zero octet will be 
+                        placed at the end of the content, before the zero word. For the 
+                        purpose of determining string length, this zero will add quantity
+                        of zero octets added divided by the octet width of each character.</t>
+                        <t>For example, an unpacked string will always have 1 added to the
+                        string length by the Z flag. A packed string of odd length will
+                        have 3 added to the string length, where an even length packed
+                        string will have 2 added to the length;</t>
+                        <t>Flags w and x are incompatible.</t>
+                        <t>a: Octet Pascal Length. This will prepend the length of the string
+                        as an octet to the string content. This is only compatible with 
+                        a packed mode, either k or s. (For swapped mode, this will end
+                        up being the lower (second) octet of the first word.)</t>
+                        <t>p: Word Pascal Length. This will prepend the length of the string
+                        as a full word to the string content. This is compatible with 
+                        either packed or unpacked modes. Flags a and p are incompatible.</t>
+                    </section>
+                   
                 </section>
                 <section title="Origin relocation">
                     <figure><artwork><![CDATA[
@@ -175,12 +214,12 @@
     code
 .end
 name([param [,param...]])]]></artwork></figure>
-                    <t>The macro directive defines a macro, a parametrized block
+                    <t>The macro directive defines a macro, a parameterized block
                     of code that can be inserted any time later. Parameters,
-                    if any, are written in parentheses seperated by commas (,).</t>
-                    <t>Using the name with parenthis MUST insert a formerly defined
+                    if any, are written in parentheses separated by commas (,).</t>
+                    <t>Using the name with parentheses MUST insert a formerly defined
                     macro and expands the parameters of the macro with the
-                    comma-seperated parameters following the name of the macro to
+                    comma-separated parameters following the name of the macro to
                     insert.</t>
                     <t>Parameter substitutions can only be constant values and
                     memory references. Preprocessor directives inside the macro
@@ -204,7 +243,7 @@ name([param [,param...]])]]></artwork></figure>
 .elif expression
     codeElseTrue
 .elseif expression
-	codeElseTrue
+    codeElseTrue
 .else
     codeElse
 .end
@@ -214,17 +253,17 @@ isdef(definition)]]></artwork></figure>
                     <t>For the definition of valid expressions, see
                     <xref target="ia" />.</t>
                     <t>The if clause is REQUIRED. The else clause is OPTIONAL.
-					The elif/elseif clause is OPTIONAL and can occur multiple times.</t>
+                    The elif/elseif clause is OPTIONAL and can occur multiple times.</t>
                     <t>If expression consists of a single constant value,
                     then expression = 1 MUST be assumed. If expression evaluates
-					to 1, the codeTrue-block MUST be assembled. When the
-					evaluation fails, the next elif block must be evaluated. In
-					any other case codeElse, if an else clause is specified,
-					MUST be assembled.</t>
+                    to 1, the codeTrue-block MUST be assembled. When the
+                    evaluation fails, the next elif block must be evaluated. In
+                    any other case codeElse, if an else clause is specified,
+                    MUST be assembled.</t>
                     <t>isdef(symbol) can be used in place of expression.
                     isdef MUST evaluate to 1 if the given symbol is currently
                     defined, else it MUST evaluate to 0.</t>
-					<t>ifdef is short for if isdef(). ifndef is short for if !isdef()</t>
+                    <t>ifdef is short for if isdef(). ifndef is short for if !isdef()</t>
                     <t>Nesting of if directives MUST be supported.</t>
                 </section>
                 <section title="Error reporting">
@@ -246,9 +285,9 @@ isdef(definition)]]></artwork></figure>
                 <section title="Echo general output">
                     <figure><artwork><![CDATA[
 .echo message]]></artwork></figure>
-					<t>The echo directive can be used to inform the user about
-					(possible) issues, progress, etc.</t>
-                	<t>The assembler SHOULD report the message to the user.</t>
+                    <t>The echo directive can be used to inform the user about
+                    (possible) issues, progress, etc.</t>
+                    <t>The assembler SHOULD report the message to the user.</t>
                 </section>
             </section>
         </section>
@@ -256,11 +295,11 @@ isdef(definition)]]></artwork></figure>
         <section title="Tokenizer Markup">
             <section title="Labels">
                 <t>Labels MUST be single-worded identifiers containing only
-                alphabetical characters (/[A-Za-z]/), numbers (/[0-9]/) and
-                underscores (_ U+005F). The label MUST represent the address of
-                following instruction or data. A label MUST NOT start with a
-                number or an underscore. A label SHOULD end with a colon (: U+003A), but
-                starting with a colon MAY be supported.</t>
+                alphabetical characters (/[A-Za-z]/), numbers (/[0-9]/),
+                underscores (_ U+005F), and periods(. U+002E). The label MUST represent
+                the address of following instruction or data. A label MUST NOT start with a
+                number, an underscore or a period. A label SHOULD end with a colon (: U+003A), but
+                starting with a colon MAY be supported. A label MUST NOT end with a period.</t>
                 <t>Local labels MUST start with an underscore (_ U+002E) and end
                 with a colon (: U+003A). Local labels MUST be scoped between the
                 surrounding global labels. Local labels in different scopes
@@ -273,26 +312,26 @@ isdef(definition)]]></artwork></figure>
             </section>
         </section>
 
-		<section title="Inline arithmetic" anchor="ia">
-			<t>Source code can include inline arithmetics anywhere a
-			constant value is permitted. Inline arithmetic may only
-			consist of + (addition), - (subtraction), * (multiplication), /
-			(integer division), % (modulus) and ! (negation), parentheses may be used
-			to group expressions.</t>
-			<t>The following bitwise operators MUST also be supported: &amp;
-			(bit-wise AND) ^ (bit-wise XOR), | (bit-wise OR), ~ (bit-wise NOT), &lt;&lt;
-			and &gt;&gt; (bit-wise shifts).
-			</t>
-			<t>The following logical and bitwise operators MUST also be
-			supported: == (equal), != (not equal, also &lt;&gt;),
-			&lt; (smaller than), &gt; (greater than), &lt;= (smaller or
-			equal), &gt;= (greater or equal), &amp; (bit-wise AND) ^
-			(bit-wise XOR), | (bit-wise OR), &amp;&amp; (logical AND), ||
-			(logical OR), ^^ (logical XOR) which MUST be evaluated with
-			respect to this order.</t>
-			<t>Inline arithmetic MUST be evaluated as soon as possible, 
-			the result MUST be used as a literal value in place of the expression.</t>
-		</section>
+        <section title="Inline arithmetic" anchor="ia">
+            <t>Source code can include inline arithmetics anywhere a
+            constant value is permitted. Inline arithmetic may only
+            consist of + (addition), - (subtraction), * (multiplication), /
+            (integer division), % (modulus) and ! (negation), parentheses may be used
+            to group expressions.</t>
+            <t>The following bitwise operators MUST also be supported: &amp;
+            (bit-wise AND) ^ (bit-wise XOR), | (bit-wise OR), ~ (bit-wise NOT), &lt;&lt;
+            and &gt;&gt; (bit-wise shifts).
+            </t>
+            <t>The following logical and bitwise operators MUST also be
+            supported: == (equal), != (not equal, also &lt;&gt;),
+            &lt; (smaller than), &gt; (greater than), &lt;= (smaller or
+            equal), &gt;= (greater or equal), &amp; (bit-wise AND) ^
+            (bit-wise XOR), | (bit-wise OR), &amp;&amp; (logical AND), ||
+            (logical OR), ^^ (logical XOR) which MUST be evaluated with
+            respect to this order.</t>
+            <t>Inline arithmetic MUST be evaluated as soon as possible, 
+            the result MUST be used as a literal value in place of the expression.</t>
+        </section>
 
         <section title="Conformance">
             <section title="Recognition of conformance">
@@ -304,47 +343,47 @@ isdef(definition)]]></artwork></figure>
             </section>
         </section>
 
-	<section title="Design Rationale">
-		<section title="Labels">
-			<t>Although Notch used the syntax :label in his first
-			examples, it is not common in any popular assembler.
-			Thus we decided for label: as the recommended form,
-			still silently allowing the deprecated form.</t>
-			<t>To simplify writing reusable code we also introduced
-			local labels, which are only visible from within the
-			global label they are defined within. Implementing this
-			is easy to do and introduces little overhead, as nesting
-			is neither specified nor recommended.</t>
-		</section>
+    <section title="Design Rationale">
+        <section title="Labels">
+            <t>Although Notch used the syntax :label in his first
+            examples, it is not common in any popular assembler.
+            Thus we decided for label: as the recommended form,
+            still silently allowing the deprecated form.</t>
+            <t>To simplify writing reusable code we also introduced
+            local labels, which are only visible from within the
+            global label they are defined within. Implementing this
+            is easy to do and introduces little overhead, as nesting
+            is neither specified nor recommended.</t>
+        </section>
 
-		<section title="Preprocessor">
-			<t>0xSCA allows many operators and even parentheses in
-			expressions for if-clauses, which complicates the
-			implementation of these. We do recognize that, but
-			the actual implementation difficulty is not too high,
-			as there are many examples how to achieve this and
-			we think that the additional power and reduced
-			code complexity, resulting in better maintainable
-			code, is worth the effort.</t>
-			<t>The ability to define custom constants inline is
-			easy to implement and yields more easily maintainable
-			code, while introducing a minimum of additional syntax.</t>
-			<t>Both kinds of file inclusion support two different
-			forms, one including the file relative to the current file,
-			and the other including it from an implementation defined
-			location. The former is ideal for splitting a program
-			in multiple parts, while the latter is intended for
-			implementation-provided resources such as source level
-			libraries.</t>
-			<t>A preprocessor must accept every directive with
-			a dot (.) or a number sign (#) prefix. While Notch seems
-			to prefer the latter, the former is much more common
-			among todays assemblers. Thus we decided to support
-			both, especiall as the implementation-side overhead is
-			very low.</t>
-		</section>
-	</section>
-		
+        <section title="Preprocessor">
+            <t>0xSCA allows many operators and even parentheses in
+            expressions for if-clauses, which complicates the
+            implementation of these. We do recognize that, but
+            the actual implementation difficulty is not too high,
+            as there are many examples how to achieve this and
+            we think that the additional power and reduced
+            code complexity, resulting in better maintainable
+            code, is worth the effort.</t>
+            <t>The ability to define custom constants inline is
+            easy to implement and yields more easily maintainable
+            code, while introducing a minimum of additional syntax.</t>
+            <t>Both kinds of file inclusion support two different
+            forms, one including the file relative to the current file,
+            and the other including it from an implementation defined
+            location. The former is ideal for splitting a program
+            in multiple parts, while the latter is intended for
+            implementation-provided resources such as source level
+            libraries.</t>
+            <t>A preprocessor must accept every directive with
+            a dot (.) or a number sign (#) prefix. While Notch seems
+            to prefer the latter, the former is much more common
+            among todays assemblers. Thus we decided to support
+            both, especially as the implementation-side overhead is
+            very low.</t>
+        </section>
+    </section>
+        
         <section anchor="Security" title="Security Considerations">
             <t>This memo has no applicable security considerations.</t>
         </section>
