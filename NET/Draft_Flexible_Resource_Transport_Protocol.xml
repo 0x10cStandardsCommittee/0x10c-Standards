@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc private="RFC (Draft-Net)" ?>
+<rfc ipr="none" category="info" docName="draft-flexible-resource-transfer-protocol">
+  <front>
+    <title abbrev="FRTP">Flexible Resource Transfer Protocol</title>
+
+    <author fullname="Marian Beermann" initials="M.B." role="editor"
+            surname="Beermann">
+      <address>
+        <email>public@enkore.de</email>
+        <uri>http://www.enkore.de/</uri>
+      </address>
+    </author>
+    <date month="April" year="2012" />
+    <area>Net</area>
+    <workgroup>0x10c Standards Committee</workgroup>
+    <abstract>
+      <t>This draft provides the specification for FRTP, which aims to
+        provide easy access to hypertext-like resources.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+      <t>TBD</t>
+    </section>
+
+    <section title="Design Summary">
+      <t>FRTP communication is always split in two phases: Request and response.
+        A client requests a resource (for example, a file or a hypertext page)
+        from a server, which responds accordingly.</t>
+      <t>The client can transmit a arbitrary amount of additional information in
+        his request in the form of key-value pairs, some of which are predefined.</t>
+    </section>
+
+    <section title="Data Structures">
+      <t>This section defines the data structures that comprise FRTP.</t>
+      <t>All sizes are given in words, which are considered to be 16 bits
+      long.</t>
+
+      <section title="Request">
+        <texttable title="Request structure overview">
+          <ttcol align="center">Section</ttcol>
+          <c>header</c>
+          <c>host</c>
+          <c>path</c>
+          <c>key-value pairs</c>
+        </texttable>
+  
+        <section title="header">
+          <t>The total size of the header is two words.</t>
+  
+          <texttable title="Header structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>version</c>
+            <c>1</c><c>size</c>
+          </texttable>
+        </section>
+
+        <section title="host">
+          <t>The host field specifies a unique identifier for this server,
+            usually either a numerical address or a domain-like value.</t>
+          <t>This fields is exactly 64 words long and contains unpacked
+            7bit ASCII. Only alphanumeric characters and punctuation 
+            (+-_:.) is allowed. Please note, that this is a pstring and that
+            thus the first word is always 0x003F (63) and that the maximum
+            "payload" is 63 characters.</t>
+        </section>
+
+        <section title="path">
+          <t>The path field identifies the requested resource on the server,
+            usually containing a path relative to the servers document root.</t>
+          <t>This fields is a pstring  and has a fixed length of 64 words,
+            thus the same restrictions regarding the first word and the maximum
+            payload apply as to the host field.</t>
+        </section>
+  
+        <section title="key-value-pairs">
+          <t>Key-value-paris are a key component as they allow the client to transmit
+            additional data along it's request, for example a search query.</t>
+  
+          <texttable title="Prefix of key-value table"> 
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>Number of key-value pairs</c>
+            <c>128</c><c>Key-value-pair 1</c>
+            <c>128</c><c>Key-value-pair ...</c>
+            <c>128</c><c>Key-value-pair n</c>
+          </texttable>
+
+          <texttable title="A single key-value-pair"> 
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>32</c><c>Key</c>
+            <c>96</c><c>Value</c>
+          </texttable>
+
+          <t>A key-value-pair consists of a 32 words long key followed by a 
+              64 words long value. Both are fixed-length pstrings; thus the 
+              maximum length is 31 respectively 95 characters.</t>
+
+          <texttable title="Predefined keys">
+            <ttcol align="center">Key</ttcol>
+            <ttcol align="center">Use</ttcol>
+            <c>Cookie</c><c>Contains the last set cookie, if any</c>
+          </texttable>
+
+          <t>Any extra information can be provided either with arbitrary keys
+            either starting with X- (intended for third party protocol extensions)
+            or G- (intended for additional request data, such as a search query or
+            login information).</t>
+        </section>
+      </section>
+
+      <section title="Response">
+        <texttable title="Response structure overview">
+          <ttcol align="center">Section</ttcol>
+          <c>header</c>
+          <c>error code</c>
+          <c>key-value pairs</c>
+          <c>response body, if applicable</c>
+        </texttable>
+  
+        <section title="header">
+          <t>The total size of the header is two words.</t>
+  
+          <texttable title="Header structure">
+            <ttcol align="center">Size</ttcol>
+            <ttcol align="center">Name</ttcol>
+            <c>1</c><c>version</c>
+            <c>1</c><c>size</c>
+            <c>1</c><c>error code</c>
+          </texttable>
+
+          <section title="error code">
+            <t>The error code specifies despite it's name wether a request succeeded
+              or failed. See the table below for all currently defined error codes.</t>
+            <t>All other values are reserved for future use.</t>
+
+            <texttable title="Error codes">
+              <ttcol align="center">Code</ttcol>
+              <ttcol align="center">Meaning</ttcol>
+              <c>200</c><c>OK</c>
+              <c>204</c><c>OK, no content</c>
+              <c>301</c><c>Moved permanently</c>
+              <c>307</c><c>Temporarily moved</c>
+              <c>400</c><c>Bad or malformed request</c>
+              <c>404</c><c>Not found</c>
+              <c>500</c><c>Internal server error</c>
+              <c>503</c><c>Service unavailable</c>
+            </texttable>
+          </section>
+        </section>
+
+        <section title="key-value-pairs">
+          <t>The key-value-pairs of the response are in exactly the same format as the ones
+            of a request.</t>
+          <t>Their use is to let the server transmit additional data, possibly specific to
+            clients, with the response.</t>
+
+          <texttable title="Predefined keys">
+            <ttcol align="center">Key</ttcol>
+            <ttcol align="center">Use</ttcol>
+            <c>Set-Cookie</c><c>(Re)sets the cookie</c>
+            <c>Location</c><c>Only applicable for 301 and 307</c>
+          </texttable>
+
+          <t><list style="hanging">
+            <t hangText="Set-Cookie">should set the cookie of the client to the value.</t>
+            <t hangText="Location">redirects the client to the specified URI and is only
+              valid for 301 and 307 responses.</t>
+          </list></t>
+
+          <t>Any extra information can be provided with arbitrary keys starting with X-
+            (intended for third party protocol extensions).</t>
+        </section>
+
+        <section title="response body">
+          <t>The response body contains the actual information the client requested.
+            It is a variable length pstring (the only in the entire protocol).</t>
+          <t>Please note, that the maximum length of the response depends on the number
+            of key-value-pairs, as the header field "size" captures the entire response,
+            including the response body.</t>
+          <t>The response body must be completly omitted, if the error code is something else
+            than 200.</t>
+        </section>
+      </section>
+    </section>
+
+    <section title="Design concepts">
+      <section title="Cookies">
+        <t>Cookies enable the server to realise sessions in the stateless FRTP, for example
+          for persistent logins.</t>
+        <t>Cookies are sent by the server in response to a request with the key "Set-Cookie"
+          and a string. If the client has already stored a cookie for this server, it shall
+          be overwritten.</t>
+        <t>Please note that the term "cookies" is actually not correct, as the server cannot
+          set multiple cookies.</t>
+      </section>
+    </section>
+
+    <section title="Rationale">
+      <t>Compared to other popular protocols with the same target audience, namely
+        HTTP, this protocol is limited in a few ways. All strings are fixed-length,
+        for example.</t>
+      <t>In this section I want to give you an overview, why those limitations were
+        employed and why they are reasonable.</t>
+      <t>The CPU resources of the DCPU-16 are very limited and a memcpy takes one cycle
+        per word, accessing RAM is also more expensive than in modern architectures like
+        x86 or ARM.</t>
+      <t>In order to deliver a good perfomance while being as flexible as possible we
+        decided to make all strings fixed-length, as this makes parsing and processing
+        requests easy and fast. This also makes assembling requests cheaper than with
+        full-text protocols like HTTP.</t>
+      <t>When one compares the key-value-pairs of a FRTP-request with the commonly found
+        GET-parameters of HTTP, one will notice, that in essence the key-value-pairs are both;
+        GET-parameters and additional header values. This may seem odd at first, but
+        in fact it makes (again) handling requests much easier.</t>
+      <t>Last but not least responses are "crippled" in comparison to HTTP, only a successful
+        response (code 200, as HTTP) can actually contain a response body. This decision
+        was made, to make page-not-found-errors and likewise failures as fast handleable as
+        possible.</t>
+    </section>
+  </middle>
+
+  <back>
+  </back>
+
+</rfc>
+
