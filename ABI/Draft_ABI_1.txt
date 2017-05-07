@@ -1,3 +1,39 @@
+The calling convention(s) outlined in this draft pass the first three arguments in
+registers and the rest on the stack. This is very unfriendly to high-level-languages
+that pass structs by value on the stack. Consider some psuedo code:
+
+struct foo {
+  int a, b, c, d, e, f;
+}
+
+void bar(foo a_foo) {}
+
+Assume that 'int' is one word. With current proposed calling conventions, the language
+implementer has two choices. A) Pass 'a_foo' by pointer (aka reference). If the 
+language being compiled has pass-by-value semantics, they will have to create a copy
+and pass a pointer to it. They will have a penalty both when copied, and every time 
+a_foo is accessed. Or 2) Split the struct between registers and the stack, such that
+bar effectively takes 6 arguments. It is likely that bar would have to re-assemble 
+a_foo into a single block on the stack. Niether solution is ideal.
+
+Therefore, I propose two standard calling conventions, and a standard way to indicate
+the calling convention a function implements. Any language author should be capable
+of and prepared to implement both calling conventions. 
+
+The first convention, roughly equivilent to the common 'cdecl' calling convention,
+passes all arguments on the stack. The second is the first calling convention already
+proposed in this draft. The cdecl equivilent should follow the same rules for register
+protection and argument clean up as the other, those these rules may also need 
+tweaking.
+
+While calling bar with the current convention is not impossible or even difficult,
+this is a case where passing arguments in registers is not the optimal solution, so
+any standard should include an alternative calling convention that is optimal.
+
+      -- Blecki
+
+
+
 On April 5 2012, #0x10c-dev agreed to the following standard ABI:
 
 - Registers A, B, C are clobberable across calls
